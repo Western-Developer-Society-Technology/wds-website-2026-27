@@ -15,20 +15,28 @@ so 1 image px = 1 design px). Measure against that rather than re-exporting.
 
 ---
 
-## Blocking prompt 1 (Hero)
+## Prompt 1 (Hero) — done
 
-- [ ] `public/fonts/coolvetica.woff2` — ⚠️ **licensing**: Coolvetica is a
-      Typodermic/Larabie font, free for personal use only. Commercial use needs
-      a licence. Until the file exists the site falls back to Arial Black.
-- [ ] `public/images/hero-crowd.png` — large group photo, **blue duotone
-      already applied**; export the composited result, don't recreate the
-      effect in CSS
-- [ ] `public/graphics/hero-chevron-v.svg` — the giant blue V behind the hero
-- [ ] `public/graphics/hero-stripes.svg` — white striped blocks, bottom-left
-      and beside the rail
-- [ ] `public/graphics/asterisk.svg` — the 8-point brand mark (one file,
-      recoloured via `fill` / `currentColor`; used ≥6 times across the page)
-- [ ] `public/icons/arrow-up-right.svg`, `public/icons/arrow-down.svg`
+- [x] `public/fonts/coolvetica.woff2` — converted from the supplied
+      `Coolvetica Rg.otf` with fontTools (65K OTF → 38K WOFF2). Source kept at
+      `design/reference/coolvetica.otf`.
+      ⚠️ **licensing still open**: Coolvetica is a Typodermic/Larabie font,
+      free for personal use only. Commercial use needs a licence.
+- [x] `public/images/heroimage.png` — crowd cut-out, 2189×666 RGBA, blue
+      duotone already baked in
+- [x] Blue zigzag — **drawn in code** from a points array in
+      `HeroChevron.jsx`, not an asset. `design/reference/vchevron.svg` kept for
+      reference only.
+- [x] Stripe blocks — **generated in code** by `components/ui/Barcode.jsx` with
+      a seeded PRNG, so each instance differs. `design/reference/barcode.svg`
+      kept for reference only.
+- [x] Asterisk — inlined in `components/ui/Asterisk.jsx` (needs `currentColor`:
+      it appears yellow, white and ink)
+- [x] Down arrow — inlined in `components/ui/ArrowIcon.jsx`
+
+⚠️ **Still needed:** the diagonal **↗ arrow** used inside the `learn more` and
+`view all` buttons. It is a different glyph from the ↓ arrow, not that one
+rotated. Needed before prompt 2.
 
 ## Prompt 2 (What We Do)
 

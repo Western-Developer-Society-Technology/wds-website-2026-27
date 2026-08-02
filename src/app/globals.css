@@ -32,8 +32,22 @@
   padding: 0;
 }
 
+/* Tracking has to be re-declared per element, not just inherited.
+   `letter-spacing` in `em` resolves against the *declaring* element's
+   font-size and then inherits as an absolute px length — so setting it once on
+   body gives every descendant body's tracking (-1.49px) no matter its own
+   size, and the 40px hero tagline ends up under-tracked and wrapping. The
+   universal selector re-resolves it against each element's own font-size.
+   Specificity is 0,0,0, so any component rule still wins. */
+* {
+  letter-spacing: var(--track-body);
+}
+
 html {
   -webkit-text-size-adjust: 100%;
+  /* Makes html the query container that --u measures (see tokens.css). This is
+     what keeps a classic scrollbar from shrinking the whole design by 0.8%. */
+  container-type: inline-size;
   /* Sections deliberately overflow the viewport (marquees, the hero
      V-chevron, the third event card). `clip` contains that without creating
      a scroll container, so position: sticky keeps working. */

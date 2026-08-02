@@ -1,0 +1,66 @@
+/* Rail box: design x 1710–1892, y 145–998 → 183 × 854. */
+.rail {
+  position: absolute;
+  left: calc(1710 * var(--u));
+  top: calc(145 * var(--u));
+  width: calc(183 * var(--u));
+  height: calc(854 * var(--u));
+  z-index: var(--z-content);
+  background: var(--color-blue);
+  color: var(--color-white);
+  display: block;
+}
+
+/* Both asterisks are 72 × 75, horizontally centred in the rail. */
+.asterisk {
+  position: absolute;
+  left: 50%;
+  width: calc(72 * var(--u));
+  height: calc(75 * var(--u));
+  margin-left: calc(-36 * var(--u));
+}
+
+.asteriskYellow {
+  top: calc(38 * var(--u)); /* design y 183 */
+  color: var(--color-yellow);
+}
+
+.asteriskWhite {
+  top: calc(160 * var(--u)); /* design y 305 */
+  color: var(--color-white);
+}
+
+/* Coolvetica 140px, rotated 90° clockwise. Ink runs design y 415 → 798, so
+   the centre of the run sits at y 606.5 (rail-relative 461.5). */
+.label {
+  position: absolute;
+  left: 50%;
+  top: calc(461.5 * var(--u));
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-rail);
+  letter-spacing: var(--track-display);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 87 × 94, centred, design y 858. */
+.arrow {
+  position: absolute;
+  left: 50%;
+  top: calc(713 * var(--u));
+  width: calc(87 * var(--u));
+  height: calc(94 * var(--u));
+  margin-left: calc(-43.5 * var(--u));
+}
+
+@media (max-width: 1024px) {
+  /* The rail costs ~10% of the viewport width and the rotated label stops
+     being legible once it is short. Drop it below the breakpoint and surface
+     "join us" in the menu overlay instead.
+     DESIGN DECISION — no mobile frame exists for this. */
+  .rail {
+    display: none;
+  }
+}

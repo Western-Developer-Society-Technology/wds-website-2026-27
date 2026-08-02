@@ -1,0 +1,187 @@
+/* Stage: the full 1920 × 1115 design frame. Every child is positioned in
+   design pixels via --u, so this whole block is a 1:1 map of Figma. */
+.hero {
+  position: relative;
+  width: 100%;
+  height: calc(1115 * var(--u));
+  background: var(--color-ink);
+  overflow: hidden; /* the chevron's arms run off-canvas by design */
+}
+
+/* ── Layer 1: stripe block, design x 28 y 612, 162 × 270 ─────────────────── */
+.leftBarcode {
+  position: absolute;
+  left: calc(28 * var(--u));
+  top: calc(612 * var(--u));
+  width: calc(162 * var(--u));
+  height: calc(270 * var(--u));
+  z-index: var(--z-art);
+  color: var(--color-white);
+}
+
+/* ── Layer 2: the blue zigzag ────────────────────────────────────────────── */
+.chevron {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+/* ── Layer 3: "wds", Coolvetica 500px, centred ───────────────────────────────
+   top is the line-box top, not the ink top. Solved from the font metrics:
+   ink top is design y 370, Coolvetica's 'd' rises 0.672em, so the baseline is
+   at 706 and the line box (line-height 1, hhea 967/-233) starts at 272.5. */
+.headline {
+  position: absolute;
+  left: 0;
+  top: calc(272.5 * var(--u));
+  width: 100%;
+  z-index: 3;
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  letter-spacing: var(--track-display);
+  line-height: 1;
+  text-align: center;
+  color: var(--color-white);
+}
+
+/* ── Layer 4: crowd photo, design x 212 y 562, 1460 × 444 ───────────────────
+   Above the headline: the raised hands crop into the letterforms. */
+.photo {
+  position: absolute;
+  left: calc(212 * var(--u));
+  top: calc(562 * var(--u));
+  width: calc(1460 * var(--u));
+  height: calc(444 * var(--u));
+  z-index: 4;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+/* ── Layer 5: type and rules ─────────────────────────────────────────────── */
+.tagline,
+.society,
+.rule,
+.smallBarcode {
+  position: absolute;
+  z-index: var(--z-content);
+}
+
+/* Two centred lines, ink x 690 → 1044 (centre 867), ink top y 323, 40px pitch.
+   Centred off its midpoint with nowrap rather than given a fixed width: the
+   design's ink is 355 wide and a 355-wide box is a hair too tight once side
+   bearings are counted, which silently wraps the first line. */
+.tagline {
+  left: calc(867 * var(--u));
+  top: calc(317 * var(--u));
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: var(--fs-lead);
+  line-height: 1;
+  text-align: center;
+  color: var(--color-white);
+}
+
+/* Three lines, right-aligned to design x 1672, ink top design y 554. */
+.society {
+  right: calc(248 * var(--u));
+  top: calc(549 * var(--u));
+  font-size: var(--fs-body);
+  line-height: 1;
+  text-align: right;
+  color: var(--color-white);
+}
+
+/* Hairline rule, design x 1672 y 280 → 539. */
+.rule {
+  right: calc(247 * var(--u));
+  top: calc(280 * var(--u));
+  width: calc(3 * var(--u));
+  height: calc(260 * var(--u));
+  background: var(--color-white);
+}
+
+/* Stripe block, design x 1638 y 152, 36 × 73. */
+.smallBarcode {
+  right: calc(247 * var(--u));
+  top: calc(152 * var(--u));
+  width: calc(36 * var(--u));
+  height: calc(73 * var(--u));
+  color: var(--color-white);
+}
+
+/* ── Below 1024px ────────────────────────────────────────────────────────────
+   DESIGN DECISIONS — no mobile frame exists. The composition is anchored to a
+   1920-wide canvas, so rather than shrink every layer into illegibility the
+   hero becomes a taller, simpler stack: headline centred, photo pinned to the
+   bottom, the right-hand column of small type dropped (it is decorative and
+   repeats the wordmark), and the rail hidden (see HeroRail.module.css). */
+@media (max-width: 1024px) {
+  .hero {
+    height: 100svh;
+    min-height: 560px;
+  }
+
+  /* `slice` crops to fill, so in a tall phone-shaped box the zigzag is scaled
+     up ~3.7x and one arm swallows the screen. Holding the design's aspect
+     ratio and pinning it to the top keeps the whole graphic legible as a band
+     behind the type — same artwork, just no longer the subject. */
+  .chevron {
+    inset: 0 0 auto 0;
+    height: auto;
+    aspect-ratio: 1920 / 1115;
+  }
+
+  .leftBarcode {
+    left: var(--gutter);
+    top: auto;
+    bottom: calc(46% + 24px);
+    width: clamp(48px, 12vw, 96px);
+    height: clamp(72px, 14vh, 150px);
+  }
+
+  /* The tagline must drop the desktop centring transform *and* nowrap, or it
+     stays pinned half off-screen and refuses to break. */
+  .tagline {
+    left: 0;
+    top: 16%;
+    width: 100%;
+    padding-inline: var(--gutter);
+    transform: none;
+    white-space: normal;
+  }
+
+  .headline {
+    top: 24%;
+  }
+
+  .photo {
+    left: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: 46%;
+  }
+
+  /* The crowd is a wide panorama; in a near-square box `cover` crops it to a
+     handful of faces. Anchor the crop to the centre-bottom so the front row
+     stays in frame. */
+  .photoImg {
+    object-position: center bottom;
+  }
+
+  /* Decorative and redundant on small screens — the rule and stripe block only
+     exist to lead the eye to the rail, which is hidden here, and the wordmark
+     lines repeat the <h1>. */
+  .society,
+  .rule,
+  .smallBarcode {
+    display: none;
+  }
+}
