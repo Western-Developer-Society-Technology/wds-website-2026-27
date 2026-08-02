@@ -1,0 +1,54 @@
+.nav {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: var(--z-nav);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* [M] wordmark sits at x=52, hamburger ends at x=1880 — a tighter gutter
+     than the --gutter used by section content. */
+  padding: calc(40 * var(--u)) calc(40 * var(--u));
+  color: var(--color-white);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  letter-spacing: var(--track-display);
+  line-height: 1;
+  font-size: calc(44 * var(--u));
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: calc(7 * var(--u));
+  width: calc(44 * var(--u));
+}
+
+.menu span {
+  display: block;
+  height: calc(5 * var(--u));
+  background: currentColor;
+}
+
+/* Raw --u values collapse below the breakpoint (44 * --u is under 9px on a
+   phone). Anything sized in --u outside tokens.css needs its own clamp here —
+   the type scale in tokens.css only covers the --fs-* tokens. */
+@media (max-width: 1024px) {
+  .nav {
+    padding: clamp(16px, 4vw, 32px) clamp(20px, 6vw, 40px);
+  }
+
+  .wordmark {
+    font-size: clamp(24px, 5vw, 44px);
+  }
+
+  .menu {
+    width: clamp(26px, 5.5vw, 44px);
+    gap: clamp(4px, 0.9vw, 7px);
+  }
+
+  .menu span {
+    height: clamp(3px, 0.6vw, 5px);
+  }
+}

@@ -1,0 +1,38 @@
+/* TEMPORARY — scaffolding only.
+   Delete this file and SectionStub.jsx once all six sections are built. */
+
+.stub {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(var(--h, 800) * var(--u));
+  padding-block: var(--space-7);
+  padding-inline: var(--gutter);
+}
+
+.stub[data-tone="light"] {
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+
+.stub[data-tone="dark"] {
+  background: var(--color-ink);
+  color: var(--color-white);
+}
+
+.label {
+  font-family: var(--font-display);
+  letter-spacing: var(--track-display);
+  line-height: var(--lh-tight);
+  font-size: var(--fs-h2);
+}
+
+.note {
+  margin-top: var(--space-3);
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+}
+
+.stub[data-tone="light"] .note {
+  color: #6b6b6b;
+}

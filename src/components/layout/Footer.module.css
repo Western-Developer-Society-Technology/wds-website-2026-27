@@ -1,0 +1,21 @@
+.footer {
+  background: var(--color-white);
+  color: var(--color-blue);
+  /* The footer deliberately breaks the page gutter — its wordmark sits at
+     x=15 where every section above starts at x=212. */
+  padding: var(--space-7) var(--gutter-footer);
+  min-height: calc(568 * var(--u));
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  letter-spacing: var(--track-display);
+  line-height: 1;
+  font-size: var(--fs-wordmark);
+}
+
+.note {
+  margin-top: var(--space-3);
+  font-size: var(--fs-body);
+  color: #6b6b6b;
+}

@@ -1,0 +1,139 @@
+/* ==========================================================================
+   WDS design tokens
+   --------------------------------------------------------------------------
+   Every value here was read off the Figma frame
+   "WDS Website 26-27" — node 128:396, 1920 x 6848.
+
+   [F] = confirmed from Figma node data
+   [M] = measured from a 1:1 render, accurate to ~2px — confirm before use
+   ========================================================================== */
+
+:root {
+  /* ── Colour ──────────────────────────────────────────────────────────────
+     The entire design uses four colours plus one muted text grey.
+     No gradients, no alpha, no additional greys. */
+  --color-ink: #1a1a1a; /* [F] page dark bg, text on light, all tags/chips */
+  --color-white: #ffffff; /* [F] */
+  --color-blue: #0051ff; /* [F] V-chevron, rail, buttons, footer, barcodes */
+  --color-yellow: #ffdf0d; /* [F] asterisks, eyebrow, marquee, step divider */
+  --color-text-muted: #d2d2d2; /* [F] secondary body copy on dark */
+
+  /* ── The fluid unit ──────────────────────────────────────────────────────
+     --u is "one design pixel at 1920". Write every desktop dimension as
+     calc(N * var(--u)) where N is the number read straight off Figma:
+
+         font-size: calc(150 * var(--u));   -- Figma says 150px
+         top:       calc(2588 * var(--u));  -- Figma says y = 2588
+
+     At 1920px viewport --u resolves to exactly 1px, so the build is a pixel
+     match to the design. It scales proportionally below that, and stops
+     growing at 2560px so type doesn't run away on very large displays. */
+  --u: min(0.0520833vw, 1.3333px);
+
+  /* ── Layout ──────────────────────────────────────────────────────────────
+     Content starts at x=212 in every section (headings, cards, chips all
+     align to it). The footer deliberately breaks this with a much tighter
+     gutter — its wordmark sits at x=15. */
+  --gutter: calc(212 * var(--u)); /* [M] */
+  --gutter-footer: calc(24 * var(--u)); /* [M] */
+
+  /* ── Type families ───────────────────────────────────────────────────────
+     Coolvetica is self-hosted (see @font-face in globals.css). Helvetica is
+     a system stack — Windows/Linux fall back to Arial, which is metrically
+     compatible, so the tracking and line-heights below still hold. */
+  --font-display: "Coolvetica", "Arial Black", "Helvetica Neue", sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
+
+  /* ── Tracking ────────────────────────────────────────────────────────────
+     Confirmed constant across every node probed in the file. Set these on
+     the family, never per-element — a missed value is the most likely
+     silent mismatch against the design.
+       Coolvetica: 500->-10px, 170->-3.4px, 150->-3px, 140->-2.8px,
+                   55->-1.1px, 47.3->-0.946px   all = -0.02em  [F]
+       Helvetica:  37->-1.85px, 30->-1.5px       all = -0.05em [F] */
+  --track-display: -0.02em;
+  --track-body: -0.05em;
+
+  /* ── Type scale ──────────────────────────────────────────────────────── */
+  --fs-display: calc(500 * var(--u)); /* [F] hero "wds"                     */
+  --fs-rail: calc(140 * var(--u)); /* [F] vertical "join us"             */
+  --fs-h2-lg: calc(170 * var(--u)); /* [F] "portfolios"                   */
+  --fs-h2: calc(150 * var(--u)); /* [F] "our events"                   */
+  --fs-h2-team: calc(160 * var(--u)); /* [M] "the team" — probe to confirm  */
+  --fs-h2-wwd: calc(150 * var(--u)); /* [M] "more than just…" — confirm    */
+  --fs-wordmark: calc(60 * var(--u)); /* [M] footer wordmark                */
+  --fs-lead: calc(40 * var(--u)); /* [M] hero tagline                   */
+  --fs-body-lg: calc(37 * var(--u)); /* [M] What We Do paragraphs          */
+  --fs-btn: calc(37 * var(--u)); /* [F] "learn more" / "view all"      */
+  --fs-body: calc(30 * var(--u)); /* [F] blurbs, subtitles              */
+
+  /* Section-heading superscripts are exactly 0.32x the heading in both
+     places they appear: 47.297/150 and 55/170. [F] */
+  --ratio-sup: 0.32;
+
+  /* ── Line heights ────────────────────────────────────────────────────── */
+  --lh-display: 1; /* [F] "portfolios", hero wordmark  */
+  --lh-tight: 0.9; /* [F] "our events", buttons        */
+  --lh-body: 1.16; /* [M] 43px pitch on 37px copy      */
+  --lh-blurb: 1.14; /* [F] 30px blurbs                  */
+
+  /* ── Spacing ─────────────────────────────────────────────────────────────
+     Anchors measured off the design: chip gap 24, event card gap 57,
+     team column pitch 253 (230 card + 23 gap), team row pitch 283,
+     paragraph gap 51. */
+  --space-1: calc(8 * var(--u));
+  --space-2: calc(16 * var(--u));
+  --space-3: calc(24 * var(--u));
+  --space-4: calc(32 * var(--u));
+  --space-5: calc(48 * var(--u));
+  --space-6: calc(64 * var(--u));
+  --space-7: calc(96 * var(--u));
+  --space-8: calc(128 * var(--u));
+  --space-9: calc(180 * var(--u));
+  --space-10: calc(212 * var(--u));
+
+  /* ── Surfaces ────────────────────────────────────────────────────────────
+     Deliberate, not an omission: every button, chip, card, tag and photo in
+     the design is a hard rectangle, and there is not one shadow anywhere.
+     Depth comes entirely from overlap and flat colour. */
+  --radius: 0;
+
+  /* ── Motion ──────────────────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 200ms;
+  --dur-mid: 400ms;
+  --dur-slow: 600ms;
+
+  /* ── Stacking ────────────────────────────────────────────────────────────
+     Sections are dense collages of absolutely-positioned layers; naming the
+     tiers keeps the z-index values out of the section stylesheets. */
+  --z-art: 1; /* decorative shapes behind everything */
+  --z-photo: 2; /* photo cut-outs                      */
+  --z-content: 3; /* text, cards, buttons                */
+  --z-nav: 50;
+  --z-overlay: 100;
+}
+
+/* ── Tablet and below ──────────────────────────────────────────────────────
+   Pure --u scaling puts body copy at ~16px by 1024 and under 6px on a phone.
+   Type therefore switches to independent clamps here; the layout itself is
+   handled per-section in the responsive pass, not globally. */
+@media (max-width: 1024px) {
+  :root {
+    --fs-display: clamp(96px, 26vw, 300px);
+    --fs-rail: clamp(40px, 8vw, 90px);
+    --fs-h2-lg: clamp(48px, 11vw, 110px);
+    --fs-h2: clamp(48px, 11vw, 110px);
+    --fs-h2-team: clamp(48px, 11vw, 110px);
+    --fs-h2-wwd: clamp(44px, 10vw, 100px);
+    --fs-wordmark: clamp(22px, 4.5vw, 44px);
+    --fs-lead: clamp(17px, 2.6vw, 26px);
+    --fs-body-lg: clamp(16px, 2.4vw, 24px);
+    --fs-btn: clamp(15px, 2.2vw, 22px);
+    --fs-body: clamp(15px, 2.2vw, 20px);
+
+    --gutter: clamp(20px, 6vw, 64px);
+    --gutter-footer: clamp(16px, 4vw, 32px);
+  }
+}
