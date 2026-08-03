@@ -126,7 +126,10 @@ body {
   --fs-h2: calc(150 * var(--u)); /* [F] "our events"                   */
   --fs-h2-team: calc(170 * var(--u)); /* [M] "the team" — solved from ink   */
   --fs-h2-wwd: calc(150 * var(--u)); /* [M] "more than just…" — confirm    */
-  --fs-wordmark: calc(60 * var(--u)); /* [M] footer wordmark                */
+  /* [M] Footer wordmark — solved from the design's 320px ink width. Much
+     smaller than the 60 first estimated, which came from a contaminated
+     measurement that had caught the barcode strip below it. */
+  --fs-wordmark: calc(28.8 * var(--u));
   --fs-lead: calc(40 * var(--u)); /* [M] hero tagline                   */
   --fs-body-lg: calc(37 * var(--u)); /* [M] What We Do paragraphs          */
   --fs-btn: calc(37 * var(--u)); /* [F] "learn more"                   */
@@ -176,7 +179,7 @@ body {
     --fs-h2: clamp(48px, 11vw, 110px);
     --fs-h2-team: clamp(48px, 11vw, 110px);
     --fs-h2-wwd: clamp(44px, 10vw, 100px);
-    --fs-wordmark: clamp(22px, 4.5vw, 44px);
+    --fs-wordmark: clamp(15px, 3.4vw, 29px);
     --fs-lead: clamp(17px, 2.6vw, 26px);
     --fs-body-lg: clamp(16px, 2.4vw, 24px);
     --fs-btn: clamp(15px, 2.2vw, 22px);

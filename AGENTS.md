@@ -62,8 +62,20 @@ tokens needs its own `@media (max-width: 1024px)` clamp (see `Nav.module.css`).
 - `components/layout/` — Nav, MenuOverlay, Footer.
 - `src/data/` — plain exported arrays for events, portfolios, team.
 
-`components/ui/SectionStub` is temporary scaffolding. Delete it (and its
-stylesheet) once all six sections are built.
+## Gotchas already paid for
+
+- **Tracking must be set via `--track`, not `letter-spacing`.** `letter-spacing`
+  in `em` resolves against the *declaring* element and then inherits as a fixed
+  px length, so a nested span in a display heading silently gets body tracking.
+  The universal rule in `globals.css` reads `var(--track)`; display elements set
+  `--track: var(--track-display)`.
+- **Sections need `isolation: isolate`.** `position: relative` alone does not
+  create a stacking context, so a section's layers compete with later sections
+  and dividers meant to overlap paint underneath.
+- **`--u` uses `cqw`, not `vw`** — `vw` includes the scrollbar, which shrinks
+  the whole design by 0.8% on Windows/Linux.
+- Don't add `overflow: hidden` to a team card: both tags hang outside the photo
+  on purpose.
 
 ## Verifying
 

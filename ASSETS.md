@@ -102,12 +102,30 @@ rotated. Needed before prompt 2.
       of `design/figma-1920.png` at exactly the render size (215 × 216).
       Replace with real headshots alongside the data.
 
-## Prompt 6 (Footer)
+## Prompt 6 (Footer) — done
 
-- [ ] `public/graphics/footer-checker.svg` — blue/white diagonal pixel checker
-      (both corners)
-- [ ] `public/graphics/barcode-blue.svg` — footer strip
-- [ ] `public/icons/` ×3 — Instagram, Discord, LinkedIn (filled, blue)
+- [x] Corner checkers — **written in code** in `layout/Footer.jsx` as one
+      50px-grid pattern, mirrored left/right. All 8 cells verified exact.
+- [x] Footer strip — a `Barcode` instance (66 bars, blue).
+- [~] `public/icons/social/` ×3 — Instagram, Discord, LinkedIn. ⚠️ Extracted
+      1:1 from `design/figma-1920.png` as PNGs with alpha (~33px). Replace with
+      SVGs; only the `SOCIALS` array in `Footer.jsx` needs changing.
+- [ ] **Real social URLs** — all three `href`s are `#` placeholders.
+
+---
+
+# Outstanding before launch
+
+1. **Coolvetica commercial licence** — still unresolved.
+2. **Real team data** — `src/data/team.js` is 18 copies of the Figma
+   placeholder.
+3. **Third event** — see the Events section above.
+4. **Replace render-extracted assets with originals** — event photos, the team
+   headshot, the 7 portfolio icons, the 3 social icons. All are 1:1 crops from
+   `design/figma-1920.png`: correct at 1920px, soft above it.
+5. **Real hrefs** — nav, buttons, chips and socials all point at `#`.
+6. **Menu overlay** — the hamburger has no open state in the design; nothing is
+   wired to it yet.
 
 ---
 

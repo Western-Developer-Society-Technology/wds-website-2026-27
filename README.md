@@ -51,9 +51,33 @@ src/data/                 events.js, portfolios.js, team.js
 
 ## Current state
 
-Foundation only. All six sections are placeholders rendered by
-`components/ui/SectionStub` — delete that component once they are all built.
+All six sections are built: hero, what we do, events, portfolios, the team,
+footer. At a 1920px viewport the page comes out **6848px tall — exactly the
+Figma frame height** — and every section's origin, type ink position and
+component box has been measured against the design rather than eyeballed.
 
-See [ASSETS.md](ASSETS.md) for what still needs exporting from Figma.
-`public/fonts/coolvetica.woff2` is the one blocker for visual accuracy: without
-it the display font silently falls back to Arial Black.
+Not yet done: the responsive pass (breakpoint behaviour below 1025px is a
+working first cut, not a designed one), animations, and the menu overlay.
+
+See [ASSETS.md](ASSETS.md) for what is still outstanding — the short version is
+that several assets are 1:1 crops out of `design/figma-1920.png` rather than
+exported originals, the team data is Figma's placeholder, and the Coolvetica
+commercial licence is unresolved.
+
+## Verifying a change
+
+Run the dev server and compare at exactly 1920px, where `--u` resolves to 1px
+and the build should be a pixel match. Measuring in the console beats eyeballing
+a screenshot — this pattern converts any element to design pixels:
+
+```js
+const u = 0.0520833 * document.body.clientWidth / 100;
+const r = document.querySelector("#events article").getBoundingClientRect();
+[r.x / u, (r.y + scrollY) / u, r.width / u, r.height / u];
+```
+
+For type, measure the *ink* rather than the box: a zero-height inline-block
+gives you the baseline, and `canvas.measureText().actualBoundingBoxAscent`
+gives the distance from baseline to ink top. Several font sizes in the design
+were recovered this way — `view all` turned out to be 32.6px where `learn more`
+is 37px, which no amount of looking would have shown.

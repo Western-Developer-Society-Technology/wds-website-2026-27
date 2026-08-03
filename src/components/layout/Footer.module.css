@@ -1,21 +1,117 @@
+/* Design frame y 6228 → 6848. The giant wordmark below runs past the bottom
+   edge in the design, so the box clips. */
 .footer {
+  position: relative;
+  width: 100%;
+  height: calc(620 * var(--u));
   background: var(--color-white);
   color: var(--color-blue);
-  /* The footer deliberately breaks the page gutter — its wordmark sits at
-     x=15 where every section above starts at x=212. */
-  padding: var(--space-7) var(--gutter-footer);
-  min-height: calc(568 * var(--u));
+  overflow: hidden;
+  isolation: isolate;
 }
 
+/* ── Corner checkers: 4 rows of 50 in a 200-tall box at the section top ──── */
+.checker {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: calc(200 * var(--u));
+}
+
+.cell {
+  position: absolute;
+  height: 25%;
+  background: var(--color-blue);
+}
+
+/* ── Wordmark + socials, design ink top y 6469 / 6465 ───────────────────── */
+.meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(235 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: var(--gutter-footer);
+}
+
+/* Coolvetica 28.8 — solved from the design's 320px ink width. */
 .wordmark {
   font-family: var(--font-display);
   --track: var(--track-display);
-  line-height: 1;
   font-size: var(--fs-wordmark);
+  line-height: 1;
 }
 
-.note {
-  margin-top: var(--space-3);
-  font-size: var(--fs-body);
-  color: #6b6b6b;
+.socials {
+  display: flex;
+  align-items: center;
+  gap: calc(20 * var(--u));
+}
+
+.socials a {
+  display: block;
+}
+
+/* ── Barcode strip, design y 6510, 80 tall ──────────────────────────────── */
+.strip {
+  position: absolute;
+  left: 0;
+  top: calc(282 * var(--u));
+  width: 100%;
+  height: calc(80 * var(--u));
+  color: var(--color-blue);
+}
+
+/* ── The giant "wds" ticker.
+      Reuses --fs-display (500), the hero wordmark's confirmed size — it is the
+      same wordmark. Solving from the design's 818px repeat pitch instead would
+      give 506.5; 500 is within 1.3% and keeps the two marks identical, which
+      matters more than the ticker's exact rhythm. ──────────────────────── */
+.bigMark {
+  position: absolute;
+  left: 0;
+  top: calc(270.5 * var(--u));
+  width: 100%;
+  font-family: var(--font-display);
+  --track: var(--track-display);
+  font-size: var(--fs-display);
+  line-height: 1;
+  color: var(--color-blue);
+}
+
+@media (max-width: 1024px) {
+  .footer {
+    height: auto;
+    padding-bottom: 14vw;
+  }
+
+  .checker {
+    height: 26vw;
+  }
+
+  .meta {
+    position: static;
+    padding-top: 30vw;
+    gap: var(--space-4);
+  }
+
+  .socials a img {
+    width: auto !important;
+    height: clamp(18px, 4vw, 33px) !important;
+  }
+
+  .strip {
+    position: static;
+    height: clamp(28px, 5vw, 80px);
+    margin-top: var(--space-4);
+  }
+
+  /* Still clipped, just proportionally — the mark is meant to bleed. */
+  .bigMark {
+    position: static;
+    font-size: clamp(120px, 40vw, 496px);
+    margin-top: -0.18em;
+  }
 }
