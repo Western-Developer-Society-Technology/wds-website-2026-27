@@ -1,0 +1,13 @@
+/* Percentage-based children, so the whole staircase scales with whatever box
+   the section gives it — no per-band --u maths. */
+.divider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: var(--color-white);
+}
+
+.band {
+  position: absolute;
+  background: currentColor;
+}

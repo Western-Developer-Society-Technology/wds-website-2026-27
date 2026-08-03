@@ -38,9 +38,14 @@
    body gives every descendant body's tracking (-1.49px) no matter its own
    size, and the 40px hero tagline ends up under-tracked and wrapping. The
    universal selector re-resolves it against each element's own font-size.
-   Specificity is 0,0,0, so any component rule still wins. */
+
+   The value comes from --track (not --track-body) so it can be switched per
+   subtree: --track is a custom property, so it *does* inherit, which means a
+   display heading sets it once and every nested span picks it up. Setting
+   `letter-spacing` directly on the heading would not survive this rule on the
+   children. Specificity is 0,0,0, so component rules still win. */
 * {
-  letter-spacing: var(--track-body);
+  letter-spacing: var(--track);
 }
 
 html {
@@ -110,10 +115,11 @@ h4 {
 
 /* ── Shared type helper ────────────────────────────────────────────────────
    Applied by the display headings so family and tracking can never drift
-   apart from one another. */
+   apart from one another. Sets --track rather than letter-spacing so nested
+   spans inherit display tracking too (see the universal rule above). */
 .display {
   font-family: var(--font-display);
-  letter-spacing: var(--track-display);
+  --track: var(--track-display);
   line-height: var(--lh-display);
 }
 

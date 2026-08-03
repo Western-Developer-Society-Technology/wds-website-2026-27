@@ -1,0 +1,201 @@
+/* Design frame y 1115 → 2411. */
+.section {
+  position: relative;
+  width: 100%;
+  height: calc(1296 * var(--u));
+  background: var(--color-ink);
+  /* Keep this section's z-indices from leaking into later sections — same
+     reason as the hero. The step divider still escapes upward because it is
+     positioned outside the box, not because of stacking. */
+  isolation: isolate;
+}
+
+/* Starts at design y 899 — 216px above this section, overlapping the hero. */
+.stepDivider {
+  position: absolute;
+  left: 0;
+  top: calc(-216 * var(--u));
+  width: 100%;
+  height: calc(200 * var(--u));
+  z-index: var(--z-content);
+}
+
+.copy {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  z-index: var(--z-content);
+}
+
+/* Ink top design y 1254 → section-relative 139. */
+.eyebrow {
+  position: absolute;
+  top: calc(135 * var(--u));
+  font-size: var(--fs-body);
+  line-height: 1;
+  color: var(--color-yellow);
+  white-space: nowrap;
+}
+
+/* Coolvetica 150px, line-height 0.9. L1 baseline design y 1378.8. */
+.heading {
+  position: absolute;
+  top: calc(141 * var(--u));
+  font-family: var(--font-display);
+  font-size: var(--fs-h2-wwd);
+  --track: var(--track-display);
+  line-height: var(--lh-tight);
+  color: var(--color-white);
+  white-space: nowrap;
+}
+
+.headingLine {
+  display: block;
+}
+
+/* The blue panel behind "tech ✳ club." is a drawn rectangle in the design, not
+   an inline text background — its 149px height doesn't match Coolvetica's
+   content box at 150px (180px). Sized explicitly with a pseudo-element so it
+   stays put regardless of font metrics. */
+.highlight {
+  position: relative;
+  display: inline-block;
+}
+
+/* em, not --u: these are all ratios of the heading size (17/150, 18/150,
+   1/150, 149/150), so expressing them in em keeps the panel locked to the text
+   at every breakpoint instead of needing a second set of numbers. */
+.highlight::before {
+  content: "";
+  position: absolute;
+  left: -0.113em;
+  right: -0.12em;
+  top: -0.007em;
+  height: 0.993em;
+  background: var(--color-blue);
+  z-index: -1;
+}
+
+/* The design sets tighter space around the asterisk than a full word space
+   either side (29 / 24 vs 33), so the gaps are pulled in by hand. Without this
+   the line ends ~22px past the design. */
+.inlineAsterisk {
+  display: inline-block;
+  vertical-align: baseline;
+  width: 0.58em;
+  height: 0.587em;
+  margin-inline: -0.047em -0.067em;
+  margin-bottom: -0.013em;
+  color: var(--color-yellow);
+}
+
+/* Helvetica 37px, 43px line pitch, muted grey. First line ink top y 1615. */
+.body {
+  position: absolute;
+  top: calc(493 * var(--u));
+  width: calc(760 * var(--u));
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body);
+  color: var(--color-text-muted);
+}
+
+.body p + p {
+  margin-top: calc(40 * var(--u));
+}
+
+/* Box top design y 2023 → section-relative 908. */
+.cta {
+  position: absolute;
+  top: calc(908 * var(--u));
+}
+
+/* White strip with two-tone bars, flush to the section's bottom edge so it
+   meets the Events section's white background seamlessly. */
+.strip {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  height: calc(79 * var(--u));
+  background: var(--color-white);
+  z-index: var(--z-content);
+}
+
+.stripInk {
+  width: calc(910 * var(--u));
+  color: var(--color-ink);
+}
+
+.stripBlue {
+  flex: 1;
+  color: var(--color-blue);
+}
+
+@media (max-width: 1024px) {
+  /* Absolute positioning is abandoned below the breakpoint: the copy column
+     and the collage stack in normal flow instead.
+     DESIGN DECISION — no mobile frame exists. */
+  /* Flex + order rather than reordering the JSX: on desktop the children are
+     absolutely positioned so source order is irrelevant, but in mobile flow
+     the art would otherwise land above the copy. */
+  .section {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    padding: calc(var(--gutter) * 1.4) 0 0;
+  }
+
+  .copy {
+    order: 1;
+  }
+
+  .section > div[class*="art"] {
+    order: 2;
+  }
+
+  .strip {
+    order: 3;
+  }
+
+  .stepDivider {
+    top: calc(-9vw);
+    height: 12vw;
+  }
+
+  .copy {
+    position: static;
+    padding-inline: var(--gutter);
+  }
+
+  .eyebrow,
+  .heading,
+  .body,
+  .cta {
+    position: static;
+  }
+
+  .heading {
+    margin-top: var(--space-2);
+    white-space: normal;
+  }
+
+  .body {
+    width: auto;
+    margin-top: var(--space-5);
+  }
+
+  .cta {
+    margin-top: var(--space-5);
+  }
+
+  .strip {
+    position: static;
+    height: clamp(28px, 5vw, 79px);
+    margin-top: var(--space-7);
+  }
+
+  .stripInk {
+    width: 47%;
+  }
+}

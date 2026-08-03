@@ -40,7 +40,7 @@
   transform-origin: center;
   font-family: var(--font-display);
   font-size: var(--fs-rail);
-  letter-spacing: var(--track-display);
+  --track: var(--track-display);
   line-height: 1;
   white-space: nowrap;
 }

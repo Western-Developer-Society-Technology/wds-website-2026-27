@@ -1,29 +1,42 @@
-const ROTATION = { down: 0, left: 90, up: 180, right: 270 };
-
 /**
- * The chunky WDS arrow. Geometry from design/reference/arrow.svg, inlined so
- * it can take `currentColor`.
+ * The WDS arrows. Geometry from design/reference/, inlined so they can take
+ * `currentColor`.
  *
- * NOTE: the design also uses a diagonal ↗ inside the `learn more` / `view all`
- * buttons. That is a *different* glyph, not this one rotated 45° — it needs its
- * own export from Figma before prompt 2.
+ * Two genuinely different glyphs, not one rotated: the chunky `down` arrow is
+ * the hero scroll cue (stroke 22 on an 87-wide box); `up-right` is the fine
+ * corner arrow inside buttons (stroke 2.6 on a 23-wide box, bevel joins).
  */
+const GLYPHS = {
+  down: {
+    viewBox: "0 0 87 94",
+    d: "M43.0996 0V79M7.09961 48.5743L43.0996 79L79.0996 48.5743",
+    strokeWidth: 22,
+  },
+  "up-right": {
+    viewBox: "0 0 23 24",
+    d: "M0.958197 22.5928L20.7576 1.30777M20.7577 22.5918L20.7576 1.30777L0.959275 1.30786",
+    strokeWidth: 2.61566,
+    strokeLinejoin: "bevel",
+  },
+};
+
 export default function ArrowIcon({ direction = "down", className, style }) {
-  const angle = ROTATION[direction] ?? 0;
+  const glyph = GLYPHS[direction] ?? GLYPHS.down;
 
   return (
     <svg
-      viewBox="0 0 87 94"
+      viewBox={glyph.viewBox}
       fill="none"
       className={className}
-      style={{ ...style, transform: angle ? `rotate(${angle}deg)` : undefined }}
+      style={style}
       aria-hidden="true"
       focusable="false"
     >
       <path
-        d="M43.0996 0V79M7.09961 48.5743L43.0996 79L79.0996 48.5743"
+        d={glyph.d}
         stroke="currentColor"
-        strokeWidth="22"
+        strokeWidth={glyph.strokeWidth}
+        strokeLinejoin={glyph.strokeLinejoin}
       />
     </svg>
   );

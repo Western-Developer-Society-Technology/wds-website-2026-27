@@ -48,6 +48,11 @@
   --track-display: -0.02em;
   --track-body: -0.05em;
 
+  /* The *active* tracking, consumed by the universal rule in globals.css.
+     Because custom properties inherit, a display heading only has to set
+     `--track: var(--track-display)` once and every nested span follows. */
+  --track: var(--track-body);
+
   /* Section-heading superscripts are exactly 0.32x the heading in both
      places they appear: 47.297/150 and 55/170. [F] */
   --ratio-sup: 0.32;

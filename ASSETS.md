@@ -38,16 +38,26 @@ so 1 image px = 1 design px). Measure against that rather than re-exporting.
 `view all` buttons. It is a different glyph from the ↓ arrow, not that one
 rotated. Needed before prompt 2.
 
-## Prompt 2 (What We Do)
+## Prompt 2 (What We Do) — done
 
-- [ ] `public/images/wwd-group.png` — 3-person cut-out, transparent background
-- [ ] `public/images/wwd-speaker.png` — woman with microphone, transparent
-      cut-out
-- [ ] `public/graphics/wwd-arrow-chevron.svg` — large blue arrow/chevron
-- [ ] `public/graphics/step-divider-white.svg` — blocky pixel staircase, white
-      on ink (hero → what we do)
-- [ ] `public/graphics/barcode-split.svg` — **black bars left of x≈918, blue
-      bars right of it** (what we do → events)
+- [x] `public/images/whatwedoimage1.png` — 3-person cut-out (821 × 537 RGBA)
+- [x] `public/images/whatwedoimage2.png` — speaker cut-out (373 × 587 RGBA)
+- [x] Diagonal ↗ arrow — inlined in `components/ui/ArrowIcon.jsx` alongside the
+      ↓ glyph. Source at `design/reference/diagonalarrow.svg`.
+- [x] Blue zigzag — **traced in code** as a polygon in `WhatWeDoArt.jsx`,
+      recovered from the render by masking #0051ff, filling the areas the
+      asterisk and speaker cover, then contour-tracing and simplifying.
+- [x] Step divider — **transcribed in code** as band rectangles in
+      `components/ui/StepDivider.jsx`. Not generated: the step widths are
+      hand-authored and irregular, though both edges land on a 25 × 50px grid.
+- [x] Barcode strip — two `Barcode` instances (ink left of design x 910, blue
+      right), reusing the generator from prompt 1.
+
+## Still needed
+
+- [ ] `step-divider-yellow` band data for the Portfolios → Team divider. It is
+      a *different* staircase from the hero one, so it needs its own transcribe
+      pass in prompt 5 — pass it to `StepDivider` via the `bands` prop.
 
 ## Prompt 3 (Events)
 

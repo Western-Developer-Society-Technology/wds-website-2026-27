@@ -20,7 +20,7 @@
   top: calc(33.5 * var(--u));
   font-family: var(--font-display);
   font-size: calc(44 * var(--u));
-  letter-spacing: var(--track-display);
+  --track: var(--track-display);
   line-height: 1;
 }
 

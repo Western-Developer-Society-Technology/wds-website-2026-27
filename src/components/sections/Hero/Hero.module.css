@@ -6,6 +6,12 @@
   height: calc(1115 * var(--u));
   background: var(--color-ink);
   overflow: hidden; /* the chevron's arms run off-canvas by design */
+  /* `position: relative` alone does not create a stacking context, so the
+     layers below (z-index up to 4) would otherwise compete with *later*
+     sections in the root context — and the What We Do step divider, which is
+     meant to overlap this section's bottom edge, would paint underneath the
+     crowd photo. Isolating keeps the hero's z-indices local. */
+  isolation: isolate;
 }
 
 /* ── Layer 1: stripe block, design x 28 y 612, 162 × 270 ─────────────────── */
@@ -40,7 +46,7 @@
   z-index: 3;
   font-family: var(--font-display);
   font-size: var(--fs-display);
-  letter-spacing: var(--track-display);
+  --track: var(--track-display);
   line-height: 1;
   text-align: center;
   color: var(--color-white);

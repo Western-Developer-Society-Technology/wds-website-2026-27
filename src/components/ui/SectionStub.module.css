@@ -22,7 +22,7 @@
 
 .label {
   font-family: var(--font-display);
-  letter-spacing: var(--track-display);
+  --track: var(--track-display);
   line-height: var(--lh-tight);
   font-size: var(--fs-h2);
 }

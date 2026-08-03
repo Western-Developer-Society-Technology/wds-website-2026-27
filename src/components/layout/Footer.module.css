@@ -9,7 +9,7 @@
 
 .wordmark {
   font-family: var(--font-display);
-  letter-spacing: var(--track-display);
+  --track: var(--track-display);
   line-height: 1;
   font-size: var(--fs-wordmark);
 }
