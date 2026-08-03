@@ -59,11 +59,19 @@ rotated. Needed before prompt 2.
       a *different* staircase from the hero one, so it needs its own transcribe
       pass in prompt 5 — pass it to `StepDivider` via the `bands` prop.
 
-## Prompt 3 (Events)
+## Prompt 3 (Events) — done, with two gaps
 
-- [ ] `public/images/events/` — Spark Hackathon, Mentorship Program, and the
-      third (poker night) photo that sits partly off-canvas
-- [ ] `public/graphics/barcode-ink.svg` — events → portfolios strip
+- [~] `public/images/events/spark-hackathon.png`,
+      `public/images/events/mentorship-program.png` — ⚠️ **cropped 1:1 out of
+      `design/figma-1920.png`**, not exported originals. They are exactly the
+      size the card renders at (708 × 472), so they are correct at 1920px but
+      have no headroom on a larger display. Replace with the source photos.
+- [ ] **Third event** — the design shows a casino/poker-night card bleeding off
+      the right edge to signal the row scrolls. Only ~176px of it is on-canvas
+      and its caption is illegible, so it is not in `src/data/events.js`. Add
+      the title, date and image there and the card, its spacing and its
+      progress marker all appear automatically.
+- [x] Events → Portfolios strip — a `Barcode` instance (67 bars, ink on white).
 
 ## Prompt 4 (Portfolios)
 

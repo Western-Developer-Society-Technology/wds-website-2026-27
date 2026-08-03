@@ -11,6 +11,7 @@ import styles from "./Button.module.css";
 export default function Button({
   href = "#",
   variant = "blue",
+  size = "md",
   children,
   className,
 }) {
@@ -18,6 +19,7 @@ export default function Button({
     <a
       className={[styles.button, className].filter(Boolean).join(" ")}
       data-variant={variant}
+      data-size={size}
       href={href}
     >
       <span className={styles.label}>{children}</span>

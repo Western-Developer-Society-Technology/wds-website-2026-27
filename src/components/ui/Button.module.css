@@ -1,15 +1,28 @@
 .button {
   display: inline-flex;
   align-items: center;
-  gap: calc(17 * var(--u));
-  height: calc(66 * var(--u));
-  padding-inline: calc(22 * var(--u)) calc(24 * var(--u));
   border-radius: var(--radius);
-  font-size: var(--fs-btn);
   line-height: var(--lh-tight);
   transition:
     background-color var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out);
+}
+
+/* `learn more`: 238 × 66, padding 22 / 24, gap 17. */
+.button[data-size="md"] {
+  gap: calc(17 * var(--u));
+  height: calc(66 * var(--u));
+  padding-inline: calc(22 * var(--u)) calc(24 * var(--u));
+  font-size: var(--fs-btn);
+}
+
+/* `view all`: 172 × 65, padding 18 / 23, gap 18 — measurably a different
+   control, not the md button scaled. */
+.button[data-size="sm"] {
+  gap: calc(18 * var(--u));
+  height: calc(65 * var(--u));
+  padding-inline: calc(18 * var(--u)) calc(23 * var(--u));
+  font-size: var(--fs-btn-sm);
 }
 
 .button[data-variant="blue"] {
@@ -44,10 +57,15 @@
 }
 
 @media (max-width: 1024px) {
-  .button {
+  .button[data-size="md"],
+  .button[data-size="sm"] {
     height: auto;
     gap: 0.5em;
     padding: 0.6em 0.75em;
+  }
+
+  .button[data-size="sm"] {
+    font-size: var(--fs-btn);
   }
 
   .arrow {

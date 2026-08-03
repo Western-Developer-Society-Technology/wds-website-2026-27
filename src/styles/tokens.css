@@ -21,7 +21,11 @@
   --color-white: #ffffff; /* [F] */
   --color-blue: #0051ff; /* [F] V-chevron, rail, buttons, footer, barcodes */
   --color-yellow: #ffdf0d; /* [F] asterisks, eyebrow, marquee, step divider */
-  --color-text-muted: #d2d2d2; /* [F] secondary body copy on dark */
+  --color-text-muted: #d2d2d2; /* [F] secondary body copy on ink */
+  /* [M] Secondary copy on *white* needs its own grey — #d2d2d2 is invisible
+     there. Sampled from the event-card meta line. This makes six colours in
+     the design, not five; the "four colours only" rule still holds for fills. */
+  --color-text-meta: #888888;
 
   /* ── Type families ───────────────────────────────────────────────────────
      Coolvetica is self-hosted (see @font-face in globals.css). Helvetica is
@@ -122,7 +126,11 @@ body {
   --fs-wordmark: calc(60 * var(--u)); /* [M] footer wordmark                */
   --fs-lead: calc(40 * var(--u)); /* [M] hero tagline                   */
   --fs-body-lg: calc(37 * var(--u)); /* [M] What We Do paragraphs          */
-  --fs-btn: calc(37 * var(--u)); /* [F] "learn more" / "view all"      */
+  --fs-btn: calc(37 * var(--u)); /* [F] "learn more"                   */
+  /* [M] "view all" is a smaller button than "learn more" — solved from ink
+     width (32.6) and ink height (31.6). Not the same control at two sizes by
+     accident: the padding differs too (18/18/23 vs 22/17/24). */
+  --fs-btn-sm: calc(32.6 * var(--u));
   --fs-body: calc(30 * var(--u)); /* [F] blurbs, subtitles              */
 
   /* ── Spacing ─────────────────────────────────────────────────────────────
