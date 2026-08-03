@@ -22,10 +22,13 @@
   --color-blue: #0051ff; /* [F] V-chevron, rail, buttons, footer, barcodes */
   --color-yellow: #ffdf0d; /* [F] asterisks, eyebrow, marquee, step divider */
   --color-text-muted: #d2d2d2; /* [F] secondary body copy on ink */
-  /* [M] Secondary copy on *white* needs its own grey — #d2d2d2 is invisible
-     there. Sampled from the event-card meta line. This makes six colours in
-     the design, not five; the "four colours only" rule still holds for fills. */
-  --color-text-meta: #888888;
+  /* [M] Secondary copy on *white* needs its own greys — #d2d2d2 is invisible
+     there. The design uses two, and they are not interchangeable: sampled at
+     #888888 on the event-card meta line and #b9b9b9 on the team subtitle.
+     So the palette is seven values, not five; the "four colours only" rule
+     still holds for every fill, which is where it actually matters. */
+  --color-text-meta: #888888; /* card meta, on white   */
+  --color-text-subtle: #b9b9b9; /* team subtitle, on white */
 
   /* ── Type families ───────────────────────────────────────────────────────
      Coolvetica is self-hosted (see @font-face in globals.css). Helvetica is
@@ -135,6 +138,7 @@ body {
   /* [M] Portfolio chip labels. Solved twice and agreed: ink width 281 → 53.1,
      ink height 49 → 52.7. */
   --fs-chip: calc(53 * var(--u));
+  --fs-tag: calc(21 * var(--u)); /* [M] team card name/role tags        */
   /* [M] "JOIN US" ticker. Sized so the cap height matches the design's 57px.
      Caveat: the design's glyphs are ~7% narrower per unit of cap height than
      Coolvetica — its "JOIN" is 145 wide where Coolvetica at this size gives
@@ -178,6 +182,7 @@ body {
     --fs-btn: clamp(15px, 2.2vw, 22px);
     --fs-body: clamp(15px, 2.2vw, 20px);
     --fs-chip: clamp(15px, 2.6vw, 26px);
+    --fs-tag: clamp(12px, 2.6vw, 21px);
     --fs-marquee: clamp(34px, 9vw, 80px);
 
     --gutter: clamp(20px, 6vw, 64px);

@@ -87,12 +87,20 @@ rotated. Needed before prompt 2.
       frame was scaled horizontally in Figma. Cap height is matched; the repeat
       pitch is 289 against the design's 270.
 
-## Prompt 5 (The Team)
+## Prompt 5 (The Team) — done, content is placeholder
 
-- [ ] `public/graphics/step-divider-yellow.svg` — staircase, yellow + ink →
-      white (portfolios → team)
-- [ ] `public/images/team/` ×18 headshots — Figma repeats one placeholder 18
-      times, so these are outstanding **content**, not an export
+- [x] Portfolios → Team staircase — **transcribed in code** as
+      `TEAM_DIVIDER_BANDS` in `components/ui/StepDivider.jsx`, using the
+      `stepped` variant (the ink/white boundary steps, with a 50px yellow band
+      riding the edge). Verified to within 1px at four probes.
+- [ ] **Real team content.** `src/data/team.js` holds 18 copies of one
+      placeholder because that is literally what the Figma file contains —
+      "Stephanie Li / VP of Marketing" repeated 18 times. ⚠️ This is not real
+      data. Replace the array with the actual execs; the grid, spacing and row
+      count all follow from its length.
+- [~] `public/images/team/placeholder.png` — the one headshot, cropped 1:1 out
+      of `design/figma-1920.png` at exactly the render size (215 × 216).
+      Replace with real headshots alongside the data.
 
 ## Prompt 6 (Footer)
 

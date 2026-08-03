@@ -1,15 +1,18 @@
 import styles from "./StepDivider.module.css";
 
 /**
- * The blocky pixel-staircase that separates sections.
+ * The blocky pixel-staircases that separate sections. Two shapes, two variants:
  *
- * Not a generated pattern — the design's step widths are hand-authored and
- * irregular (115, 50, 100, 100, 175, 75, …), so the bands are transcribed from
- * the render. Both edges quantise to a 25px horizontal / 50px vertical grid.
+ * `blocks` (hero → what we do): free-standing white rectangles on the ink
+ *   background. Bands are [x, y, width, height].
  *
+ * `stepped` (portfolios → team): the ink/white boundary itself steps down, with
+ *   a 50px yellow band riding along that edge. Bands are [x, width, depth],
+ *   where depth counts 50px steps.
+ *
+ * Neither is generated — the step widths are hand-authored and irregular in the
+ * design, though both quantise to a 25px horizontal / 50px vertical grid.
  * Coordinates are design pixels inside a 1920 × 200 box.
- * Appears twice on the page: white here (hero → what we do) and yellow-on-ink
- * before The Team, which is a different band set — pass it as `bands`.
  */
 const HERO_BANDS = [
   // [x, y, width, height]
@@ -30,21 +33,12 @@ const HERO_BANDS = [
   [1815, 100, 105, 100],
 ];
 
-export const STEP_DIVIDER_HEIGHT = 200;
-
 /**
- * The Portfolios → Team divider, measured while building Portfolios.
- *
- * Structurally different from the hero one, so it needs its own variant rather
- * than this component's white bands: here the ink/white boundary itself steps
- * down, with a 50px yellow band riding along that edge. Each entry is
- * [x, width, depth] where depth counts 50px steps below design y 4912 — so a
- * column's ink runs to 4912 + depth*50 and its yellow band sits in the 50px
- * immediately below that.
- *
- * Two symmetric V-notches. Total width sums to 1920.
+ * Portfolios → Team. Two symmetric V-notches; widths sum to 1920. A column's
+ * ink runs to depth*50 and its yellow band occupies the 50px below that.
  */
 export const TEAM_DIVIDER_BANDS = [
+  // [x, width, depth]
   [0, 150, 0],
   [150, 50, 1],
   [200, 100, 2],
@@ -60,24 +54,45 @@ export const TEAM_DIVIDER_BANDS = [
   [1771, 149, 0],
 ];
 
-export default function StepDivider({ bands = HERO_BANDS, className }) {
+export const STEP_DIVIDER_HEIGHT = 200;
+const STEP = 50;
+
+const pctX = (n) => `${(n / 1920) * 100}%`;
+const pctY = (n) => `${(n / STEP_DIVIDER_HEIGHT) * 100}%`;
+
+export default function StepDivider({
+  variant = "blocks",
+  bands = HERO_BANDS,
+  className,
+}) {
   return (
     <div
       className={[styles.divider, className].filter(Boolean).join(" ")}
+      data-variant={variant}
       aria-hidden="true"
     >
-      {bands.map(([x, y, w, h], i) => (
-        <span
-          key={i}
-          className={styles.band}
-          style={{
-            left: `${(x / 1920) * 100}%`,
-            top: `${(y / STEP_DIVIDER_HEIGHT) * 100}%`,
-            width: `${(w / 1920) * 100}%`,
-            height: `${(h / STEP_DIVIDER_HEIGHT) * 100}%`,
-          }}
-        />
-      ))}
+      {variant === "stepped"
+        ? bands.map(([x, w, depth], i) => (
+            <span key={i} className={styles.column} style={{ left: pctX(x), width: pctX(w) }}>
+              {depth > 0 ? (
+                <span
+                  className={styles.ink}
+                  style={{ top: 0, height: pctY(depth * STEP) }}
+                />
+              ) : null}
+              <span
+                className={styles.accent}
+                style={{ top: pctY(depth * STEP), height: pctY(STEP) }}
+              />
+            </span>
+          ))
+        : bands.map(([x, y, w, h], i) => (
+            <span
+              key={i}
+              className={styles.band}
+              style={{ left: pctX(x), top: pctY(y), width: pctX(w), height: pctY(h) }}
+            />
+          ))}
     </div>
   );
 }

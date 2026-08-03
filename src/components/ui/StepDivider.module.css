@@ -4,10 +4,33 @@
   position: relative;
   width: 100%;
   height: 100%;
-  color: var(--color-white);
 }
 
+/* ── blocks: free-standing white rectangles (hero → what we do) ─────────── */
 .band {
   position: absolute;
-  background: currentColor;
+  background: var(--color-white);
+}
+
+/* ── stepped: the section boundary itself steps, with a yellow band riding
+      the edge (portfolios → team) ───────────────────────────────────────── */
+.column {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+
+.ink,
+.accent {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.ink {
+  background: var(--color-ink);
+}
+
+.accent {
+  background: var(--color-yellow);
 }
