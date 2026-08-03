@@ -1,0 +1,120 @@
+/* Design frame y 3597 → 4912. */
+.section {
+  position: relative;
+  width: 100%;
+  height: calc(1315 * var(--u));
+  background: var(--color-ink);
+  color: var(--color-white);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Heading line box design y 3797.8 → section-relative 201. `view all` sits at
+   design x 1544–1715, i.e. 205 in from the right edge. */
+.heading {
+  position: absolute;
+  left: var(--gutter);
+  right: calc(205 * var(--u));
+  top: calc(210 * var(--u));
+}
+
+/* Full-bleed: the only element in the section that ignores the gutter.
+   Cap ink runs design y 4006 → 4062. */
+.marquee {
+  position: absolute;
+  left: 0;
+  top: calc(390 * var(--u));
+  width: 100%;
+  font-family: var(--font-display);
+  --track: var(--track-display);
+  font-size: var(--fs-marquee);
+  line-height: 1;
+  color: var(--color-yellow);
+}
+
+/* Ink top design y 4097 → section-relative 500. */
+.blurb {
+  position: absolute;
+  left: var(--gutter);
+  top: calc(495 * var(--u));
+  font-size: var(--fs-body);
+  line-height: var(--lh-blurb);
+  color: var(--color-text-muted);
+}
+
+/* Rows at design y 4236 / 4383 / 4530 — a 147 pitch on 113-tall chips. */
+.rows {
+  position: absolute;
+  left: var(--gutter);
+  top: calc(639 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(34 * var(--u));
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: calc(34 * var(--u));
+}
+
+/* Row 2 is indented 14px in the design — rows 1 and 3 start on the gutter at
+   212, row 2's asterisk starts at 226. A deliberate stagger, not a rounding
+   artefact. */
+.row:nth-child(2) {
+  margin-left: calc(14 * var(--u));
+}
+
+.asterisk {
+  flex: none;
+  width: calc(108 * var(--u));
+  height: calc(108 * var(--u));
+  color: var(--color-yellow);
+}
+
+@media (max-width: 1024px) {
+  .section {
+    height: auto;
+    padding: calc(var(--gutter) * 1.4) 0;
+  }
+
+  .heading,
+  .marquee,
+  .blurb,
+  .rows {
+    position: static;
+  }
+
+  .heading,
+  .blurb,
+  .rows {
+    margin-inline: var(--gutter);
+    right: auto;
+  }
+
+  .marquee {
+    margin-block: var(--space-5);
+  }
+
+  .blurb {
+    margin-bottom: var(--space-6);
+  }
+
+  /* The hand-composed rows stop making sense once they no longer fit: below
+     the breakpoint the chips become one wrapping list and the asterisks are
+     dropped, since their only job is to stagger rows that no longer stagger.
+     DESIGN DECISION — no mobile frame exists. */
+  .rows {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: clamp(8px, 2vw, 16px);
+  }
+
+  .row {
+    display: contents;
+  }
+
+  .asterisk {
+    display: none;
+  }
+}

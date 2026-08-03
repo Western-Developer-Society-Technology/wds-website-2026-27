@@ -13,6 +13,11 @@ export default function SectionHeading({
   title,
   superscript,
   action,
+  /** Distance from the row's top edge down to the action button's top edge.
+   *  The design does not align the button to the heading's box or its baseline
+   *  — the offset is 67 in Events and 58 in Portfolios — so each section states
+   *  it rather than the component guessing. */
+  actionOffset = 0,
   size = "var(--fs-h2)",
   align = "start",
   className,
@@ -27,7 +32,11 @@ export default function SectionHeading({
         {title}
         {superscript ? <sup className={styles.sup}>{superscript}</sup> : null}
       </h2>
-      {action ? <div className={styles.action}>{action}</div> : null}
+      {action ? (
+        <div className={styles.action} style={{ marginTop: actionOffset }}>
+          {action}
+        </div>
+      ) : null}
     </div>
   );
 }

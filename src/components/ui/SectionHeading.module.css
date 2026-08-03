@@ -1,8 +1,8 @@
-/* flex-end, not flex-start: in the design the action button's bottom edge sits
-   on the heading's baseline box, not its cap line. */
+/* The action is placed by `actionOffset` from the top, not by any alignment
+   rule — see the prop's note in SectionHeading.jsx. */
 .row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-6);
 }

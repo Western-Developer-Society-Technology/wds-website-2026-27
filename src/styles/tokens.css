@@ -132,6 +132,17 @@ body {
      accident: the padding differs too (18/18/23 vs 22/17/24). */
   --fs-btn-sm: calc(32.6 * var(--u));
   --fs-body: calc(30 * var(--u)); /* [F] blurbs, subtitles              */
+  /* [M] Portfolio chip labels. Solved twice and agreed: ink width 281 → 53.1,
+     ink height 49 → 52.7. */
+  --fs-chip: calc(53 * var(--u));
+  /* [M] "JOIN US" ticker. Sized so the cap height matches the design's 57px.
+     Caveat: the design's glyphs are ~7% narrower per unit of cap height than
+     Coolvetica — its "JOIN" is 145 wide where Coolvetica at this size gives
+     155 — which suggests the text frame was scaled horizontally in Figma.
+     Cap height is the more visible property (it sets the band's thickness), so
+     that is what is matched; the repeat pitch comes out at 289 against the
+     design's 270, i.e. ~6.6 repeats per screen instead of 7.1. */
+  --fs-marquee: calc(86 * var(--u));
 
   /* ── Spacing ─────────────────────────────────────────────────────────────
      Anchors measured off the design: chip gap 24, event card gap 57,
@@ -166,6 +177,8 @@ body {
     --fs-body-lg: clamp(16px, 2.4vw, 24px);
     --fs-btn: clamp(15px, 2.2vw, 22px);
     --fs-body: clamp(15px, 2.2vw, 20px);
+    --fs-chip: clamp(15px, 2.6vw, 26px);
+    --fs-marquee: clamp(34px, 9vw, 80px);
 
     --gutter: clamp(20px, 6vw, 64px);
     --gutter-footer: clamp(16px, 4vw, 32px);

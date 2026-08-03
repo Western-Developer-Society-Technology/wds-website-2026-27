@@ -1,0 +1,44 @@
+/* Design: 113 tall, 34 left / 46 right padding, 28 between icon and label. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(28 * var(--u));
+  height: calc(113 * var(--u));
+  padding-inline: calc(34 * var(--u)) calc(46 * var(--u));
+  background: var(--color-white);
+  color: var(--color-ink);
+  border-radius: var(--radius);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.icon {
+  flex: none;
+  object-fit: contain;
+}
+
+.label {
+  font-size: var(--fs-chip);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: var(--color-yellow);
+}
+
+@media (max-width: 1024px) {
+  .chip {
+    height: auto;
+    gap: 0.5em;
+    padding: 0.5em 0.7em;
+  }
+
+  /* The inline width/height set on the <img> are --u based, so they collapse
+     below the breakpoint; override with an em size tied to the label. */
+  .icon {
+    width: auto !important;
+    height: 1.05em !important;
+  }
+}

@@ -22,6 +22,7 @@ export default function Events() {
           className={styles.heading}
           title="our events"
           superscript="24-25"
+          actionOffset="calc(67 * var(--u))"
           action={
             <Button href="#events" variant="ink" size="sm">
               view all

@@ -73,11 +73,19 @@ rotated. Needed before prompt 2.
       progress marker all appear automatically.
 - [x] Events → Portfolios strip — a `Barcode` instance (67 bars, ink on white).
 
-## Prompt 4 (Portfolios)
+## Prompt 4 (Portfolios) — done, icons are stopgaps
 
-- [ ] `public/icons/` ×7 — folder, people, `{}` code braces, gear, briefcase,
-      wallet, lightbulb. Solid/filled, Phosphor-like. **Export these rather
-      than substituting an icon library** — the weights won't match.
+- [~] `public/icons/portfolios/` ×7 — folder, people, `{}` braces, gear,
+      briefcase, wallet, lightbulb. ⚠️ **Extracted 1:1 from
+      `design/figma-1920.png` as PNGs with alpha**, not exported SVGs. They are
+      37–64px wide, i.e. exactly the size the design draws them, so they are
+      correct at 1920px and will soften above it. Swapping in SVGs only means
+      changing `icon` and `iconSize` in `src/data/portfolios.js`.
+- [x] `JOIN US` ticker — the reusable `components/ui/Marquee`.
+      ⚠️ See the `--fs-marquee` note in tokens.css: the design's glyphs are ~7%
+      narrower per unit of cap height than Coolvetica, which suggests the text
+      frame was scaled horizontally in Figma. Cap height is matched; the repeat
+      pitch is 289 against the design's 270.
 
 ## Prompt 5 (The Team)
 

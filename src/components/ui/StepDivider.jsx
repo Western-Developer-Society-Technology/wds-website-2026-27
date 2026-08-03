@@ -32,6 +32,34 @@ const HERO_BANDS = [
 
 export const STEP_DIVIDER_HEIGHT = 200;
 
+/**
+ * The Portfolios → Team divider, measured while building Portfolios.
+ *
+ * Structurally different from the hero one, so it needs its own variant rather
+ * than this component's white bands: here the ink/white boundary itself steps
+ * down, with a 50px yellow band riding along that edge. Each entry is
+ * [x, width, depth] where depth counts 50px steps below design y 4912 — so a
+ * column's ink runs to 4912 + depth*50 and its yellow band sits in the 50px
+ * immediately below that.
+ *
+ * Two symmetric V-notches. Total width sums to 1920.
+ */
+export const TEAM_DIVIDER_BANDS = [
+  [0, 150, 0],
+  [150, 50, 1],
+  [200, 100, 2],
+  [300, 150, 3],
+  [450, 50, 2],
+  [500, 150, 1],
+  [650, 621, 0],
+  [1271, 150, 1],
+  [1421, 50, 2],
+  [1471, 150, 3],
+  [1621, 100, 2],
+  [1721, 50, 1],
+  [1771, 149, 0],
+];
+
 export default function StepDivider({ bands = HERO_BANDS, className }) {
   return (
     <div
