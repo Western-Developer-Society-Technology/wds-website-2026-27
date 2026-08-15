@@ -1,17 +1,3 @@
-@import "../styles/tokens.css";
-
-/* ── Coolvetica ────────────────────────────────────────────────────────────
-   Self-hosted. Drop coolvetica.woff2 into public/fonts/ — until it is there
-   the page silently falls back to the Arial Black stack in --font-display,
-   which is close enough to miss at a glance, so check the computed
-   font-family in devtools rather than trusting your eyes.
-
-   Note: Coolvetica is a Typodermic/Larabie font. Free for personal use;
-   commercial use needs a licence. Resolve before launch.
-
-   Once the file exists this can move to next/font/local in layout.js for
-   automatic preloading — it is @font-face here so a missing file degrades
-   instead of failing the build. */
 @font-face {
   font-family: "Coolvetica";
   src: url("/fonts/coolvetica.woff2") format("woff2");
@@ -20,7 +6,6 @@
   font-display: swap;
 }
 
-/* ── Reset ─────────────────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -32,107 +17,14 @@
   padding: 0;
 }
 
-/* Tracking has to be re-declared per element, not just inherited.
-   `letter-spacing` in `em` resolves against the *declaring* element's
-   font-size and then inherits as an absolute px length — so setting it once on
-   body gives every descendant body's tracking (-1.49px) no matter its own
-   size, and the 40px hero tagline ends up under-tracked and wrapping. The
-   universal selector re-resolves it against each element's own font-size.
-
-   The value comes from --track (not --track-body) so it can be switched per
-   subtree: --track is a custom property, so it *does* inherit, which means a
-   display heading sets it once and every nested span picks it up. Setting
-   `letter-spacing` directly on the heading would not survive this rule on the
-   children. Specificity is 0,0,0, so component rules still win. */
-* {
-  letter-spacing: var(--track);
-}
-
 html {
   -webkit-text-size-adjust: 100%;
-  /* Makes html the query container that --u measures (see tokens.css). This is
-     what keeps a classic scrollbar from shrinking the whole design by 0.8%. */
-  container-type: inline-size;
-  /* Sections deliberately overflow the viewport (marquees, the hero
-     V-chevron, the third event card). `clip` contains that without creating
-     a scroll container, so position: sticky keeps working. */
-  overflow-x: clip;
 }
 
 body {
-  background: var(--color-ink);
-  color: var(--color-white);
-  font-family: var(--font-body);
-  font-size: var(--fs-body);
-  letter-spacing: var(--track-body);
-  line-height: var(--lh-blurb);
-  overflow-x: clip;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* No max-width here on purpose: several decorative layers are intentionally
-   wider than the viewport (one shape in the design is 2726px across), and a
-   blanket max-width: 100% would silently crop them. Size art explicitly. */
-img,
-svg,
-video,
-canvas {
-  display: block;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  background: none;
-  border: 0;
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  cursor: pointer;
-}
-
-ul,
-ol {
-  list-style: none;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-weight: 400; /* Coolvetica ships Regular only — never synthesise bold */
-}
-
-/* ── Focus ─────────────────────────────────────────────────────────────── */
-:focus-visible {
-  outline: 3px solid var(--color-yellow);
-  outline-offset: 2px;
-}
-
-/* ── Shared type helper ────────────────────────────────────────────────────
-   Applied by the display headings so family and tracking can never drift
-   apart from one another. Sets --track rather than letter-spacing so nested
-   spans inherit display tracking too (see the universal rule above). */
-.display {
-  font-family: var(--font-display);
-  --track: var(--track-display);
-  line-height: var(--lh-display);
-}
-
-/* ── Motion ────────────────────────────────────────────────────────────────
-   This design is motion-heavy — two full-width marquees plus scroll reveals.
-   Honour the OS setting globally. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }
