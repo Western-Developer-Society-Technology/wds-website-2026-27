@@ -6,6 +6,22 @@
   font-display: swap;
 }
 
+:root {
+  --ink: #1a1a1a;
+  --blue: #0051ff;
+  --yellow: #ffdf0d;
+  --muted: #6f6f6f;
+  --font-display: "Coolvetica", "Arial Black", "Helvetica Neue", sans-serif;
+  --content-max: 1200px;
+  --gutter: 60px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --gutter: 20px;
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -23,7 +39,7 @@ html {
 
 body {
   background: #fff;
-  color: #1a1a1a;
+  color: var(--ink);
   font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

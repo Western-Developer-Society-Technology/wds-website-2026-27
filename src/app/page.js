@@ -1,9 +1,11 @@
-import styles from "./page.module.css";
+import Hero from "@/components/sections/Hero/Hero";
+import About from "@/components/sections/About/About";
 
 export default function Home() {
   return (
-    <main className={styles.page}>
-      <h1 className={styles.wordmark}>wds</h1>
+    <main>
+      <Hero />
+      <About />
     </main>
   );
 }
