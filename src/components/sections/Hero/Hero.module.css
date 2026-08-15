@@ -17,7 +17,7 @@
 }
 
 .spacerTop {
-  flex: 3 3 calc(152 * var(--px));
+  flex: 3 3 calc(145 * var(--px));
   min-height: calc(48 * var(--px));
 }
 
@@ -177,7 +177,7 @@
 
 .bottomPad {
   flex-shrink: 0;
-  height: clamp(24px, 4svh, 110px);
+  height: clamp(24px, 6svh, 100px);
 }
 
 @media (prefers-reduced-motion: reduce) {
