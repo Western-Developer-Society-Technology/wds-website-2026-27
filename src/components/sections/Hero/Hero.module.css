@@ -48,7 +48,7 @@
   font-size: calc(24 * var(--px));
   line-height: 1;
   letter-spacing: calc(-1.5 * var(--px));
-  color: var(--ink);
+  color: var(--muted);
 }
 
 .stage {
@@ -157,27 +157,27 @@
   top: 0;
   left: 0;
   display: flex;
-  gap: calc(18.8 * var(--px));
-  height: calc(78.58 * var(--px));
+  gap: calc(16 * var(--px));
+  height: calc(75 * var(--px));
 }
 
 .yellowBarcode {
-  width: calc(152.19 * var(--px));
+  width: calc(125 * var(--px));
   height: 100%;
 }
 
 .blue {
   position: absolute;
   top: 0;
-  left: calc(528 * var(--px));
+  left: calc(565 * var(--px));
   right: 0;
   height: calc(40 * var(--px));
   background: var(--blue);
 }
 
 .bottomPad {
-  flex-shrink: 0;
-  height: clamp(24px, 6svh, 100px);
+  flex: 3 3 calc(90 * var(--px));
+  min-height: calc(36 * var(--px));
 }
 
 @media (prefers-reduced-motion: reduce) {

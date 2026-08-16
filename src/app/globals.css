@@ -12,7 +12,7 @@
   --yellow: #ffdf0d;
   --muted: #6f6f6f;
   --font-display: "Coolvetica", "Arial Black", "Helvetica Neue", sans-serif;
-  --content-max: 1440px;
+  --content-max: 1840px;
   --gutter: 60px;
 }
 
@@ -38,9 +38,21 @@ html {
 }
 
 body {
-  background: #fff;
+  background: #FCFDFF;
   color: var(--ink);
   font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 2100px) {
+  :root {
+    --content-max: 1640px;
+  }
+}
+
+@media (max-width: 1750px) {
+  :root {
+    --content-max: 1440px;
+  }
 }

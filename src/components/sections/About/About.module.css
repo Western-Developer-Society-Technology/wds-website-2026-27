@@ -23,7 +23,7 @@
   font-size: calc(25 * var(--px));
   letter-spacing: calc(-1.361 * var(--px));
   line-height: 1;
-  color: var(--ink);
+  color: var(--muted);
 }
 
 .headingWrap {
@@ -235,24 +235,24 @@
 
 .barcodes {
   position: absolute;
-  left: calc(1155 * var(--px));
+  left: calc(1107 * var(--px));
   top: calc(1305 * var(--px));
   z-index: 2;
   display: flex;
-  gap: calc(17 * var(--px));
+  gap: calc(16 * var(--px));
   height: calc(75 * var(--px));
   pointer-events: none;
 }
 
 .barcodeCol {
-  width: calc(135 * var(--px));
-  height: calc(70 * var(--px));
+  width: calc(110 * var(--px));
+  height: calc(65 * var(--px));
 }
 
 .grid {
   position: absolute;
   left: 0;
-  top: calc(1181 * var(--px));
+  top: calc(1174 * var(--px));
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(5, calc(48 * var(--px)));

@@ -47,6 +47,9 @@ export default function About() {
             <div className={styles.barcodeCol}>
               <Barcode orientation="vertical" color="var(--ink)" />
             </div>
+            <div className={styles.barcodeCol}>
+              <Barcode orientation="vertical" color="var(--ink)" />
+            </div>
           </div>
 
           <AboutGrid />

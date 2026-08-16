@@ -56,6 +56,9 @@ export default function Hero() {
             <div className={styles.yellowBarcode}>
               <Barcode orientation="vertical" color="var(--yellow)" />
             </div>
+            <div className={styles.yellowBarcode}>
+              <Barcode orientation="vertical" color="var(--yellow)" />
+            </div>
           </div>
           <div className={styles.blue} />
         </div>
