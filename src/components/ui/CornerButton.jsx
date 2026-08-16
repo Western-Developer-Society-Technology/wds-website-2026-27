@@ -1,7 +1,12 @@
 import styles from "./CornerButton.module.css";
 
-export default function CornerButton({ children, className = "", href }) {
-  const classNames = `${styles.button} ${className}`.trim();
+export default function CornerButton({
+  children,
+  className = "",
+  href,
+  variant,
+}) {
+  const classNames = `${styles.button} ${variant === "dark" ? styles.dark : ""} ${className}`.trim();
   const content = (
     <>
       <span className={`${styles.tick} ${styles.tl}`} aria-hidden="true" />

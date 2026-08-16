@@ -392,7 +392,7 @@
     height: 36px;
     padding: 0 15px 0 16px;
     font-size: 1rem;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.04 em;
     --cta-arm: 10px;
     --cta-stroke: 2px;
     --cta-out: 4px;

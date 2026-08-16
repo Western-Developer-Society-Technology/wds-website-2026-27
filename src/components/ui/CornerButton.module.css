@@ -17,7 +17,7 @@
   font-size: calc(27 * var(--px, 1px));
   font-weight: 400;
   line-height: 0.9;
-  letter-spacing: calc(-1.85 * var(--px, 1px));
+  letter-spacing: calc(-1 * var(--px, 1px));
   cursor: pointer;
   text-decoration: none;
   box-sizing: border-box;
@@ -63,9 +63,22 @@
   border-right: var(--cta-stroke) solid var(--blue);
 }
 
+.dark .tl,
+.dark .tr,
+.dark .bl,
+.dark .br {
+  border-color: #1a1a1a;
+}
+
 .button:hover,
 .button:focus-visible {
   background-color: var(--blue);
+  color: #fff;
+}
+
+.dark:hover,
+.dark:focus-visible {
+  background-color: #1a1a1a;
   color: #fff;
 }
 
