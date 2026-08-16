@@ -145,18 +145,21 @@
 }
 
 .bars {
+  --bars-dur: 400ms;
+  --bars-ease: cubic-bezier(0.5, 0, 0.32, 1.22);
   position: relative;
   z-index: 2;
   flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: calc(17 * var(--px));
   height: calc(80.58 * var(--px));
   margin-top: calc(21 * var(--px));
 }
 
 .yellows {
-  position: absolute;
-  top: 0;
-  left: 0;
   display: flex;
+  flex-shrink: 0;
   gap: calc(16 * var(--px));
   height: calc(75 * var(--px));
 }
@@ -164,13 +167,16 @@
 .yellowBarcode {
   width: calc(125 * var(--px));
   height: 100%;
+  transition: width var(--bars-dur) var(--bars-ease);
+}
+
+.bars:hover .yellowBarcode {
+  width: calc(182 * var(--px));
 }
 
 .blue {
-  position: absolute;
-  top: 0;
-  left: calc(565 * var(--px));
-  right: 0;
+  flex: 1 1 auto;
+  min-width: 0;
   height: calc(40 * var(--px));
   background: var(--blue);
 }
@@ -184,6 +190,10 @@
   .wordmark {
     will-change: auto;
     transform: translate3d(-50%, 0, 0);
+  }
+
+  .yellowBarcode {
+    transition: none;
   }
 }
 
@@ -269,12 +279,15 @@
     width: min(28vw, 120px);
   }
 
+  .bars:hover .yellowBarcode {
+    width: min(34vw, 150px);
+  }
+
   .yellowBarcode:nth-child(3) {
     display: none;
   }
 
   .blue {
-    left: 38%;
     height: 32px;
   }
 
