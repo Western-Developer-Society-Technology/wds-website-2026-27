@@ -347,7 +347,7 @@
   }
 
   .bottomPad {
-    flex: 0 0 calc(min(90px, 30vw) * 201 / 503 + 16px);
+    flex: 0 0 calc(min(70px, 20vw) * 201 / 503 + 16px);
     min-height: 50px
   }
 }
