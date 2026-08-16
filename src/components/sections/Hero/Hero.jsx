@@ -10,12 +10,22 @@ export default function Hero() {
       <div className={styles.inner}>
         <HeroGrid />
 
-        <div className={styles.sideBarcode}>
-          <Barcode orientation="horizontal" color="var(--ink)" />
-        </div>
         <span className={styles.sideLine} aria-hidden="true" />
 
         <div className={styles.spacerTop} />
+
+        <div className={styles.sideBarcode}>
+          <Barcode
+            orientation="horizontal"
+            color="var(--ink)"
+            className={styles.sideBarcodeDesk}
+          />
+          <Barcode
+            orientation="vertical"
+            color="var(--ink)"
+            className={styles.sideBarcodeMob}
+          />
+        </div>
 
         <h1 className={styles.tagline}>
           building western’s tech community, line by line

@@ -1,5 +1,6 @@
 .about {
-  background: #fff;
+  background: #FCFDFF;
+  overflow-x: clip;
 }
 
 .inner {
@@ -359,6 +360,11 @@
 }
 
 @media (max-width: 768px) {
+  .inner {
+    width: min(100% - 2 * var(--gutter), var(--content-max));
+    max-width: 100%;
+  }
+
   .canvas {
     height: auto;
     display: flex;
@@ -434,10 +440,14 @@
       "p4 p4"
       "p5 p5";
     gap: 8px;
+    overflow: hidden;
+    width: 100%;
   }
 
   .photo {
     position: relative;
+    left: auto;
+    top: auto;
     width: auto;
     height: auto;
   }
@@ -469,6 +479,7 @@
 
   .cta {
     width: 100%;
+    max-width: 100%;
     height: 56px;
     padding: 0 20px;
     font-size: 1.5rem;
@@ -484,13 +495,17 @@
   }
 
   .barcodes {
+    width: 100%;
+    max-width: 100%;
     height: 52px;
-    gap: 10px;
-    align-self: flex-end;
+    gap: 8px;
+    align-self: stretch;
   }
 
   .barcodeCol {
-    width: min(28vw, 120px);
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
     height: 52px;
   }
 
