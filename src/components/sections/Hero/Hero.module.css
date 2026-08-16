@@ -224,7 +224,7 @@
   }
 
   .spacerTop {
-    flex: 0 0 calc(min(200px, 58vw) * 201 / 503 + 20px);
+    flex: 0 0 calc(min(180px, 50vw) * 201 / 503 + 20px);
     min-height: 96px;
   }
 
@@ -347,7 +347,7 @@
   }
 
   .bottomPad {
-    flex: 0 0 calc(min(110px, 38vw) * 201 / 503 + 20px);
+    flex: 0 0 calc(min(90px, 30vw) * 201 / 503 + 16px);
     min-height: 50px
   }
 }
