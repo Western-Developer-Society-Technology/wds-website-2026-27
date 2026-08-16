@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import useReveal from "@/lib/useReveal";
 import styles from "./About.module.css";
 
 const PHOTOS = [
@@ -37,16 +37,82 @@ const PHOTOS = [
   },
 ];
 
+const SMOOTH = 0.14;
+const START_VH = 0.72;
+const END_VH = 0.16;
+
 export default function AboutCollage() {
-  const [ref, revealed] = useReveal({
-    rootMargin: "0px 0px -65% 0px",
-  });
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let current = 0;
+    let target = 0;
+    let frame = 0;
+
+    const progressFromScroll = () => {
+      const top = el.getBoundingClientRect().top;
+      const vh = window.innerHeight || 1;
+      const start = vh * START_VH;
+      const end = vh * END_VH;
+      return Math.min(1, Math.max(0, (start - top) / (start - end)));
+    };
+
+    const apply = (value) => {
+      el.style.setProperty("--collage-p", value.toFixed(4));
+    };
+
+    const tick = () => {
+      current += (target - current) * SMOOTH;
+      if (Math.abs(target - current) < 0.001) current = target;
+      apply(current);
+      frame = current === target ? 0 : requestAnimationFrame(tick);
+    };
+
+    const sync = (immediate = false) => {
+      if (media.matches) {
+        current = 1;
+        target = 1;
+        apply(1);
+        if (frame) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+        }
+        return;
+      }
+
+      target = progressFromScroll();
+      if (immediate) {
+        current = target;
+        apply(current);
+        return;
+      }
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    const onScroll = () => sync();
+    const onResize = () => sync(true);
+    const onMotion = () => sync(true);
+
+    sync(true);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    media.addEventListener("change", onMotion);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      media.removeEventListener("change", onMotion);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
-    <div
-      ref={ref}
-      className={`${styles.collage} ${revealed ? styles.revealed : ""}`}
-    >
+    <div ref={ref} className={styles.collage}>
       {PHOTOS.map((photo) => (
         <div key={photo.id} className={`${styles.photo} ${photo.className}`}>
           <div className={styles.photoClip} style={{ position: "absolute" }}>

@@ -221,6 +221,7 @@
 }
 
 .collage {
+  --collage-p: 0;
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -233,21 +234,20 @@
 }
 
 .photo {
+  --stagger: 0;
+  --photo-p: clamp(
+    0,
+    calc((var(--collage-p) - var(--stagger)) / (1 - var(--stagger))),
+    1
+  );
   position: absolute;
-  opacity: 0;
+  opacity: var(--photo-p);
   transform: translate3d(
-    calc(var(--dx) * var(--move-unit)),
-    calc(var(--dy) * var(--move-unit)),
+    calc(var(--dx) * var(--move-unit) * (1 - var(--photo-p))),
+    calc(var(--dy) * var(--move-unit) * (1 - var(--photo-p))),
     0
   );
-  transition:
-    opacity 900ms cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms),
-    transform 900ms cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms);
-}
-
-.revealed .photo {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
 }
 
 .photoImg {
@@ -262,7 +262,7 @@
   height: calc(492.401 * var(--px));
   --dx: -160;
   --dy: 20;
-  --delay: 0ms;
+  --stagger: 0;
 }
 
 .photo2 {
@@ -272,7 +272,7 @@
   height: calc(271.125 * var(--px));
   --dx: 0;
   --dy: -140;
-  --delay: 90ms;
+  --stagger: 0.1;
 }
 
 .photo3 {
@@ -282,7 +282,7 @@
   height: calc(377.25 * var(--px));
   --dx: -120;
   --dy: 120;
-  --delay: 180ms;
+  --stagger: 0.2;
 }
 
 .photo4 {
@@ -292,7 +292,7 @@
   height: calc(295.848 * var(--px));
   --dx: 150;
   --dy: 120;
-  --delay: 270ms;
+  --stagger: 0.3;
 }
 
 .photo5 {
@@ -302,7 +302,7 @@
   height: calc(201.188 * var(--px));
   --dx: 150;
   --dy: -110;
-  --delay: 360ms;
+  --stagger: 0.4;
 }
 
 .barcodes {
@@ -346,11 +346,10 @@
     transition: none;
   }
 
-  .photo,
-  .revealed .photo {
+  .photo {
     opacity: 1;
     transform: none;
-    transition: none;
+    will-change: auto;
   }
 
   .cta,
