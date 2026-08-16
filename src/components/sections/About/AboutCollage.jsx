@@ -39,7 +39,9 @@ const PHOTOS = [
 
 const SMOOTH = 0.14;
 const START_VH = 0.72;
+const START_VH_MOBILE = 1.1;
 const END_VH = 0.16;
+const END_VH_MOBILE = 0.7;
 
 export default function AboutCollage() {
   const ref = useRef(null);
@@ -53,11 +55,13 @@ export default function AboutCollage() {
     let target = 0;
     let frame = 0;
 
+    const mobile = window.matchMedia("(max-width: 768px)");
+
     const progressFromScroll = () => {
       const top = el.getBoundingClientRect().top;
       const vh = window.innerHeight || 1;
-      const start = vh * START_VH;
-      const end = vh * END_VH;
+      const start = vh * (mobile.matches ? START_VH_MOBILE : START_VH);
+      const end = vh * (mobile.matches ? END_VH_MOBILE : END_VH);
       return Math.min(1, Math.max(0, (start - top) / (start - end)));
     };
 
@@ -102,11 +106,13 @@ export default function AboutCollage() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     media.addEventListener("change", onMotion);
+    mobile.addEventListener("change", onResize);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       media.removeEventListener("change", onMotion);
+      mobile.removeEventListener("change", onResize);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);

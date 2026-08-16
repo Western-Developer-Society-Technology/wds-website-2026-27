@@ -280,16 +280,11 @@
     flex-direction: column;
     padding-block: 64px 48px;
     gap: 28px;
-    --move-unit: 0.22px;
   }
 
   .eyebrow,
-  .headingWrap,
   .body,
-  .collage,
-  .cta,
-  .barcodes,
-  .grid {
+  .barcodes {
     position: static;
     left: auto;
     top: auto;
@@ -303,20 +298,22 @@
   }
 
   .headingWrap {
+    position: relative;
+    left: auto;
+    top: auto;
     width: 100%;
   }
 
   .heading {
-    font-size: clamp(2.25rem, 11vw, 4rem);
+    font-size: clamp(2.5rem, 13vw, 4rem);
     letter-spacing: -0.02em;
     white-space: normal;
-  }
-
-  .nowrap {
-    white-space: normal;
+    margin-top: -0.6em;
   }
 
   .headingOverlay {
+    position: absolute;
+    inset: 0;
     clip-path: inset(0 100% 0 0);
   }
 
@@ -324,12 +321,18 @@
     clip-path: inset(0 0 0 0);
   }
 
+  .headingOverlay .heading {
+    white-space: normal;
+  }
+
   .blueMark {
     display: none;
   }
 
   .headingOverlay .mark {
-    background: var(--blue);
+    background: linear-gradient(var(--blue), var(--blue)) no-repeat;
+    background-size: 100% calc(100% - 0.12em);
+    background-position: 0 0.12em;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
   }
@@ -338,93 +341,79 @@
     width: 100%;
     font-size: 1rem;
     letter-spacing: -0.03em;
+    margin-bottom: 1em;
   }
 
   .collage {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "p2 p2"
-      "p1 p3"
-      "p4 p4"
-      "p5 p5";
-    gap: 8px;
-    overflow: hidden;
-    width: 100%;
+    --px: calc(152vw / 1600);
+    --move-unit: var(--px);
+    position: relative;
+    inset: auto;
+    left: auto;
+    top: auto;
+    width: 152vw;
+    height: calc(668.25 * var(--px));
+    margin-left: calc(-1 * var(--gutter) - 26vw);
+    overflow: visible;
+    margin-bottom: 0.5em;
   }
 
   .photo {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: auto;
-    height: auto;
+    position: absolute;
   }
 
   .photo1 {
-    grid-area: p1;
-    aspect-ratio: 320.739 / 492.401;
+    top: calc(95 * var(--px));
   }
 
   .photo2 {
-    grid-area: p2;
-    aspect-ratio: 619.714 / 271.125;
+    top: 0;
   }
 
   .photo3 {
-    grid-area: p3;
-    aspect-ratio: 301.8 / 377.25;
+    top: calc(290.75 * var(--px));
   }
 
   .photo4 {
-    grid-area: p4;
-    aspect-ratio: 539.277 / 295.848;
+    top: calc(291 * var(--px));
   }
 
   .photo5 {
-    grid-area: p5;
-    aspect-ratio: 341.682 / 201.188;
+    top: calc(70 * var(--px));
   }
 
   .cta {
-    width: 100%;
-    max-width: 100%;
-    height: 56px;
-    padding: 0 20px;
-    font-size: 1.5rem;
+    position: relative;
+    left: auto;
+    top: auto;
+    align-self: flex-end;
+    width: auto;
+    min-width: 120px;
+    height: 36px;
+    padding: 0 15px 0 16px;
+    font-size: 1rem;
     letter-spacing: -0.04em;
-    --cta-arm: 14px;
+    --cta-arm: 10px;
     --cta-stroke: 2px;
-    --cta-out: 5px;
+    --cta-out: 4px;
   }
 
   .barcodes {
-    width: 100%;
-    max-width: 100%;
-    height: 52px;
-    gap: 8px;
-    align-self: stretch;
+    align-self: flex-end;
+    width: auto;
+    height: 28px;
+    gap: 5px;
   }
 
   .barcodeCol {
-    flex: 1 1 0;
-    min-width: 0;
-    width: auto;
-    height: 52px;
+    flex: none;
+    width: 42px;
+    height: 28px;
+    margin-top: -0.8em;
   }
 
   .grid {
-    width: min(200px, 58vw);
-    height: auto;
-    aspect-ratio: 242 / 194;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-  }
-
-  .cell {
-    width: calc(100% * 50 / 48);
-    height: calc(100% * 50 / 48);
-    border-width: 1px;
+    display: none;
   }
 }
 
@@ -432,17 +421,5 @@
   .headingOverlay,
   .headingOverlay.revealed {
     clip-path: inset(0 0 0 0);
-  }
-}
-
-@media (max-width: 480px) {
-  .collage {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "p2"
-      "p1"
-      "p3"
-      "p4"
-      "p5";
   }
 }
