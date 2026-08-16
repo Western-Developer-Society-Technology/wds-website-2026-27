@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Barcode from "@/components/ui/Barcode";
+import CornerButton from "@/components/ui/CornerButton";
 import HeroGrid from "./HeroGrid";
 import HeroWordmark from "./HeroWordmark";
 import styles from "./Hero.module.css";
@@ -30,6 +31,13 @@ export default function Hero() {
         <h1 className={styles.tagline}>
           building western’s tech community, line by line
         </h1>
+
+        <CornerButton
+          className={styles.join}
+          href="https://buy.stripe.com/cNibJ04YJ8s78uIc0t7wA02"
+        >
+          join
+        </CornerButton>
 
         <div className={styles.spacerMid} />
 

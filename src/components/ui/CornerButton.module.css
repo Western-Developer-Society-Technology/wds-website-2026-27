@@ -1,0 +1,104 @@
+.button {
+  --cta-arm: calc(16 * var(--px, 1px));
+  --cta-stroke: max(2px, calc(2.5 * var(--px, 1px)));
+  --cta-out: calc(6 * var(--px, 1px));
+  --cta-ease: cubic-bezier(0.45, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45em;
+  padding: 0 calc(21 * var(--px, 1px)) 0 calc(19 * var(--px, 1px));
+  border: none;
+  overflow: visible;
+  background-color: #eeeeee;
+  color: var(--ink);
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: calc(27 * var(--px, 1px));
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: calc(-1.85 * var(--px, 1px));
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition:
+    background-color 150ms var(--cta-ease),
+    color 150ms var(--cta-ease);
+}
+
+.tick {
+  position: absolute;
+  width: var(--cta-arm);
+  height: var(--cta-arm);
+  box-sizing: border-box;
+  pointer-events: none;
+  transition: transform 220ms var(--cta-ease);
+}
+
+.tl {
+  top: 0;
+  left: 0;
+  border-top: var(--cta-stroke) solid var(--blue);
+  border-left: var(--cta-stroke) solid var(--blue);
+}
+
+.tr {
+  top: 0;
+  right: 0;
+  border-top: var(--cta-stroke) solid var(--blue);
+  border-right: var(--cta-stroke) solid var(--blue);
+}
+
+.bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: var(--cta-stroke) solid var(--blue);
+  border-left: var(--cta-stroke) solid var(--blue);
+}
+
+.br {
+  bottom: 0;
+  right: 0;
+  border-bottom: var(--cta-stroke) solid var(--blue);
+  border-right: var(--cta-stroke) solid var(--blue);
+}
+
+.button:hover,
+.button:focus-visible {
+  background-color: var(--blue);
+  color: #fff;
+}
+
+.button:hover .tl,
+.button:focus-visible .tl {
+  transform: translate(calc(-1 * var(--cta-out)), calc(-1 * var(--cta-out)));
+}
+
+.button:hover .tr,
+.button:focus-visible .tr {
+  transform: translate(var(--cta-out), calc(-1 * var(--cta-out)));
+}
+
+.button:hover .bl,
+.button:focus-visible .bl {
+  transform: translate(calc(-1 * var(--cta-out)), var(--cta-out));
+}
+
+.button:hover .br,
+.button:focus-visible .br {
+  transform: translate(var(--cta-out), var(--cta-out));
+}
+
+.arrow {
+  width: 0.67em;
+  height: 0.67em;
+  flex-shrink: 0;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .tick {
+    transition: none;
+  }
+}
