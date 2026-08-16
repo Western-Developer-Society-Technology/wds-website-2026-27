@@ -122,6 +122,10 @@
 }
 
 .cta {
+  --cta-arm: calc(16 * var(--px));
+  --cta-stroke: max(2px, calc(2.5 * var(--px)));
+  --cta-out: calc(6 * var(--px));
+  --cta-ease: cubic-bezier(0.45, 0, 0.2, 1);
   position: absolute;
   left: calc(1405 * var(--px));
   top: calc(1220 * var(--px));
@@ -133,19 +137,87 @@
   height: calc(63 * var(--px));
   padding: 0 calc(21 * var(--px)) 0 calc(19 * var(--px));
   border: none;
-  background: var(--blue);
-  color: #fff;
+  overflow: visible;
+  background-color: #eeeeee;
+  color: var(--ink);
   font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
   font-size: calc(27 * var(--px));
   line-height: 0.9;
   letter-spacing: calc(-1.85 * var(--px));
   cursor: pointer;
+  transition:
+    background-color 150ms var(--cta-ease),
+    color 150ms var(--cta-ease);
+}
+
+.ctaTick {
+  position: absolute;
+  width: var(--cta-arm);
+  height: var(--cta-arm);
+  box-sizing: border-box;
+  pointer-events: none;
+  transition: transform 220ms var(--cta-ease);
+}
+
+.ctaTickTl {
+  top: 0;
+  left: 0;
+  border-top: var(--cta-stroke) solid var(--blue);
+  border-left: var(--cta-stroke) solid var(--blue);
+}
+
+.ctaTickTr {
+  top: 0;
+  right: 0;
+  border-top: var(--cta-stroke) solid var(--blue);
+  border-right: var(--cta-stroke) solid var(--blue);
+}
+
+.ctaTickBl {
+  bottom: 0;
+  left: 0;
+  border-bottom: var(--cta-stroke) solid var(--blue);
+  border-left: var(--cta-stroke) solid var(--blue);
+}
+
+.ctaTickBr {
+  bottom: 0;
+  right: 0;
+  border-bottom: var(--cta-stroke) solid var(--blue);
+  border-right: var(--cta-stroke) solid var(--blue);
+}
+
+.cta:hover,
+.cta:focus-visible {
+  background-color: var(--blue);
+  color: #fff;
+}
+
+.cta:hover .ctaTickTl,
+.cta:focus-visible .ctaTickTl {
+  transform: translate(calc(-1 * var(--cta-out)), calc(-1 * var(--cta-out)));
+}
+
+.cta:hover .ctaTickTr,
+.cta:focus-visible .ctaTickTr {
+  transform: translate(var(--cta-out), calc(-1 * var(--cta-out)));
+}
+
+.cta:hover .ctaTickBl,
+.cta:focus-visible .ctaTickBl {
+  transform: translate(calc(-1 * var(--cta-out)), var(--cta-out));
+}
+
+.cta:hover .ctaTickBr,
+.cta:focus-visible .ctaTickBr {
+  transform: translate(var(--cta-out), var(--cta-out));
 }
 
 .ctaArrow {
   width: calc(18 * var(--px));
   height: calc(18 * var(--px));
   flex-shrink: 0;
+  display: block;
 }
 
 .collage {
@@ -280,6 +352,11 @@
     transform: none;
     transition: none;
   }
+
+  .cta,
+  .ctaTick {
+    transition: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -397,6 +474,9 @@
     padding: 0 20px;
     font-size: 1.5rem;
     letter-spacing: -0.04em;
+    --cta-arm: 14px;
+    --cta-stroke: 2px;
+    --cta-out: 5px;
   }
 
   .ctaArrow {

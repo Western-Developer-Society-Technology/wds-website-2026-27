@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Barcode from "@/components/ui/Barcode";
 import AboutCollage from "./AboutCollage";
 import AboutGrid from "./AboutGrid";
@@ -27,14 +26,24 @@ export default function About() {
           <AboutCollage />
 
           <button type="button" className={styles.cta}>
+            <span className={`${styles.ctaTick} ${styles.ctaTickTl}`} aria-hidden="true" />
+            <span className={`${styles.ctaTick} ${styles.ctaTickTr}`} aria-hidden="true" />
+            <span className={`${styles.ctaTick} ${styles.ctaTickBl}`} aria-hidden="true" />
+            <span className={`${styles.ctaTick} ${styles.ctaTickBr}`} aria-hidden="true" />
             learn more
-            <Image
-              src="/icons/uprightarrow.svg"
-              alt=""
-              width={23}
-              height={24}
+            <svg
               className={styles.ctaArrow}
-            />
+              viewBox="0 0 23 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M0.956243 22.5928L20.7556 1.30777M20.7558 22.5918L20.7556 1.30777L0.957322 1.30786"
+                stroke="currentColor"
+                strokeWidth="2.61566"
+                strokeLinejoin="bevel"
+              />
+            </svg>
           </button>
 
           <div className={styles.barcodes} aria-hidden="true">
