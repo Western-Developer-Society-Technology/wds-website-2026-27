@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Barcode from "@/components/ui/Barcode";
 import CornerButton from "@/components/ui/CornerButton";
@@ -5,9 +8,88 @@ import HeroGrid from "./HeroGrid";
 import HeroWordmark from "./HeroWordmark";
 import styles from "./Hero.module.css";
 
+function cssTime(styles, name, fallback) {
+  const raw = styles.getPropertyValue(name).trim();
+  if (!raw) return fallback;
+  const value = Number.parseFloat(raw);
+  if (Number.isNaN(value)) return fallback;
+  return raw.endsWith("ms") || !raw.endsWith("s") ? value : value * 1000;
+}
+
 export default function Hero() {
+  const heroRef = useRef(null);
+  const [phase, setPhase] = useState("blank");
+
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduced.matches || window.scrollY > 10) {
+      setPhase("done");
+      return undefined;
+    }
+
+    const hero = heroRef.current;
+    if (!hero) return undefined;
+
+    const computed = window.getComputedStyle(hero);
+    const typeDelay = cssTime(computed, "--wds-type-delay", 80);
+    const stagger = cssTime(computed, "--wds-letter-stagger", 90);
+    const duration = cssTime(computed, "--wds-letter-duration", 1200);
+    const hold = cssTime(computed, "--wds-type-hold", 280);
+    const settle = cssTime(computed, "--wds-settle-duration", 700);
+
+    const lastLetterStart = stagger * 2;
+    const markDuration = lastLetterStart + hold;
+    const doneAt = typeDelay + Math.max(markDuration + settle, lastLetterStart + duration);
+
+    const preventScroll = (event) => {
+      event.preventDefault();
+    };
+
+    const preventKeys = (event) => {
+      if (
+        event.key === "ArrowUp" ||
+        event.key === "ArrowDown" ||
+        event.key === "PageUp" ||
+        event.key === "PageDown" ||
+        event.key === "Home" ||
+        event.key === "End" ||
+        event.key === " "
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("wheel", preventScroll, { passive: false });
+    window.addEventListener("touchmove", preventScroll, { passive: false });
+    window.addEventListener("keydown", preventKeys);
+
+    const mark = window.setTimeout(() => setPhase("mark"), typeDelay);
+    const settleId = window.setTimeout(() => setPhase("settle"), typeDelay + markDuration);
+    const done = window.setTimeout(() => {
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
+      window.removeEventListener("keydown", preventKeys);
+      setPhase("done");
+    }, doneAt);
+
+    return () => {
+      window.clearTimeout(mark);
+      window.clearTimeout(settleId);
+      window.clearTimeout(done);
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
+      window.removeEventListener("keydown", preventKeys);
+    };
+  }, []);
+
   return (
-    <section className={styles.hero} aria-label="Hero">
+    <section ref={heroRef} className={styles.hero} aria-label="Hero" data-intro={phase}>
+      <div className={styles.plusFrame} aria-hidden="true">
+        <span className={`${styles.plus} ${styles.plusTl}`} />
+        <span className={`${styles.plus} ${styles.plusTr}`} />
+        <span className={`${styles.plus} ${styles.plusBl}`} />
+        <span className={`${styles.plus} ${styles.plusBr}`} />
+      </div>
       <div className={styles.inner}>
         <HeroGrid />
 
@@ -50,8 +132,8 @@ export default function Hero() {
         </p>
 
         <div className={styles.stage}>
-          <HeroWordmark />
-          <div className={styles.imageClip} style={{ position: "absolute" }}>
+          <HeroWordmark phase={phase} />
+          <div className={styles.imageClip}>
             <Image
               src="/images/heroimage.png"
               alt="Western Developers Society members throwing up the W"

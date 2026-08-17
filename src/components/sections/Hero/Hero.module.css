@@ -1,8 +1,28 @@
 .hero {
+  /* Type-in: each letter starts slightly right, then eases left.
+     Next letter starts while the previous is still moving. */
+  --wds-type-delay: 100ms; /* wait after load before w starts */
+  --wds-letter-stagger: 40ms; /* delay between w, d, and s starting */
+  --wds-letter-duration: 700ms; /* how long each letter eases into place */
+  --wds-letter-ease: cubic-bezier(0.4, 0, 0.08, 1); /* slow start, long ease-out */
+  --wds-letter-from: 0.62em; /* start this far right of the rest spot */
+  --wds-type-hold: 950ms; /* pause after s starts, before the rest of the intro */
+  --wds-settle-duration: 700ms;
+  --wds-settle-ease: cubic-bezier(0.62, 0, 0.1, 1);
+
+  --intro-fade-delay: 150ms;
+  --intro-rise-delay: 150ms;
+  --plus-size: 35px;
+  --plus-size-mobile: 25px;
+  --plus-thickness: 2.5px;
+  --plus-thickness-mobile: 2px;
+  --plus-fade-in: 300ms;
+  --plus-fade-out: 300ms;
   height: 100svh;
   max-height: 100svh;
   overflow: hidden;
   background: #FCFDFF;
+  position: relative;
 }
 
 .inner {
@@ -103,6 +123,154 @@
   pointer-events: none;
   transform: translate3d(-50%, var(--wds-shift, 0px), 0);
   will-change: transform;
+}
+
+.wordmarkInner {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  letter-spacing: 0;
+  column-gap: calc(-10 * var(--px));
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.wordmarkLetter {
+  display: block;
+  flex: none;
+  opacity: 0;
+  transform: translate3d(var(--wds-letter-from), 0, 0);
+  will-change: transform, opacity;
+}
+
+.hero[data-intro="mark"] .wordmarkLetter,
+.hero[data-intro="settle"] .wordmarkLetter {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity calc(var(--wds-letter-duration) * 0.4) var(--wds-letter-ease)
+      calc(var(--letter-i) * var(--wds-letter-stagger)),
+    transform var(--wds-letter-duration) var(--wds-letter-ease)
+      calc(var(--letter-i) * var(--wds-letter-stagger));
+}
+
+.hero[data-intro="done"] .wordmarkLetter {
+  opacity: 1;
+  transform: none;
+}
+
+.plusFrame {
+  position: absolute;
+  inset: max(var(--gutter), calc((100vw - var(--content-max)) / 2 + 100px));
+  z-index: 6;
+  pointer-events: none;
+}
+
+.plus {
+  position: absolute;
+  width: var(--plus-size);
+  height: var(--plus-size);
+  color: var(--blue);
+  opacity: 0;
+  animation: plusFadeIn var(--plus-fade-in) ease var(--wds-type-delay) both;
+}
+
+.plus::before,
+.plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.plus::before {
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: var(--plus-thickness);
+  transform: translateY(-50%);
+}
+
+.plus::after {
+  top: 0;
+  left: 50%;
+  width: var(--plus-thickness);
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.plusTl {
+  top: 0;
+  left: 0;
+}
+
+.plusTr {
+  top: 0;
+  right: 0;
+}
+
+.plusBl {
+  bottom: 0;
+  left: 0;
+}
+
+.plusBr {
+  bottom: 0;
+  right: 0;
+}
+
+.hero[data-intro="settle"] .plus {
+  animation: plusFadeOut var(--plus-fade-out) ease var(--intro-fade-delay) both;
+}
+
+.hero[data-intro="done"] .plus {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes plusFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes plusFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.hero[data-intro="blank"] :is(.tagline, .join, .subtitle, .imageClip, .grid, .sideBarcode, .sideLine, .bars),
+.hero[data-intro="mark"] :is(.tagline, .join, .subtitle, .imageClip, .grid, .sideBarcode, .sideLine, .bars) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero[data-intro="blank"] :is(.subtitle, .imageClip, .bars),
+.hero[data-intro="mark"] :is(.subtitle, .imageClip, .bars) {
+  transform: translate3d(0, clamp(48px, 9vh, 100px), 0);
+}
+
+.hero[data-intro="settle"] :is(.tagline, .join, .grid, .sideBarcode, .sideLine) {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 380ms cubic-bezier(0.65, 0, 0.35, 1) var(--intro-fade-delay);
+}
+
+.hero[data-intro="settle"] :is(.subtitle, .imageClip, .bars) {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 350ms cubic-bezier(0.24, 0.01, 0, 1) var(--intro-rise-delay),
+    transform 600ms cubic-bezier(0.24, 0.01, 0, 1) var(--intro-rise-delay);
 }
 
 .grid {
@@ -213,12 +381,49 @@
     transform: translate3d(-50%, 0, 0);
   }
 
+  .wordmarkInner {
+    will-change: auto;
+    opacity: 1;
+    transform: none;
+  }
+
+  .wordmarkLetter {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .hero[data-intro] .plus {
+    animation: none;
+    opacity: 0;
+  }
+
+  .hero[data-intro] :is(.tagline, .join, .subtitle, .imageClip, .grid, .sideBarcode, .sideLine, .bars) {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    transition: none;
+  }
+
   .yellowBarcode {
     transition: none;
   }
 }
 
 @media (max-width: 768px) {
+  .plus {
+    width: var(--plus-size-mobile);
+    height: var(--plus-size-mobile);
+  }
+  .plus::before {
+    height: var(--plus-thickness-mobile);
+    transform: translateY(-50%);
+  }
+  
+  .plus::after {
+    width: var(--plus-thickness-mobile);
+    transform: translateX(-50%);
+  }
   .inner {
     padding-top: 28px;
   }
