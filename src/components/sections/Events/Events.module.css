@@ -326,8 +326,7 @@
 
   .headingGroup,
   .heading,
-  .year,
-  .cta {
+  .year {
     position: static;
     left: auto;
     top: auto;
@@ -353,9 +352,13 @@
   }
 
   .cta {
-    align-self: flex-end;
+    position: relative;
+    left: auto;
+    top: auto;
+    right: auto;
+    align-self: flex-start;
     width: auto;
-    min-width: 120px;
+    min-width: 80px;
     height: 36px;
     padding: 0 15px 0 16px;
     font-size: 1rem;
@@ -365,8 +368,28 @@
     --cta-out: 4px;
   }
 
+  .deck {
+    transform: translate3d(240vw, 0, 0);
+  }
+
+  .deckIn {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .fade {
+    width: 16vw;
+  }
+
+  .caption {
+    top: calc(740 * var(--cpx));
+  }
+
+  .ticks {
+    top: calc(850 * var(--cpx));
+  }
+
   .bleed {
     --cpx: calc(100vw / 780);
-    height: calc(1020 * var(--cpx));
+    height: calc(1180 * var(--cpx));
   }
 }
