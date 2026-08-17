@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Nav from "@/components/Nav/Nav";
 import Barcode from "@/components/ui/Barcode";
 import CornerButton from "@/components/ui/CornerButton";
 import HeroGrid from "./HeroGrid";
@@ -84,6 +85,7 @@ export default function Hero() {
 
   return (
     <section ref={heroRef} className={styles.hero} aria-label="Hero" data-intro={phase}>
+      <Nav intro={phase} />
       <div className={styles.plusFrame} aria-hidden="true">
         <span className={`${styles.plus} ${styles.plusTl}`} />
         <span className={`${styles.plus} ${styles.plusTr}`} />

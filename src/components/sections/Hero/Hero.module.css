@@ -2,7 +2,7 @@
   /* Type-in: each letter starts slightly right, then eases left.
      Next letter starts while the previous is still moving. */
   --wds-type-delay: 100ms; /* wait after load before w starts */
-  --wds-letter-stagger: 40ms; /* delay between w, d, and s starting */
+  --wds-letter-stagger: 30ms; /* delay between w, d, and s starting */
   --wds-letter-duration: 700ms; /* how long each letter eases into place */
   --wds-letter-ease: cubic-bezier(0.4, 0, 0.08, 1); /* slow start, long ease-out */
   --wds-letter-from: 0.62em; /* start this far right of the rest spot */
