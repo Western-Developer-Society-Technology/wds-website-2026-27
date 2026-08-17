@@ -37,7 +37,7 @@
 }
 
 .spacerTop {
-  flex: 3 3 calc(145 * var(--px));
+  flex: 3 3 calc(155 * var(--px));
   min-height: calc(48 * var(--px));
 }
 

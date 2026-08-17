@@ -52,12 +52,18 @@ body {
 
 @media (max-width: 2100px) {
   :root {
-    --content-max: 1640px;
+    --content-max: 1600px;
   }
 }
 
-@media (max-width: 1750px) {
+@media (max-width: 1900px) {
   :root {
-    --content-max: 1440px;
+    --content-max: 1500px;
+  }
+}
+
+@media (max-width: 1700px) {
+  :root {
+    --content-max: 1400px;
   }
 }
