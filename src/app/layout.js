@@ -1,4 +1,5 @@
 import "./globals.css";
+import TransitionProvider from "@/components/Transition/TransitionProvider";
 
 export const metadata = {
   title: "Western Developers Society",
@@ -8,7 +9,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <TransitionProvider>{children}</TransitionProvider>
+      </body>
     </html>
   );
 }

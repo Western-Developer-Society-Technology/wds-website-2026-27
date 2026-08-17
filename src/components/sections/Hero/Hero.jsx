@@ -17,16 +17,26 @@ function cssTime(styles, name, fallback) {
   return raw.endsWith("ms") || !raw.endsWith("s") ? value : value * 1000;
 }
 
+let hasPlayedIntro = false;
+
 export default function Hero() {
   const heroRef = useRef(null);
-  const [phase, setPhase] = useState("blank");
+  const [phase, setPhase] = useState(() => (hasPlayedIntro ? "done" : "blank"));
 
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduced.matches || window.scrollY > 10) {
+    if (hasPlayedIntro) {
       setPhase("done");
       return undefined;
     }
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduced.matches || window.scrollY > 10) {
+      hasPlayedIntro = true;
+      setPhase("done");
+      return undefined;
+    }
+
+    hasPlayedIntro = true;
 
     const hero = heroRef.current;
     if (!hero) return undefined;

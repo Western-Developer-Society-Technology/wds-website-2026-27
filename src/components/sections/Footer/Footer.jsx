@@ -16,7 +16,7 @@ function unit(index, count) {
   return count <= 1 ? "0" : String(index / (count - 1));
 }
 
-export default function Footer() {
+export default function Footer({ variant = "page" }) {
   const [activeLabel, setActiveLabel] = useState("");
   const chipRef = useRef(null);
   const [warpRef, warped] = useReveal({
@@ -46,8 +46,9 @@ export default function Footer() {
   return (
     <footer
       ref={warpRef}
-      className={styles.footer}
+      className={`${styles.footer} ${variant === "overlay" ? styles.overlay : ""}`}
       aria-label="Footer"
+      data-variant={variant}
       data-warp={warped ? "on" : "off"}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}

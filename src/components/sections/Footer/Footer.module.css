@@ -14,6 +14,10 @@
   color: var(--blue);
 }
 
+.overlay {
+  background: transparent;
+}
+
 .footer[data-warp="on"] {
   animation: warp 3s cubic-bezier(0.56, 0, 0.37, 1) both;
 }

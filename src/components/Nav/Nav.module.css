@@ -1,5 +1,6 @@
 .nav {
   --intro-fade-delay: 150ms;
+  --nav-ease: cubic-bezier(0.65, 0, 0.35, 1);
   position: fixed;
   top: 0;
   left: 0;
@@ -10,9 +11,13 @@
   opacity: 0;
 }
 
+.nav[data-raised="true"] {
+  z-index: 210;
+}
+
 .nav[data-intro="settle"] {
   opacity: 1;
-  transition: opacity 380ms cubic-bezier(0.65, 0, 0.35, 1) var(--intro-fade-delay);
+  transition: opacity 380ms var(--nav-ease) var(--intro-fade-delay);
 }
 
 .nav[data-intro="done"] {
@@ -38,6 +43,12 @@
 .mark,
 .menu {
   color: #1a1a1a;
+  transition: color 320ms var(--nav-ease);
+}
+
+.nav[data-raised="true"] .mark,
+.nav[data-raised="true"] .menu {
+  color: #fcfdff;
 }
 
 .mark {
@@ -50,15 +61,16 @@
 }
 
 .menu {
+  --menu-h: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 28px;
-  height: 16px;
+  height: var(--menu-h);
   padding: 0;
   border: none;
   background: transparent;
-  cursor: default;
+  cursor: pointer;
 }
 
 .line {
@@ -67,11 +79,33 @@
   height: 2px;
   background: currentColor;
   border-radius: 1px;
+  transform-origin: center;
+  transition:
+    transform 320ms var(--nav-ease),
+    opacity 220ms var(--nav-ease);
+}
+
+.menu[data-open="true"] .line:nth-child(1) {
+  transform: translateY(calc((var(--menu-h) - 2px) / 2)) rotate(45deg);
+}
+
+.menu[data-open="true"] .line:nth-child(2) {
+  opacity: 0;
+}
+
+.menu[data-open="true"] .line:nth-child(3) {
+  transform: translateY(calc((var(--menu-h) - 2px) / -2)) rotate(-45deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nav {
     opacity: 1;
+    transition: none;
+  }
+
+  .mark,
+  .menu,
+  .line {
     transition: none;
   }
 
@@ -91,7 +125,7 @@
   }
 
   .menu {
+    --menu-h: 14px;
     width: 24px;
-    height: 14px;
   }
 }
