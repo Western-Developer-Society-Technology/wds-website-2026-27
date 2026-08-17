@@ -1,0 +1,367 @@
+.portfolios {
+  --band-overhang: 110px;
+  --band-min-inset: 28px;
+  --content-w: min(100% - 2 * var(--gutter), var(--content-max));
+  /* 100vw (not 100%): --gpx is used in height, and % in height resolves
+     against parent height — which is auto here, so the grid collapsed.
+     The last term damps growth on large screens: extra viewport mostly
+     becomes side white space instead of bigger squares. */
+  --band-w: min(
+    calc(min(100vw - 2 * var(--gutter), var(--content-max)) + 2 * var(--band-overhang)),
+    calc(100vw - 2 * var(--band-min-inset)),
+    calc(1550px + 0.1 * (100vw - 1440px))
+  );
+  --gpx: calc(var(--band-w) / 1920);
+  --top-pad: calc(0 * var(--gpx));
+  position: relative;
+  background: #fcfdff;
+  overflow-x: clip;
+  padding-top: var(--top-pad);
+}
+
+.inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--top-pad);
+  z-index: 2;
+  width: var(--content-w);
+  margin-inline: auto;
+  container-type: inline-size;
+  pointer-events: none;
+}
+
+.head {
+  --px: 0.0625cqw;
+  position: relative;
+  height: calc(250 * var(--px));
+}
+
+.headingGroup {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.heading {
+  position: absolute;
+  left: calc(-15 * var(--px));
+  top: calc(5 * var(--px));
+  z-index: 2;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(136 * var(--px));
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: calc(-2.72 * var(--px));
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.count {
+  position: absolute;
+  left: calc(509 * var(--px));
+  top: calc(24 * var(--px));
+  z-index: 2;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(42 * var(--px));
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: calc(-0.84 * var(--px));
+  color: var(--ink);
+}
+
+.cta {
+  position: absolute;
+  left: calc(1442 * var(--px));
+  top: calc(56 * var(--px));
+  z-index: 3;
+  width: calc(154 * var(--px));
+  height: calc(63 * var(--px));
+  font-size: calc(27 * var(--px));
+  pointer-events: auto;
+}
+
+.blurb {
+  position: absolute;
+  right: 0;
+  left: auto;
+  top: calc(150 * var(--px));
+  z-index: 2;
+  margin: 0;
+  width: calc(341 * var(--px));
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: 17;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.05em;
+  color: var(--muted);
+  text-align: right;
+}
+
+.band {
+  position: relative;
+  width: var(--band-w);
+  height: calc(1440 * var(--gpx));
+  margin-inline: auto;
+  overflow: clip;
+}
+
+.grid {
+  --unit: var(--gpx);
+  position: absolute;
+  left: calc(-91 * var(--gpx));
+  top: calc(36 * var(--gpx));
+  display: grid;
+  grid-template-columns: repeat(6, calc(316.817 * var(--gpx)));
+  grid-template-rows: repeat(4, calc(316.817 * var(--gpx)));
+  column-gap: calc(43.62 * var(--gpx));
+  row-gap: calc(40.18 * var(--gpx));
+}
+
+.filler,
+.asterisk,
+.tile {
+  box-sizing: border-box;
+}
+
+.filler,
+.asterisk {
+  background: #F1F1F1;
+}
+
+.asterisk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #F1F1F1;
+}
+
+.asteriskIcon {
+  width: calc(130.49 * var(--unit));
+  height: auto;
+  color: #3e3e3e;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blue);
+  transition: background-color 220ms cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.tileInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(35 * var(--unit));
+  transition: transform 220ms cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.iconSlot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: calc(116 * var(--unit));
+  overflow: visible;
+}
+
+.icon {
+  width: calc(var(--iw) * var(--unit));
+  height: calc(var(--ih) * var(--unit));
+  max-width: none;
+}
+
+.label {
+  margin: 0;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: calc(42 * var(--unit));
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: #dbe6ff;
+  white-space: nowrap;
+  transition: color 220ms cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.fade {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.fadeTop {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(379 * var(--gpx));
+  background: linear-gradient(
+    180deg,
+    #fcfdff 47.72%,
+    rgba(252, 253, 255, 0) 102.28%
+  );
+}
+
+.fadeBottom {
+  top: calc(1080 * var(--gpx));
+  left: 0;
+  width: 100%;
+  height: calc(360 * var(--gpx));
+  background: linear-gradient(
+    0deg,
+    #fcfdff 49.89%,
+    rgba(252, 253, 255, 0) 100%
+  );
+}
+
+.fadeLeft {
+  left: calc(-39 * var(--gpx));
+  top: calc(61 * var(--gpx));
+  width: calc(288 * var(--gpx));
+  height: calc(1393 * var(--gpx));
+  background: linear-gradient(
+    90deg,
+    #fcfdff 0%,
+    rgba(252, 253, 255, 0) 88.68%
+  );
+}
+
+.fadeRight {
+  left: calc(1688 * var(--gpx));
+  top: calc(61 * var(--gpx));
+  width: calc(288 * var(--gpx));
+  height: calc(1393 * var(--gpx));
+  background: linear-gradient(
+    270deg,
+    #fcfdff 0%,
+    rgba(252, 253, 255, 0) 96.31%
+  );
+}
+
+@media (hover: hover) {
+  .tile:hover {
+    background: #0040cc;
+  }
+
+  .tile:hover .tileInner {
+    transform: translateY(calc(-10 * var(--unit)));
+  }
+
+  .tile:hover .label {
+    color: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .tileInner,
+  .label {
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .portfolios {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+
+  .inner {
+    position: static;
+    width: min(100% - 2 * var(--gutter), var(--content-max));
+    pointer-events: auto;
+  }
+
+  .head {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 28px;
+    gap: 20px;
+  }
+
+  .headingGroup,
+  .heading,
+  .count,
+  .blurb {
+    position: static;
+    left: auto;
+    top: auto;
+    inset: auto;
+  }
+
+  .headingGroup {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45em;
+  }
+
+  .heading {
+    font-size: clamp(2.5rem, 13vw, 4rem);
+    letter-spacing: -0.02em;
+    white-space: normal;
+  }
+
+  .count {
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    margin-top: 0.2em;
+  }
+
+  .cta {
+    position: relative;
+    left: auto;
+    top: auto;
+    right: auto;
+    align-self: flex-start;
+    width: auto;
+    min-width: 80px;
+    height: 36px;
+    padding: 0 15px 0 16px;
+    font-size: 1rem;
+    letter-spacing: -0.04em;
+    --cta-arm: 10px;
+    --cta-stroke: 2px;
+    --cta-out: 4px;
+  }
+
+  .blurb {
+    width: auto;
+    max-width: 22rem;
+    font-size: 1rem;
+    letter-spacing: -0.04em;
+    text-align: left;
+  }
+
+  .band {
+    width: var(--content-w);
+    height: auto;
+    overflow: visible;
+  }
+
+  .grid {
+    --unit: calc((100vw - 2 * var(--gutter) - 12px) / 2 / 316.817);
+    position: static;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+    column-gap: 12px;
+    row-gap: 12px;
+  }
+
+  .filler {
+    display: none;
+  }
+
+  .asterisk,
+  .tile {
+    aspect-ratio: 1;
+    width: 100%;
+  }
+
+  .fade {
+    display: none;
+  }
+}

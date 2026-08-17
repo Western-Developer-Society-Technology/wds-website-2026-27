@@ -63,7 +63,7 @@
 .bleed {
   --cpx: calc(100vw / 1920);
   position: relative;
-  height: calc(1115 * var(--cpx));
+  height: calc(1015 * var(--cpx));
   overflow: clip;
   touch-action: pan-y;
   user-select: none;

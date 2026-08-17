@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Asterisk from "@/components/ui/Asterisk";
 import useReveal from "@/lib/useReveal";
 import styles from "./About.module.css";
 
@@ -13,13 +13,7 @@ function HeadingText({ overlay = false }) {
       <span className={`${styles.nowrap} ${overlay ? styles.mark : ""}`}>
         tech
         <span className={styles.asteriskSlot}>
-          <Image
-            src="/icons/asteriskicon.svg"
-            alt=""
-            width={51}
-            height={49}
-            className={styles.asterisk}
-          />
+          <Asterisk className={styles.asterisk} />
         </span>
         club.
       </span>
