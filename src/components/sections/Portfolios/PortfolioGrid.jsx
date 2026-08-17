@@ -1,22 +1,57 @@
+"use client";
+
 import Image from "next/image";
 import Asterisk from "@/components/ui/Asterisk";
-import { CELLS, PORTFOLIO_BY_ID } from "./portfolioData";
+import useReveal from "@/lib/useReveal";
+import { CELLS, GRID, PORTFOLIO_BY_ID } from "./portfolioData";
 import styles from "./Portfolios.module.css";
 
+const COLS = GRID[0].length;
+
 export default function PortfolioGrid() {
+  const [gridRef, revealed] = useReveal({
+    threshold: 0.15,
+    rootMargin: "0px 0px -18% 0px",
+  });
+
+  let mobileStagger = 0;
+
   return (
     <div className={styles.band}>
-      <div className={styles.grid}>
+      <div
+        ref={gridRef}
+        className={`${styles.grid} ${revealed ? styles.gridIn : ""}`}
+      >
         {CELLS.map((id, index) => {
+          const col = index % COLS;
+          const row = Math.floor(index / COLS);
+          const staggerM = id === null ? 0 : mobileStagger++;
+          const mobileCol = staggerM % 2;
+          const mobileRow = Math.floor(staggerM / 2);
+          const delayVars = {
+            "--stagger": String(col + row * 3),
+            "--stagger-m": String(mobileCol + mobileRow),
+          };
+
           if (id === null) {
             return (
-              <div key={`filler-${index}`} className={styles.filler} aria-hidden="true" />
+              <div
+                key={`filler-${index}`}
+                className={`${styles.cell} ${styles.filler}`}
+                style={delayVars}
+                aria-hidden="true"
+              />
             );
           }
 
           if (id === "asterisk") {
             return (
-              <div key="asterisk" className={styles.asterisk} aria-hidden="true">
+              <div
+                key="asterisk"
+                className={`${styles.cell} ${styles.asterisk}`}
+                style={delayVars}
+                aria-hidden="true"
+              >
                 <Asterisk className={styles.asteriskIcon} />
               </div>
             );
@@ -27,8 +62,12 @@ export default function PortfolioGrid() {
           return (
             <div
               key={id}
-              className={styles.tile}
-              style={{ "--iw": String(portfolio.w), "--ih": String(portfolio.h) }}
+              className={`${styles.cell} ${styles.tile}`}
+              style={{
+                ...delayVars,
+                "--iw": String(portfolio.w),
+                "--ih": String(portfolio.h),
+              }}
             >
               <div className={styles.tileInner}>
                 <div className={styles.iconSlot}>

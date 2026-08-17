@@ -55,10 +55,10 @@ export const PORTFOLIO_BY_ID = Object.fromEntries(
 );
 
 export const GRID = [
-  [null, null, null, null, null, null],
-  [null, "development", "internals", "careers", "externals", null],
-  [null, "finance", "technology", "marketing", "asterisk", null],
-  [null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null],
+  [null, null, "development", "internals", "careers", "externals", null, null],
+  [null, null, "finance", "technology", "marketing", "asterisk", null, null],
+  [null, null, null, null, null, null, null, null],
 ];
 
 export const CELLS = GRID.flat();
