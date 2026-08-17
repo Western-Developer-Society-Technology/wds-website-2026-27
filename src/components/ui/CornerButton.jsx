@@ -31,8 +31,16 @@ export default function CornerButton({
   );
 
   if (href) {
+    const internal =
+      href.startsWith("/") || href.startsWith("#") || href.startsWith("?");
     return (
-      <a href={href} className={classNames} target="_blank" rel="noopener noreferrer">
+      <a
+        href={href}
+        className={classNames}
+        {...(internal
+          ? {}
+          : { target: "_blank", rel: "noopener noreferrer" })}
+      >
         {content}
       </a>
     );

@@ -1,8 +1,11 @@
 .root {
-  --col-dur: 620ms;
-  --col-ease: cubic-bezier(0.65, 0, 0.35, 1);
-  --content-fade: 320ms;
-  --wds-fade: 240ms;
+  --col-dur: 300ms;
+  --col-ease: cubic-bezier(0.7, 0, 0, 1);
+  --content-fade: 300ms;
+  --wds-letter-stagger: 30ms;
+  --wds-letter-duration: 700ms;
+  --wds-letter-ease: cubic-bezier(0.4, 0, 0.08, 1);
+  --wds-letter-from: 0.62em;
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -16,16 +19,23 @@
 
 .columns {
   position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  inset: 0 -4px;
+  display: flex;
 }
 
 .column {
+  flex: 1 0 0;
+  min-width: 0;
   height: 100%;
+  margin-right: -2px;
   background: #1a1a1a;
+  box-shadow: -3px 0 0 #1a1a1a, 3px 0 0 #1a1a1a;
   transform: translateY(-100%);
   will-change: transform;
+}
+
+.column:last-child {
+  margin-right: 0;
 }
 
 .root[data-ready="true"] .column {
@@ -42,20 +52,24 @@
   z-index: 1;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--content-fade) var(--col-ease);
 }
 
-.root[data-covered="true"][data-content="visible"] .content {
+.root[data-content="visible"] .content {
   opacity: 1;
   pointer-events: auto;
+}
+
+.root[data-content="hidden"] .content {
+  transition: opacity var(--content-fade) var(--col-ease);
 }
 
 .wds {
   position: absolute;
   inset: 0;
   z-index: 1;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(72px, 14vw, 220px);
@@ -64,13 +78,41 @@
   letter-spacing: -0.03em;
   color: #fcfdff;
   pointer-events: none;
-  opacity: 0;
   user-select: none;
-  transition: opacity var(--wds-fade) var(--col-ease);
+  opacity: 0;
 }
 
-.root[data-covered="true"][data-wds="visible"] .wds {
+.root[data-wds="in"] .wds,
+.root[data-wds="out"] .wds {
   opacity: 1;
+}
+
+.root[data-wds="out"] .wds {
+  opacity: 0;
+  transition: opacity var(--content-fade) var(--col-ease);
+}
+
+.wdsLetter {
+  display: block;
+  flex: none;
+  opacity: 0;
+  transform: translate3d(var(--wds-letter-from), 0, 0);
+  will-change: transform, opacity;
+}
+
+.root[data-wds="in"] .wdsLetter {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity calc(var(--wds-letter-duration) * 0.4) var(--wds-letter-ease)
+      calc(var(--letter-i) * var(--wds-letter-stagger)),
+    transform var(--wds-letter-duration) var(--wds-letter-ease)
+      calc(var(--letter-i) * var(--wds-letter-stagger));
+}
+
+.root[data-wds="out"] .wdsLetter {
+  opacity: 1;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -95,5 +137,14 @@
   .content,
   .wds {
     transition-duration: 180ms;
+  }
+
+  .wdsLetter {
+    transform: none;
+    will-change: auto;
+  }
+
+  .root[data-wds="in"] .wdsLetter {
+    transition: opacity 180ms ease;
   }
 }

@@ -15,7 +15,7 @@ export default function Portfolios() {
             WDS operates on 7 portfolios.<br />Learn more about what we do.
           </p>
         </div>
-        <CornerButton className={styles.cta} variant="dark">
+        <CornerButton className={styles.cta} variant="dark" href="/portfolios">
           view all
         </CornerButton>
       </div>

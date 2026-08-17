@@ -26,7 +26,7 @@ export default function About() {
 
           <AboutCollage />
 
-          <CornerButton className={styles.cta}>learn more</CornerButton>
+          <CornerButton className={styles.cta} href="/about">learn more</CornerButton>
 
           <div className={styles.barcodes} aria-hidden="true">
             <div className={styles.barcodeCol}>

@@ -14,13 +14,14 @@ import { createPortal } from "react-dom";
 import Curtain from "./Curtain";
 import { navLinks } from "./navLinks";
 import {
-  CONTENT_FADE,
   COVER,
   MENU_BUTTON_ID,
+  MENU_FADE_LEAD,
   REDUCED_FADE,
   SAFETY_TIMEOUT,
-  WDS_FADE,
   WDS_HOLD,
+  WDS_IN_DELAY,
+  WDS_TYPE,
 } from "./timing";
 
 const TransitionContext = createContext(null);
@@ -48,12 +49,17 @@ function coverDuration() {
   return prefersReducedMotion() ? REDUCED_FADE : COVER;
 }
 
-function fadeDuration() {
-  return prefersReducedMotion() ? REDUCED_FADE : CONTENT_FADE;
+function menuFadeInDelay() {
+  return Math.max(0, coverDuration() - MENU_FADE_LEAD);
 }
 
-function wdsHoldDuration() {
-  return prefersReducedMotion() ? REDUCED_FADE : WDS_FADE + WDS_HOLD;
+function wdsInDelay() {
+  return prefersReducedMotion() ? 0 : WDS_IN_DELAY;
+}
+
+function wdsReadyDuration() {
+  if (prefersReducedMotion()) return REDUCED_FADE * 2;
+  return WDS_IN_DELAY + WDS_TYPE + WDS_HOLD;
 }
 
 export default function TransitionProvider({ children }) {
@@ -63,7 +69,8 @@ export default function TransitionProvider({ children }) {
   const [phase, setPhase] = useState("idle");
   const [covered, setCovered] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
-  const [wdsVisible, setWdsVisible] = useState(false);
+  const [wdsMode, setWdsMode] = useState("off");
+  const [menuFlow, setMenuFlow] = useState(false);
 
   const phaseRef = useRef(phase);
   const pathnameRef = useRef(pathname);
@@ -105,9 +112,10 @@ export default function TransitionProvider({ children }) {
     routeReadyRef.current = false;
     holdDoneRef.current = false;
     uncoveringRef.current = false;
-    setWdsVisible(false);
+    setWdsMode("off");
     setContentVisible(false);
     setCovered(false);
+    setMenuFlow(false);
     setPhase("idle");
   }, []);
 
@@ -115,7 +123,7 @@ export default function TransitionProvider({ children }) {
     if (uncoveringRef.current) return;
     if (!routeReadyRef.current || !holdDoneRef.current) return;
     uncoveringRef.current = true;
-    setWdsVisible(false);
+    setWdsMode((current) => (current === "in" ? "out" : "off"));
     setContentVisible(false);
     setPhase("uncovering");
     setCovered(false);
@@ -128,7 +136,9 @@ export default function TransitionProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    navLinks.forEach((link) => router.prefetch(link.href));
+    [...navLinks.map((link) => link.href), "/portfolios"].forEach((href) => {
+      router.prefetch(href);
+    });
   }, [router]);
 
   useEffect(() => {
@@ -164,41 +174,48 @@ export default function TransitionProvider({ children }) {
       holdDoneRef.current = false;
       uncoveringRef.current = false;
 
-      if (routeReadyRef.current) {
-        window.scrollTo(0, 0);
-      } else {
+      const commitRoute = () => {
+        if (routeReadyRef.current) {
+          window.scrollTo(0, 0);
+          return;
+        }
         router.push(href, { scroll: false });
-      }
+      };
 
       later(() => {
         routeReadyRef.current = true;
         startUncover();
-      }, (fromMenu ? fadeDuration() : coverDuration()) + SAFETY_TIMEOUT);
+      }, (fromMenu ? coverDuration() : wdsReadyDuration()) + SAFETY_TIMEOUT);
 
       if (fromMenu) {
         setPhase("navFromMenu");
-        setContentVisible(false);
-        setWdsVisible(false);
+        setWdsMode("off");
+        const coverWait = remainingCover();
+        later(commitRoute, coverWait);
         later(() => {
           holdDoneRef.current = true;
           startUncover();
-        }, Math.max(fadeDuration(), remainingCover()));
+        }, coverWait);
         return;
       }
 
       setPhase("pageCovering");
       setContentVisible(false);
-      setWdsVisible(false);
+      setMenuFlow(false);
+      setWdsMode("off");
       coverNow();
 
       later(() => {
+        setWdsMode("in");
         setPhase("wdsHold");
-        setWdsVisible(true);
-        later(() => {
-          holdDoneRef.current = true;
-          startUncover();
-        }, wdsHoldDuration());
-      }, coverDuration());
+      }, wdsInDelay());
+
+      later(commitRoute, coverDuration());
+
+      later(() => {
+        holdDoneRef.current = true;
+        startUncover();
+      }, wdsReadyDuration());
     },
     [clearTimers, coverNow, later, remainingCover, router, startUncover],
   );
@@ -207,13 +224,14 @@ export default function TransitionProvider({ children }) {
     if (phaseRef.current !== "idle") return;
     clearTimers();
     setPhase("menuOpening");
-    setWdsVisible(false);
+    setMenuFlow(true);
+    setWdsMode("off");
     setContentVisible(false);
     coverNow();
     later(() => {
       setPhase("menuOpen");
       setContentVisible(true);
-    }, coverDuration());
+    }, menuFadeInDelay());
   }, [clearTimers, coverNow, later]);
 
   const closeMenu = useCallback(() => {
@@ -222,14 +240,11 @@ export default function TransitionProvider({ children }) {
     clearTimers();
     setPhase("menuClosing");
     setContentVisible(false);
-    const delay = current === "menuOpen" ? fadeDuration() : 0;
+    setCovered(false);
     later(() => {
-      setCovered(false);
-      later(() => {
-        finishIdle();
-        document.getElementById(MENU_BUTTON_ID)?.focus({ preventScroll: true });
-      }, coverDuration());
-    }, delay);
+      finishIdle();
+      document.getElementById(MENU_BUTTON_ID)?.focus({ preventScroll: true });
+    }, coverDuration());
   }, [clearTimers, finishIdle, later]);
 
   const navigate = useCallback(
@@ -345,11 +360,7 @@ export default function TransitionProvider({ children }) {
     [phase, menuRaised, menuOpen, openMenu, closeMenu, navigate],
   );
 
-  const showMenu =
-    phase === "menuOpening" ||
-    phase === "menuOpen" ||
-    phase === "menuClosing" ||
-    phase === "navFromMenu";
+  const showMenu = menuFlow && phase !== "idle";
 
   return (
     <TransitionContext.Provider value={value}>
@@ -359,7 +370,7 @@ export default function TransitionProvider({ children }) {
             <Curtain
               covered={covered}
               contentVisible={contentVisible}
-              wdsVisible={wdsVisible}
+              wdsMode={wdsMode}
               showMenu={showMenu}
             />,
             document.body,

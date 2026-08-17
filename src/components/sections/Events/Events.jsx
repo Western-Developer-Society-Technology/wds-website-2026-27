@@ -11,7 +11,7 @@ export default function Events() {
             <h2 className={styles.heading}>our events</h2>
             <p className={styles.year}>24-25</p>
           </div>
-          <CornerButton className={styles.cta} variant="dark">
+          <CornerButton className={styles.cta} variant="dark" href="/events">
             view all
           </CornerButton>
         </div>

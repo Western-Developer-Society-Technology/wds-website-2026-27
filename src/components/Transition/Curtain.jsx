@@ -8,14 +8,20 @@ import {
   COL_STAGGER,
   CONTENT_FADE,
   EASE,
-  WDS_FADE,
+  WDS_LETTER_COUNT,
+  WDS_LETTER_DURATION,
+  WDS_LETTER_EASE,
+  WDS_LETTER_FROM,
+  WDS_LETTER_STAGGER,
 } from "./timing";
 import styles from "./Curtain.module.css";
+
+const LETTERS = ["w", "d", "s"];
 
 export default function Curtain({
   covered,
   contentVisible,
-  wdsVisible,
+  wdsMode,
   showMenu,
 }) {
   const [ready, setReady] = useState(false);
@@ -31,12 +37,15 @@ export default function Curtain({
       data-ready={ready ? "true" : "false"}
       data-covered={covered ? "true" : "false"}
       data-content={contentVisible ? "visible" : "hidden"}
-      data-wds={wdsVisible ? "visible" : "hidden"}
+      data-wds={wdsMode}
       style={{
         "--col-dur": `${COL_DUR}ms`,
         "--col-ease": EASE,
         "--content-fade": `${CONTENT_FADE}ms`,
-        "--wds-fade": `${WDS_FADE}ms`,
+        "--wds-letter-stagger": `${WDS_LETTER_STAGGER}ms`,
+        "--wds-letter-duration": `${WDS_LETTER_DURATION}ms`,
+        "--wds-letter-ease": WDS_LETTER_EASE,
+        "--wds-letter-from": WDS_LETTER_FROM,
       }}
     >
       <div className={styles.columns} aria-hidden="true">
@@ -56,7 +65,15 @@ export default function Curtain({
         </div>
       ) : null}
       <p className={styles.wds} aria-hidden="true">
-        wds
+        {LETTERS.slice(0, WDS_LETTER_COUNT).map((letter, index) => (
+          <span
+            key={letter}
+            className={styles.wdsLetter}
+            style={{ "--letter-i": String(index) }}
+          >
+            {letter}
+          </span>
+        ))}
       </p>
     </div>
   );
