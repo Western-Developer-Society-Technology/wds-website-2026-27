@@ -4,6 +4,7 @@ import Events from "@/components/sections/Events/Events";
 import Portfolios from "@/components/sections/Portfolios/Portfolios";
 import Partner from "@/components/sections/Partner/Partner";
 import Team from "@/components/sections/Team/Team";
+import Footer from "@/components/sections/Footer/Footer";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Portfolios />
       <Partner />
       <Team />
+      <Footer />
     </main>
   );
 }

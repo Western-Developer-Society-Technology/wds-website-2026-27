@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useRef } from "react";
 import Image from "next/image";
+import HoverChip from "@/components/ui/HoverChip";
 import { teamMembers } from "./teamData";
 import styles from "./Team.module.css";
 
@@ -74,23 +75,7 @@ export default function TeamMarquee() {
           </div>
         </div>
       </div>
-      <div ref={chipRef} className={styles.chip} aria-hidden="true">
-        <div className={`${styles.chipInner} ${overPhoto ? styles.chipVisible : ""}`}>
-          linkedin
-          <svg
-            className={styles.chipArrow}
-            viewBox="0 0 23 24"
-            fill="none"
-          >
-            <path
-              d="M0.956243 22.5928L20.7556 1.30777M20.7558 22.5918L20.7556 1.30777L0.957322 1.30786"
-              stroke="currentColor"
-              strokeWidth="2.61566"
-              strokeLinejoin="bevel"
-            />
-          </svg>
-        </div>
-      </div>
+      <HoverChip ref={chipRef} label="linkedin" visible={overPhoto} />
     </div>
   );
 }

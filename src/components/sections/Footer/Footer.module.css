@@ -1,0 +1,177 @@
+@property --amp {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.footer {
+  --fpx: calc(100vw / 1920);
+  --amp: 0;
+  position: relative;
+  height: calc(475 * var(--fpx));
+  background: #fcfdff;
+  overflow: clip;
+  color: var(--blue);
+}
+
+.footer[data-warp="on"] {
+  animation: warp 3s cubic-bezier(0.56, 0, 0.37, 1) both;
+}
+
+.org {
+  position: absolute;
+  left: calc(23 * var(--fpx));
+  top: calc(91 * var(--fpx));
+  z-index: 2;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(28.451 * var(--fpx));
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--blue);
+  white-space: nowrap;
+}
+
+.social {
+  position: absolute;
+  top: calc(91 * var(--fpx));
+  z-index: 2;
+  width: calc(35.134 * var(--fpx));
+  height: calc(35.134 * var(--fpx));
+  overflow: clip;
+}
+
+.socialIcon {
+  position: absolute;
+  display: block;
+}
+
+.social[data-id="instagram"] .socialIcon {
+  inset: 8.33%;
+}
+
+.social[data-id="discord"] .socialIcon {
+  inset: 16.67% 6.25%;
+}
+
+.social[data-id="linkedin"] .socialIcon {
+  inset: 12.5%;
+}
+
+.socialImg {
+  object-fit: fill;
+}
+
+.strip {
+  position: absolute;
+  top: calc(141 * var(--fpx));
+  left: 0;
+  right: 0;
+  height: calc(78.58 * var(--fpx));
+  overflow: clip;
+}
+
+.stripTrack {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+.segment {
+  --s: max(0.14, calc(1 + var(--amp) * (2 * var(--t) - 1)));
+  flex-grow: var(--s);
+  flex-shrink: 1;
+  flex-basis: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+.wordmark {
+  position: absolute;
+  top: calc(-7 * var(--fpx));
+  left: 0;
+  right: 0;
+  z-index: 1;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+
+.wordmarkRow {
+  --fit: 0.749;
+  --n: 9;
+  display: flex;
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(500 * var(--fpx));
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0;
+  color: var(--blue);
+  white-space: nowrap;
+}
+
+.letter {
+  --t: calc(var(--i) / (var(--n) - 1));
+  --s: max(0.16, calc(var(--fit) * (1 + var(--amp) * (1 - 2 * var(--t)))));
+  display: block;
+  flex: 0 0 auto;
+  width: calc(var(--advance) * var(--s));
+}
+
+.letterExtra {
+  display: none;
+}
+
+.glyph {
+  display: inline-block;
+  transform: scaleX(var(--s));
+  transform-origin: left center;
+}
+
+@keyframes warp {
+  0% {
+    --amp: -0.3;
+  }
+
+  34% {
+    --amp: 0.92;
+  }
+
+  100% {
+    --amp: -0.3;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .social {
+    cursor: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer[data-warp="on"] {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    --fpx: calc(100vw / 560);
+    height: calc(475 * var(--fpx));
+  }
+}
+
+@media (min-width: 1751px) {
+  .wordmarkRow {
+    --fit: 0.562;
+    --n: 12;
+  }
+
+  .letterExtra {
+    display: block;
+  }
+}
