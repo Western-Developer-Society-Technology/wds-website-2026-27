@@ -75,6 +75,18 @@
   outline: none;
 }
 
+.deck {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(110vw, 0, 0);
+  transition: transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.deckIn {
+  transform: translate3d(0, 0, 0);
+}
+
 .card {
   position: absolute;
   left: 50%;
@@ -170,10 +182,24 @@
   transform: translateX(-50%);
   text-align: center;
   white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms 800ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .captionEnter {
   animation: captionIn 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ticksWrap {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.metaIn {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .title {
@@ -258,6 +284,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .deck,
+  .deckIn {
+    transform: none;
+    transition: none;
+  }
+
+  .caption,
+  .ticksWrap {
+    opacity: 1;
+    pointer-events: auto;
+    transition: none;
+  }
+
   .card,
   .cardFace,
   .tint,
