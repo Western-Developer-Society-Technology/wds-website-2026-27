@@ -1,0 +1,242 @@
+.team {
+  background: #fcfdff;
+  overflow-x: clip;
+}
+
+.inner {
+  width: min(100% - 2 * var(--gutter), var(--content-max));
+  margin-inline: auto;
+  container-type: inline-size;
+}
+
+.head {
+  --px: 0.0625cqw;
+  position: relative;
+  height: calc(80 * var(--px));
+  margin-bottom: calc(45.4 * var(--px));
+}
+
+.heading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(80 * var(--px));
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: calc(-1.6 * var(--px));
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.subtitle {
+  position: absolute;
+  right: 0;
+  top: calc(43 * var(--px));
+  z-index: 2;
+  margin: 0;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: 17;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.05em;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.bleed {
+  --tpx: calc(100vw / 1920);
+  position: relative;
+  height: calc(232.95 * var(--tpx));
+  margin-bottom: calc(160 * var(--tpx));
+}
+
+.viewport {
+  overflow: clip;
+  height: 100%;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: marquee 80s linear infinite;
+  will-change: transform;
+}
+
+.bleed:hover .track,
+.bleed:focus-within .track {
+  animation-play-state: paused;
+}
+
+.group {
+  display: flex;
+}
+
+.item {
+  position: relative;
+  flex-shrink: 0;
+  width: calc(228.994 * var(--tpx));
+  height: calc(232.515 * var(--tpx));
+  margin-right: calc(24.256 * var(--tpx));
+  text-decoration: none;
+  color: inherit;
+}
+
+.photo {
+  position: absolute;
+  left: calc(7.05 * var(--tpx));
+  top: calc(8.46 * var(--tpx));
+  width: calc(214.9 * var(--tpx));
+  height: calc(214.9 * var(--tpx));
+  overflow: hidden;
+}
+
+.photoImg {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.name,
+.role {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(33.82 * var(--tpx));
+  padding: 0 calc(8.3 * var(--tpx));
+  background: #1a1a1a;
+  color: #fff;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: calc(21.138 * var(--tpx));
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.name {
+  left: 0;
+  top: 0;
+}
+
+.role {
+  right: 0;
+  bottom: 0;
+}
+
+.chip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.chipInner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  background: var(--blue);
+  color: #fff;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale(0.86);
+  transition:
+    opacity 140ms cubic-bezier(0.45, 0, 0.2, 1),
+    transform 140ms cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.chipVisible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.chipArrow {
+  width: 0.67em;
+  height: 0.67em;
+  flex-shrink: 0;
+  display: block;
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .item {
+    cursor: none;
+  }
+}
+
+@media (hover: none) {
+  .chip {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+
+  .chipInner {
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .head {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-top: 64px;
+  }
+
+  .heading,
+  .subtitle {
+    position: static;
+    left: auto;
+    top: auto;
+    right: auto;
+  }
+
+  .heading {
+    font-size: clamp(2.5rem, 13vw, 4rem);
+    letter-spacing: -0.02em;
+    white-space: normal;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    letter-spacing: -0.04em;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .bleed {
+    --tpx: calc(100vw / 560);
+    height: calc(232.95 * var(--tpx));
+    margin-bottom: 48px;
+  }
+}
