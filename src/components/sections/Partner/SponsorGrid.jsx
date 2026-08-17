@@ -17,7 +17,7 @@ export default function SponsorGrid() {
         return (
           <div
             key={id}
-            className={styles.block}
+            className={`${styles.block} ${id === "wds" ? styles.wds : ""}`}
             style={{ "--iw": String(sponsor.w), "--ih": String(sponsor.h) }}
           >
             <Image

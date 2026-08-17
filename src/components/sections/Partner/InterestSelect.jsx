@@ -11,15 +11,22 @@ export const INTEREST_OPTIONS = [
   "judging a hackathon",
 ];
 
-export default function InterestSelect({ value, onChange }) {
+export default function InterestSelect({ value, onChange, invalid = false }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(() =>
     Math.max(0, INTEREST_OPTIONS.indexOf(value)),
   );
   const rootRef = useRef(null);
   const triggerRef = useRef(null);
+  const swallowRef = useRef(null);
   const listId = useId();
   const optionId = (index) => `${listId}-opt-${index}`;
+
+  useEffect(() => {
+    return () => {
+      swallowRef.current?.cleanup();
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -40,10 +47,39 @@ export default function InterestSelect({ value, onChange }) {
     }
   }, [open, value]);
 
-  const commit = (index) => {
-    onChange(INTEREST_OPTIONS[index]);
+  const closeAfterSelect = () => {
+    swallowRef.current?.cleanup();
+
+    const swallow = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    document.addEventListener("pointerup", swallow, true);
+    document.addEventListener("click", swallow, true);
+
+    const timeout = window.setTimeout(() => {
+      document.removeEventListener("pointerup", swallow, true);
+      document.removeEventListener("click", swallow, true);
+      swallowRef.current = null;
+    }, 400);
+
+    swallowRef.current = {
+      cleanup: () => {
+        window.clearTimeout(timeout);
+        document.removeEventListener("pointerup", swallow, true);
+        document.removeEventListener("click", swallow, true);
+        swallowRef.current = null;
+      },
+    };
+
     setOpen(false);
     triggerRef.current?.focus();
+  };
+
+  const commit = (index) => {
+    onChange(INTEREST_OPTIONS[index]);
+    closeAfterSelect();
   };
 
   const onKeyDown = (event) => {
@@ -87,11 +123,12 @@ export default function InterestSelect({ value, onChange }) {
       <button
         ref={triggerRef}
         type="button"
-        className={styles.selectTrigger}
+        className={`${styles.selectTrigger} ${invalid ? styles.fieldInvalid : ""}`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
         aria-label="Partnership interest"
+        aria-invalid={invalid}
         aria-activedescendant={open ? optionId(activeIndex) : undefined}
         onClick={() => setOpen((isOpen) => !isOpen)}
         onKeyDown={onKeyDown}
@@ -126,9 +163,16 @@ export default function InterestSelect({ value, onChange }) {
               className={`${styles.selectOption} ${
                 index === activeIndex ? styles.selectOptionActive : ""
               }`}
-              onPointerDown={(event) => event.preventDefault()}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                commit(index);
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
               onMouseEnter={() => setActiveIndex(index)}
-              onClick={() => commit(index)}
             >
               {option}
             </li>
