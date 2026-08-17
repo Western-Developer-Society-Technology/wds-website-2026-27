@@ -20,6 +20,7 @@
 }
 
 .inner {
+  --px: calc(min(100vw - 2 * var(--gutter), var(--content-max)) / 1600);
   position: absolute;
   left: 0;
   right: 0;
@@ -27,12 +28,10 @@
   z-index: 2;
   width: var(--content-w);
   margin-inline: auto;
-  container-type: inline-size;
   pointer-events: none;
 }
 
 .head {
-  --px: 0.0625cqw;
   position: relative;
   height: calc(250 * var(--px));
 }
@@ -264,17 +263,21 @@
 
 @media (max-width: 768px) {
   .portfolios {
-    padding-top: 48px;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0px;
     padding-bottom: 48px;
   }
 
   .inner {
-    position: static;
-    width: min(100% - 2 * var(--gutter), var(--content-max));
+    display: contents;
     pointer-events: auto;
   }
 
   .head {
+    order: 1;
+    width: min(100% - 2 * var(--gutter), var(--content-max));
+    margin-inline: auto;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -311,14 +314,17 @@
   }
 
   .cta {
+    order: 3;
     position: relative;
     left: auto;
     top: auto;
     right: auto;
-    align-self: flex-start;
+    align-self: flex-end;
     width: auto;
     min-width: 80px;
     height: 36px;
+    margin-top: 20px;
+    margin-right: var(--gutter);
     padding: 0 15px 0 16px;
     font-size: 1rem;
     letter-spacing: -0.04em;
@@ -336,6 +342,7 @@
   }
 
   .band {
+    order: 2;
     width: var(--content-w);
     height: auto;
     overflow: visible;

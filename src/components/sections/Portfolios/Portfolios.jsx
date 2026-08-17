@@ -11,13 +11,13 @@ export default function Portfolios() {
             <h2 className={styles.heading}>portfolios</h2>
             <p className={styles.count}>7</p>
           </div>
-          <CornerButton className={styles.cta} variant="dark">
-            view all
-          </CornerButton>
           <p className={styles.blurb}>
             WDS operates on 7 portfolios.<br />Learn more about what we do.
           </p>
         </div>
+        <CornerButton className={styles.cta} variant="dark">
+          view all
+        </CornerButton>
       </div>
       <PortfolioGrid />
     </section>
