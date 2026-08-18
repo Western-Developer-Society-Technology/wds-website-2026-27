@@ -18,6 +18,7 @@
   flex-direction: column;
   gap: 0.08em;
   flex: 1 0 auto;
+  margin-bottom: -100px;
 }
 
 .item {
@@ -43,7 +44,7 @@
 .link {
   display: inline-block;
   font-family: var(--font-display);
-  font-size: clamp(42px, 7vw, 92px);
+  font-size: clamp(30px, 5vw, 84px);
   font-weight: 400;
   line-height: 1.08;
   letter-spacing: -0.03em;
