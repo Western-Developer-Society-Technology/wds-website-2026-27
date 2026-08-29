@@ -1,0 +1,184 @@
+:global(html[data-notification-bar="top"]) {
+  --notification-bar-h: 44px;
+  --notification-bar-fade-delay: 150ms;
+  --notification-bar-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --notification-bar-rise-ease: cubic-bezier(0.24, 0.01, 0, 1);
+}
+
+:global(html[data-notification-bar="top"]) :global(header[aria-label="Site"]) {
+  top: var(--notification-bar-h);
+}
+
+:global(html[data-notification-bar="top"]) :global(section[aria-label="Hero"]) {
+  padding-top: var(--notification-bar-h);
+}
+
+:global(html[data-notification-bar="top"]:has(section[aria-label="Hero"][data-intro="blank"])),
+:global(html[data-notification-bar="top"]:has(section[aria-label="Hero"][data-intro="mark"])) {
+  --notification-bar-opacity: 0;
+  --notification-bar-visibility: hidden;
+  --notification-bar-y: -100%;
+}
+
+:global(html[data-notification-bar="top"]:has(section[aria-label="Hero"][data-intro="settle"])) {
+  --notification-bar-transition:
+    visibility 0s linear var(--notification-bar-fade-delay),
+    opacity 380ms var(--notification-bar-ease) var(--notification-bar-fade-delay),
+    transform 600ms var(--notification-bar-rise-ease) var(--notification-bar-fade-delay);
+}
+
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  display: flex;
+  align-items: stretch;
+  height: var(--notification-bar-h);
+  background: var(--ink);
+  color: #fff;
+  opacity: var(--notification-bar-opacity, 1);
+  transform: translate3d(0, var(--notification-bar-y, 0%), 0);
+  transition: var(--notification-bar-transition, none);
+  visibility: var(--notification-bar-visibility, visible);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.marquee {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #FCAFDD;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.group {
+  display: flex;
+  flex: none;
+  align-items: center;
+  width: max-content;
+  animation: notificationMarquee 24s linear infinite;
+  will-change: transform;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding-right: 26px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.star {
+  width: 19px;
+  height: auto;
+  color: #FCAFDD;
+}
+
+.cta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 20px 0 22px;
+  background: #FCAFDD;
+  color: var(--ink);
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  transition: background 180ms cubic-bezier(0.45, 0, 0.2, 1), color 180ms cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.ctaArrow {
+  font-size: 19px;
+  line-height: 0.7;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  background: var(--yellow);
+  color: var(--ink);
+  outline: none;
+}
+
+@keyframes notificationMarquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    visibility: visible;
+  }
+
+  .group {
+    animation: none;
+  }
+
+  .cta {
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  :global(html[data-notification-bar="top"]) {
+    --notification-bar-h: 38px;
+  }
+
+  .item {
+    gap: 20px;
+    padding-right: 20px;
+    font-size: 20px;
+  }
+
+  .star {
+    width: 15px;
+  }
+
+  .stripe {
+    height: 3px;
+  }
+
+  .cta {
+    padding: 0 15px 0 17px;
+    font-size: 14px;
+  }
+
+  .ctaArrow {
+    font-size: 17px;
+  }
+}
