@@ -235,20 +235,25 @@
 
 .grid {
   position: absolute;
-  left: 0;
-  top: calc(1174 * var(--px));
+  left: -1px;
+  top: calc(1174 * var(--px) - 1px);
   z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(5, calc(48 * var(--px)));
-  grid-template-rows: repeat(4, calc(48 * var(--px)));
+  width: calc(240 * var(--px));
+  height: calc(192 * var(--px));
+  padding: 1px;
+  box-sizing: content-box;
   pointer-events: none;
 }
 
-.cell {
-  width: calc(50 * var(--px));
-  height: calc(50 * var(--px));
-  border: max(1px, calc(2 * var(--px))) solid var(--ink);
-  box-sizing: border-box;
+.gridSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2px;
+  shape-rendering: crispEdges;
 }
 
 @media (prefers-reduced-motion: reduce) {

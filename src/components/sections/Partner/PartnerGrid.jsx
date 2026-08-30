@@ -1,3 +1,4 @@
+import { createGridPath } from "@/lib/gridPath";
 import styles from "./Partner.module.css";
 
 const CELLS = [
@@ -9,16 +10,14 @@ const CELLS = [
   [4, 2],
 ];
 
+const GRID_PATH = createGridPath(CELLS);
+
 export default function PartnerGrid() {
   return (
     <div className={styles.squares} aria-hidden="true">
-      {CELLS.map(([col, row]) => (
-        <span
-          key={`${col}-${row}`}
-          className={styles.cell}
-          style={{ gridColumn: col + 1, gridRow: row + 1 }}
-        />
-      ))}
+      <svg className={styles.gridSvg} viewBox="0 0 5 3" preserveAspectRatio="xMinYMin meet">
+        <path d={GRID_PATH} vectorEffect="non-scaling-stroke" strokeLinecap="square" />
+      </svg>
     </div>
   );
 }

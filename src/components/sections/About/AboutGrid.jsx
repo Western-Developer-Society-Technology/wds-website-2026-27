@@ -1,3 +1,4 @@
+import { createGridPath } from "@/lib/gridPath";
 import styles from "./About.module.css";
 
 const CELLS = [
@@ -11,16 +12,14 @@ const CELLS = [
   [4, 3],
 ];
 
+const GRID_PATH = createGridPath(CELLS);
+
 export default function AboutGrid() {
   return (
     <div className={styles.grid} aria-hidden="true">
-      {CELLS.map(([col, row]) => (
-        <span
-          key={`${col}-${row}`}
-          className={styles.cell}
-          style={{ gridColumn: col + 1, gridRow: row + 1 }}
-        />
-      ))}
+      <svg className={styles.gridSvg} viewBox="0 0 5 4" preserveAspectRatio="xMinYMin meet">
+        <path d={GRID_PATH} vectorEffect="non-scaling-stroke" strokeLinecap="square" />
+      </svg>
     </div>
   );
 }

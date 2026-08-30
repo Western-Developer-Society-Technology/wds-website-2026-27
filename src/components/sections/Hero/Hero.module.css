@@ -276,15 +276,12 @@
 .grid {
   position: absolute;
   top: 0;
-  right: calc(183 * var(--px));
+  right: calc(223 * var(--px) - 1px);
   z-index: 3;
-  width: calc(503 * var(--px));
-  height: calc(201 * var(--px));
-  display: grid;
-  grid-template-columns: repeat(9, calc(48 * var(--px)));
-  grid-template-rows: repeat(4, calc(48 * var(--px)));
-  padding-left: calc(31 * var(--px));
-  box-sizing: border-box;
+  width: calc(432 * var(--px));
+  height: calc(192 * var(--px));
+  padding: 1px;
+  box-sizing: content-box;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(
     180deg,
@@ -298,11 +295,15 @@
   );
 }
 
-.cell {
-  width: calc(50 * var(--px));
-  height: calc(50 * var(--px));
-  border: max(1px, calc(2 * var(--px))) solid var(--ink);
-  box-sizing: border-box;
+.gridSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2px;
+  shape-rendering: crispEdges;
 }
 
 .sideBarcode {
@@ -474,20 +475,15 @@
   }
 
   .grid {
+    right: calc(183 * var(--px) - 0.5px);
     width: min(200px, 58vw);
     height: auto;
-    aspect-ratio: 503 / 201;
-    padding-left: 0%;
-    padding-right: 2px;
-    padding-bottom: 2px;
-    grid-template-columns: repeat(9, 1fr);
-    grid-template-rows: repeat(4, 1fr);
+    aspect-ratio: 9 / 4;
+    padding: 0.5px;
   }
 
-  .cell {
-    width: calc(100% * 50 / 48);
-    height: calc(100% * 50 / 48);
-    border-width: 1px;
+  .gridSvg {
+    stroke-width: 1px;
   }
 
   .sideBarcode {
