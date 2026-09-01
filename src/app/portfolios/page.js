@@ -1,5 +1,5 @@
 import Nav from "@/components/Nav/Nav";
-import styles from "../placeholder.module.css";
+import PortfolioDirectory from "./PortfolioDirectory";
 
 export const metadata = {
   title: "Portfolios – Western Developers Society",
@@ -7,9 +7,9 @@ export const metadata = {
 
 export default function PortfoliosPage() {
   return (
-    <main className={styles.page}>
+    <main>
       <Nav />
-      <h1 className={styles.title}>Portfolios</h1>
+      <PortfolioDirectory />
     </main>
   );
 }
