@@ -2,12 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import {
-  PORTFOLIO_APPLICATIONS,
-  REQUIREMENTS,
-  RESPONSIBILITIES,
-  TEAM_PREVIEW,
-} from "./portfolioData";
+import { PORTFOLIO_APPLICATIONS, TEAM_PREVIEW } from "./portfolioData";
 import styles from "./portfolios.module.css";
 
 function ArrowIcon() {
@@ -63,7 +58,7 @@ export default function PortfolioDirectory() {
   return (
     <section className={styles.page} aria-labelledby="portfolio-heading">
       <header className={styles.header}>
-        <p className={styles.eyebrow}>directors applications</p>
+        <p className={styles.eyebrow}>director hiring starts in september</p>
         <div className={styles.headingRow}>
           <h1 id="portfolio-heading">portfolios</h1>
           <span aria-label={`${PORTFOLIO_APPLICATIONS.length} portfolios`}>
@@ -133,7 +128,6 @@ export default function PortfolioDirectory() {
             {activePortfolio.tags.map((tag) => (
               <span key={tag}>{tag}</span>
             ))}
-            <span>{activePortfolio.spots} spots</span>
           </div>
 
           <p className={styles.description}>{activePortfolio.description}</p>
@@ -159,20 +153,22 @@ export default function PortfolioDirectory() {
         <div className={styles.roleDetails}>
           <h3>Responsibilities</h3>
           <ol className={styles.responsibilities} type="a">
-            {RESPONSIBILITIES.map((responsibility) => (
+            {activePortfolio.responsibilities.map((responsibility) => (
               <li key={responsibility}>{responsibility}</li>
             ))}
           </ol>
 
           <h3>Are you fit for this role?</h3>
           <ol className={styles.requirements}>
-            {REQUIREMENTS.map((requirement) => (
+            {activePortfolio.requirements.map((requirement) => (
               <li key={requirement}>{requirement}</li>
             ))}
           </ol>
 
           <div className={styles.actions}>
-            <span>looking for directors</span>
+            <span>
+              {activePortfolio.spots} {activePortfolio.spots === 1 ? "spot" : "spots"}
+            </span>
             <a href="/apply">
               apply now
               <ArrowIcon />
