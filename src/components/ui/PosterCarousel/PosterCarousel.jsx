@@ -50,6 +50,7 @@ export default function PosterCarousel({
     isDragging,
     moving,
     goTo,
+    onCardActivate,
     rootRef,
     rootProps,
     stageProps,
@@ -90,8 +91,9 @@ export default function PosterCarousel({
                 type="button"
                 className={styles.card}
                 style={cardStyle(index, position)}
-                onClick={() => goTo(index)}
+                onClick={() => onCardActivate(index)}
                 data-event-card
+                data-index={index}
                 aria-label={event.title}
                 aria-current={index === active ? "true" : undefined}
               >
@@ -119,9 +121,9 @@ export default function PosterCarousel({
 
       {showCaption && (
         <div
-          key={active}
+          key={moving ? "dragging" : active}
           className={`${styles.caption} ${entered ? `${styles.metaIn} ${styles.captionEnter}` : ""}`}
-          aria-live="polite"
+          aria-live={moving ? "off" : "polite"}
         >
           <p className={styles.title}>{current.title}</p>
           <p className={styles.date}>{current.date}</p>

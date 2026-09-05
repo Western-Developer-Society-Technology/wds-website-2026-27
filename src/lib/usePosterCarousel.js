@@ -6,9 +6,6 @@ const WHEEL_THRESHOLD = 60;
 const WHEEL_COOLDOWN = 220;
 const SWIPE_THRESHOLD = 40;
 const DRAG_INTENT = 6;
-const MOMENTUM_MIN = 0.00035;
-const MOMENTUM_MAX = 0.008;
-const MOMENTUM_FRICTION = 0.94;
 
 function isTypingTarget(el) {
   if (!el || !(el instanceof HTMLElement)) return false;
@@ -22,7 +19,11 @@ function isTypingTarget(el) {
 }
 
 // Drives a non-looping poster carousel: click/drag/wheel/swipe/arrow-key
-// navigation over a fractional `position`, with pointer-drag momentum.
+// navigation over a fractional `position`. A drag follows the pointer
+// continuously while held — free to cross as many cards as the drag
+// distance covers — and `active` (the "current card") tracks live to
+// whichever card is nearest as you go, not just once you let go. Releasing
+// simply settles on whichever card is nearest at that point.
 // `cardStep` is the pixel distance (at the stage's live rendered height)
 // between adjacent slots — used to convert pointer movement into position.
 export default function usePosterCarousel({
@@ -39,36 +40,25 @@ export default function usePosterCarousel({
   const wheelLock = useRef(0);
   const touchStartX = useRef(null);
   const dragRef = useRef(null);
-  const momentumRef = useRef(null);
   const suppressClickRef = useRef(false);
   const [dragPosition, setDragPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const cancelMomentum = useCallback(() => {
-    if (momentumRef.current == null) return;
-    window.cancelAnimationFrame(momentumRef.current);
-    momentumRef.current = null;
-  }, []);
-
   const goTo = useCallback(
     (index) => {
-      cancelMomentum();
       setDragPosition(null);
       setActive(Math.min(last, Math.max(0, index)));
     },
-    [cancelMomentum, last],
+    [last],
   );
 
   const step = useCallback(
     (dir) => {
-      cancelMomentum();
       setDragPosition(null);
       setActive((current) => Math.min(last, Math.max(0, current + dir)));
     },
-    [cancelMomentum, last],
+    [last],
   );
-
-  useEffect(() => () => cancelMomentum(), [cancelMomentum]);
 
   useEffect(() => {
     const el = rootRef.current;
@@ -135,16 +125,13 @@ export default function usePosterCarousel({
     const card = event.target.closest?.("[data-event-card]");
     if (!card) return;
 
-    cancelMomentum();
     dragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
       startPosition: dragPosition ?? active,
       position: dragPosition ?? active,
       step: Math.max(1, (event.currentTarget.clientHeight * cardStep) / stageHeight),
-      lastX: event.clientX,
-      lastTime: event.timeStamp,
-      velocity: 0,
+      cardIndex: Number(card.dataset.index),
       dragging: false,
     };
     card.setPointerCapture(event.pointerId);
@@ -154,14 +141,6 @@ export default function usePosterCarousel({
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
 
-    const elapsed = event.timeStamp - drag.lastTime;
-    if (elapsed > 0) {
-      const velocity = -(event.clientX - drag.lastX) / drag.step / elapsed;
-      drag.velocity = drag.velocity * 0.5 + velocity * 0.5;
-      drag.lastX = event.clientX;
-      drag.lastTime = event.timeStamp;
-    }
-
     const dx = event.clientX - drag.startX;
     if (!drag.dragging && Math.abs(dx) < DRAG_INTENT) return;
 
@@ -169,36 +148,12 @@ export default function usePosterCarousel({
     drag.dragging = true;
     drag.position = Math.min(last, Math.max(0, drag.startPosition - dx / drag.step));
     setDragPosition(drag.position);
+    // Live-track whichever card is nearest as the drag crosses it — the
+    // caption/detail-card/etc. that read `active` update in real time, not
+    // just once the pointer is released. React bails out of the re-render
+    // on its own when this doesn't actually change.
+    setActive(Math.min(last, Math.max(0, Math.round(drag.position))));
     event.preventDefault();
-  };
-
-  const startMomentum = (startPosition, startVelocity) => {
-    let position = startPosition;
-    let velocity = Math.min(MOMENTUM_MAX, Math.max(-MOMENTUM_MAX, startVelocity));
-    let previousTime = performance.now();
-
-    const move = (time) => {
-      const elapsed = Math.min(32, time - previousTime);
-      const next = position + velocity * elapsed;
-      const bounded = Math.min(last, Math.max(0, next));
-      const hitEdge = bounded !== next;
-
-      previousTime = time;
-      position = bounded;
-      velocity *= Math.pow(MOMENTUM_FRICTION, elapsed / (1000 / 60));
-      setDragPosition(position);
-
-      if (hitEdge || Math.abs(velocity) < MOMENTUM_MIN) {
-        momentumRef.current = null;
-        setActive(Math.round(position));
-        setDragPosition(null);
-        return;
-      }
-
-      momentumRef.current = window.requestAnimationFrame(move);
-    };
-
-    momentumRef.current = window.requestAnimationFrame(move);
   };
 
   const finishDrag = (event, commit) => {
@@ -206,23 +161,47 @@ export default function usePosterCarousel({
     if (!drag || drag.pointerId !== event.pointerId) return;
 
     dragRef.current = null;
-    if (!drag.dragging) return;
 
-    setIsDragging(false);
+    // Every mouse interaction that reaches here — plain click or real drag
+    // — is resolved right here, authoritatively. We don't lean on the
+    // browser's own trailing "click" event at all: with setPointerCapture,
+    // browsers are inconsistent about whether that click gets retargeted
+    // back to the *original* card, which (if acted on) would silently
+    // revert a drag that just correctly landed somewhere else. Suppressing
+    // it for a beat covers that stray click regardless of why it fires.
     suppressClickRef.current = true;
     window.setTimeout(() => {
       suppressClickRef.current = false;
-    }, 0);
+    }, 400);
 
-    const velocity = event.timeStamp - drag.lastTime < 80 ? drag.velocity : 0;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!commit || reduceMotion || Math.abs(velocity) < MOMENTUM_MIN) {
-      if (commit) setActive(Math.round(drag.position));
-      setDragPosition(null);
+    if (!drag.dragging) {
+      if (commit) goTo(drag.cardIndex);
       return;
     }
 
-    startMomentum(drag.position, velocity);
+    setIsDragging(false);
+
+    // Settle on whichever card is nearest wherever the drag ends up —
+    // could be any number of cards from where it started, or (on a
+    // canceled drag) simply wherever it already was.
+    const finalPosition = commit
+      ? Math.min(last, Math.max(0, drag.startPosition - (event.clientX - drag.startX) / drag.step))
+      : drag.startPosition;
+
+    setActive(Math.min(last, Math.max(0, Math.round(finalPosition))));
+    setDragPosition(null);
+  };
+
+  // Components call this from a card's onClick instead of `goTo` directly.
+  // Keyboard-triggered activation (Enter/Space) reaches a button's onClick
+  // with no preceding pointer sequence at all, so suppressClickRef is never
+  // set for it and it passes straight through; touch taps never set
+  // dragRef (pointerdown bails out for non-mouse pointers above) so they
+  // pass through too. Only a mouse click we've already handled ourselves
+  // in finishDrag gets ignored here.
+  const onCardActivate = (index) => {
+    if (suppressClickRef.current) return;
+    goTo(index);
   };
 
   const onTouchStart = (event) => {
@@ -237,13 +216,6 @@ export default function usePosterCarousel({
     else if (dx < -SWIPE_THRESHOLD) step(1);
   };
 
-  const onClickCapture = (event) => {
-    if (!suppressClickRef.current) return;
-    suppressClickRef.current = false;
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
   const position = dragPosition ?? active;
 
   return {
@@ -255,6 +227,7 @@ export default function usePosterCarousel({
     atEnd: active === last,
     goTo,
     step,
+    onCardActivate,
     rootRef,
     rootProps: { onTouchStart, onTouchEnd },
     stageProps: {
@@ -263,7 +236,6 @@ export default function usePosterCarousel({
       onPointerUp: (event) => finishDrag(event, true),
       onPointerCancel: (event) => finishDrag(event, false),
       onLostPointerCapture: (event) => finishDrag(event, false),
-      onClickCapture,
     },
   };
 }

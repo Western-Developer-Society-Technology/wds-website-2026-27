@@ -61,7 +61,7 @@ function cardStyle(index, position) {
 }
 
 export default function UpcomingCarousel({ events, onActiveChange }) {
-  const { active, position, isDragging, moving, atStart, atEnd, goTo, step, rootRef, rootProps, stageProps } =
+  const { active, position, isDragging, moving, atStart, atEnd, onCardActivate, step, rootRef, rootProps, stageProps } =
     usePosterCarousel({
       count: events.length,
       initialActive: 0,
@@ -97,8 +97,9 @@ export default function UpcomingCarousel({ events, onActiveChange }) {
                 type="button"
                 className={styles.card}
                 style={cardStyle(index, position)}
-                onClick={() => goTo(index)}
+                onClick={() => onCardActivate(index)}
                 data-event-card
+                data-index={index}
                 aria-label={event.title}
                 aria-current={index === active ? "true" : undefined}
               >
