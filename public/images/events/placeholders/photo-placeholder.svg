@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#e1e1e1" />
+  <path
+    d="M200 110V180M200 180L226 162M200 180L174 162M200 180V235M200 180L174 195M200 180L226 195"
+    stroke="#bdbdbd"
+    stroke-width="10"
+  />
+</svg>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import ArrowButton from "@/components/ui/ArrowButton";
 import { PORTFOLIO_APPLICATIONS, TEAM_PREVIEW } from "./portfolioData";
 import styles from "./portfolios.module.css";
 
@@ -9,14 +10,6 @@ function ArrowIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M2 14 14 2M6 2h8v8" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="m6 3 5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -104,12 +97,18 @@ export default function PortfolioDirectory() {
         </div>
 
         <div className={styles.navControls} aria-label="Browse portfolios">
-          <button type="button" onClick={() => selectRelative(-1)} aria-label="Previous portfolio">
-            <ChevronIcon />
-          </button>
-          <button type="button" onClick={() => selectRelative(1)} aria-label="Next portfolio">
-            <ChevronIcon />
-          </button>
+          <ArrowButton
+            direction="prev"
+            className={styles.navControlButton}
+            onClick={() => selectRelative(-1)}
+            ariaLabel="Previous portfolio"
+          />
+          <ArrowButton
+            direction="next"
+            className={styles.navControlButton}
+            onClick={() => selectRelative(1)}
+            ariaLabel="Next portfolio"
+          />
         </div>
       </div>
 

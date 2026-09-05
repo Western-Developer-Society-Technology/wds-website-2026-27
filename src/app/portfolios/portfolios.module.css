@@ -132,32 +132,8 @@
   background: linear-gradient(90deg, transparent, #fcfdff 24px);
 }
 
-.navControls button {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  place-items: center;
-  background: #f1f1f1;
-  color: #666;
-  cursor: pointer;
-}
-
-.navControls button:first-child {
-  transform: rotate(180deg);
-}
-
-.navControls button:hover,
-.navControls button:focus-visible {
-  background: var(--ink);
-  color: #fff;
-}
-
-.navControls svg {
-  width: 14px;
-  height: 14px;
+.navControlButton {
+  --arrow-size: 28px;
 }
 
 .details {
@@ -440,9 +416,8 @@
     font-size: 20px;
   }
 
-  .navControls button {
-    width: 26px;
-    height: 26px;
+  .navControlButton {
+    --arrow-size: 26px;
   }
 
   .details {

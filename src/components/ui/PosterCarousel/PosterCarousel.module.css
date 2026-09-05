@@ -1,0 +1,323 @@
+.bleed {
+  --cpx: calc(100vw / 1920);
+  --bleed-h: 750;
+  --ticks-top: 650;
+  --tint: #fcfdff;
+  --fade-rgb: 252 253 255;
+  --caption-title: var(--ink);
+  --caption-date: #bdbdbd;
+  --tick-near: #313131;
+  --tick-far: rgb(206 206 206);
+  --tick-hover: #313131;
+  position: relative;
+  height: calc(var(--bleed-h) * var(--cpx));
+  overflow: clip;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.bleed[data-theme="dark"] {
+  --tint: #1a1a1a;
+  --fade-rgb: 26 26 26;
+  --caption-title: #fff;
+  --caption-date: #bdbdbd;
+  --tick-near: #fff;
+  --tick-far: rgb(90 90 90);
+  --tick-hover: #fff;
+}
+
+.bleed[data-size="large"] {
+  --bleed-h: 950;
+  --ticks-top: 720;
+}
+
+.stage {
+  position: relative;
+  height: calc(740 * var(--cpx));
+  outline: none;
+}
+
+.deck {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(110vw, 0, 0);
+  transition: transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.deckIn {
+  transform: translate3d(0, 0, 0);
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: calc(70 * var(--cpx));
+  aspect-ratio: 440.4 / 550.5;
+  width: calc(270 * var(--cpx) + 80px);
+  margin-left: calc(-135 * var(--cpx) - 40px);
+  padding: 0;
+  border: none;
+  background: none;
+  overflow: visible;
+  cursor: grab;
+  transform-origin: center center;
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.cardFace {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card:hover .cardFace {
+  transform: translate3d(calc(14 * var(--cpx)), calc(-16 * var(--cpx)), 0);
+}
+
+.card[aria-current="true"]:hover .cardFace {
+  transform: none;
+}
+
+.stageDragging,
+.stageDragging .card {
+  cursor: grabbing;
+}
+
+.stageMoving .card {
+  transition: none;
+}
+
+.stageMoving .card .cardFace {
+  transform: none;
+  transition: none;
+}
+
+.stageMoving .tint {
+  transition: none;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+
+.cardImg {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--tint);
+  pointer-events: none;
+  transition: opacity 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 40;
+  width: calc(704 * var(--cpx));
+  pointer-events: none;
+}
+
+.fadeLeft {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    rgb(var(--fade-rgb) / 0.5),
+    rgb(var(--fade-rgb) / 0.35) 15.385%,
+    rgb(var(--fade-rgb) / 0.17) 71.635%,
+    rgb(var(--fade-rgb) / 0) 100%
+  );
+}
+
+.fadeRight {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    rgb(var(--fade-rgb) / 0.5),
+    rgb(var(--fade-rgb) / 0.35) 15.385%,
+    rgb(var(--fade-rgb) / 0.17) 71.635%,
+    rgb(var(--fade-rgb) / 0) 100%
+  );
+}
+
+.caption {
+  position: absolute;
+  left: 50%;
+  top: calc(630 * var(--cpx));
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.captionEnter {
+  animation: captionIn 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ticksWrap {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.metaIn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(37.778 * var(--cpx));
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: calc(-0.7556 * var(--cpx));
+  color: var(--caption-title);
+}
+
+.date {
+  margin: calc(6 * var(--cpx)) 0 0;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+  font-size: calc(20.599 * var(--cpx));
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: calc(-1.0299 * var(--cpx));
+  color: var(--caption-date);
+}
+
+@keyframes captionIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.ticks {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--ticks-top) * var(--cpx));
+  z-index: 2;
+  height: calc(72 * var(--cpx));
+}
+
+.tickTrack {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ticksMoving .tickTrack,
+.ticksMoving .tickLine {
+  transition: none;
+}
+
+.tick {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex: none;
+  width: 14px;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.tick:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.tickLine {
+  width: 2px;
+  min-width: 2px;
+  height: calc(var(--tick-h) * var(--cpx));
+  background: color-mix(in srgb, var(--tick-far), var(--tick-near) calc(var(--tick-t) * 100%));
+  box-sizing: border-box;
+  transition:
+    height 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tick:hover .tickLine,
+.tick:focus-visible .tickLine {
+  height: calc((var(--tick-h) + 17) * var(--cpx));
+  background: var(--tick-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck,
+  .deckIn {
+    transform: none;
+    transition: none;
+  }
+
+  .caption,
+  .ticksWrap {
+    opacity: 1;
+    pointer-events: auto;
+    transition: none;
+  }
+
+  .card,
+  .cardFace,
+  .tint,
+  .tickLine,
+  .tickTrack {
+    transition: none;
+  }
+
+  .captionEnter {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .deck {
+    transform: translate3d(240vw, 0, 0);
+  }
+
+  .deckIn {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .fade {
+    width: 16vw;
+  }
+
+  .caption {
+    top: calc(740 * var(--cpx));
+  }
+
+  .ticks {
+    top: calc(850 * var(--cpx));
+  }
+
+  .bleed {
+    --cpx: calc(100vw / 780);
+    height: calc(1180 * var(--cpx));
+  }
+}

@@ -1,9 +1,8 @@
-import { EVENTS } from "./eventData";
-import styles from "./Events.module.css";
+import styles from "./PosterCarousel.module.css";
 
 const TICK_PITCH = 14;
 
-export default function CarouselTicks({ active, position, moving, onSelect }) {
+export default function CarouselTicks({ events, active, position, moving, onSelect }) {
   return (
     <div
       className={`${styles.ticks} ${moving ? styles.ticksMoving : ""}`}
@@ -16,11 +15,11 @@ export default function CarouselTicks({ active, position, moving, onSelect }) {
           transform: `translateX(calc(-${position} * ${TICK_PITCH}px - ${TICK_PITCH / 2}px))`,
         }}
       >
-        {EVENTS.map((event, index) => {
+        {events.map((event, index) => {
           const distance = Math.abs(index - position);
           const height =
             distance <= 1 ? 60 - 29 * distance : Math.max(24, 38 - 7 * distance);
-          const shade = Math.round(206 - 169 * Math.max(0, 1 - distance));
+          const t = Math.max(0, 1 - distance);
 
           return (
             <button
@@ -29,7 +28,7 @@ export default function CarouselTicks({ active, position, moving, onSelect }) {
               className={styles.tick}
               style={{
                 "--tick-h": String(height),
-                "--tick-c": `rgb(${shade} ${shade} ${shade})`,
+                "--tick-t": String(t),
               }}
               aria-label={event.title}
               aria-current={index === active ? "true" : undefined}

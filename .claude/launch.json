@@ -1,0 +1,9 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wds-dev",
+      "url": "http://localhost:3000"
+    }
+  ]
+}

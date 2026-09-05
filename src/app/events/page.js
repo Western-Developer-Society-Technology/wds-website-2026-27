@@ -1,5 +1,5 @@
 import Nav from "@/components/Nav/Nav";
-import styles from "../placeholder.module.css";
+import EventsDirectory from "./EventsDirectory";
 
 export const metadata = {
   title: "Events – Western Developers Society",
@@ -7,9 +7,9 @@ export const metadata = {
 
 export default function EventsPage() {
   return (
-    <main className={styles.page}>
+    <main>
       <Nav />
-      <h1 className={styles.title}>Events</h1>
+      <EventsDirectory />
     </main>
   );
 }

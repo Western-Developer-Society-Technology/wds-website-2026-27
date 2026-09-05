@@ -1,0 +1,136 @@
+.bleed {
+  --upx: calc(100vw / 1512);
+  --content-left: max(var(--gutter), calc((100vw - var(--content-max)) / 2));
+  position: relative;
+  height: calc(500 * var(--upx));
+  overflow: clip;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.stage {
+  position: relative;
+  height: calc(450 * var(--upx));
+  outline: none;
+}
+
+.deck {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(60vw, 0, 0);
+  transition: transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.deckIn {
+  transform: translate3d(0, 0, 0);
+}
+
+.card {
+  position: absolute;
+  left: var(--content-left);
+  top: calc(45 * var(--upx));
+  aspect-ratio: 440.4 / 550.5;
+  width: calc(289.87 * var(--upx));
+  padding: 0;
+  border: none;
+  background: none;
+  overflow: visible;
+  cursor: grab;
+  transform-origin: left center;
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+
+.cardFace {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.stageDragging,
+.stageDragging .card {
+  cursor: grabbing;
+}
+
+.stageMoving .card {
+  transition: none;
+}
+
+.stageMoving .tint {
+  transition: none;
+}
+
+.cardImg {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #fcfdff;
+  pointer-events: none;
+  transition: opacity 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 40;
+  width: calc(220 * var(--upx));
+  pointer-events: none;
+  background: linear-gradient(
+    to left,
+    rgba(252, 253, 255, 0.85),
+    rgba(252, 253, 255, 0.35) 40%,
+    rgba(252, 253, 255, 0) 100%
+  );
+}
+
+.controls {
+  position: absolute;
+  right: var(--content-left);
+  top: calc(430 * var(--upx));
+  z-index: 41;
+  display: flex;
+  gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck,
+  .deckIn {
+    transform: none;
+    transition: none;
+  }
+
+  .card,
+  .tint {
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .bleed {
+    --upx: calc(100vw / 780);
+    height: calc(660 * var(--upx));
+  }
+
+  .deck {
+    transform: translate3d(140vw, 0, 0);
+  }
+
+  .fade {
+    width: 28vw;
+  }
+}

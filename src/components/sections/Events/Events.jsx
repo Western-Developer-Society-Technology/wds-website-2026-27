@@ -1,5 +1,6 @@
 import CornerButton from "@/components/ui/CornerButton";
-import EventsCarousel from "./EventsCarousel";
+import PosterCarousel from "@/components/ui/PosterCarousel/PosterCarousel";
+import { EVENTS, INITIAL_ACTIVE } from "./eventData";
 import styles from "./Events.module.css";
 
 export default function Events() {
@@ -16,7 +17,7 @@ export default function Events() {
           </CornerButton>
         </div>
       </div>
-      <EventsCarousel />
+      <PosterCarousel events={EVENTS} initialActive={INITIAL_ACTIVE} theme="light" size="large" />
     </section>
   );
 }

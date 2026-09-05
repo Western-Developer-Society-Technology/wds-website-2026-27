@@ -1,0 +1,48 @@
+.button {
+  display: grid;
+  flex: none;
+  width: var(--arrow-size, 31px);
+  height: var(--arrow-size, 31px);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  place-items: center;
+  background: #f1f1f1;
+  color: #666;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.prev {
+  transform: rotate(180deg);
+}
+
+.button:hover:not(:disabled),
+.button:focus-visible:not(:disabled) {
+  background: var(--ink);
+  color: #fff;
+}
+
+.button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.button svg {
+  width: 45%;
+  height: 45%;
+}
+
+.dark {
+  background: #3a3a3a;
+  color: #dbdbdb;
+}
+
+.dark:hover:not(:disabled),
+.dark:focus-visible:not(:disabled) {
+  background: #fff;
+  color: #1a1a1a;
+}
