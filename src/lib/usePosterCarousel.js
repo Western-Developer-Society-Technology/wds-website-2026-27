@@ -6,6 +6,9 @@ const WHEEL_THRESHOLD = 60;
 const WHEEL_COOLDOWN = 220;
 const SWIPE_THRESHOLD = 40;
 const DRAG_INTENT = 6;
+const MOMENTUM_MIN = 0.00035;
+const MOMENTUM_MAX = 0.008;
+const MOMENTUM_FRICTION = 0.91;
 
 function isTypingTarget(el) {
   if (!el || !(el instanceof HTMLElement)) return false;
@@ -23,7 +26,7 @@ function isTypingTarget(el) {
 // continuously while held — free to cross as many cards as the drag
 // distance covers — and `active` (the "current card") tracks live to
 // whichever card is nearest as you go, not just once you let go. Releasing
-// simply settles on whichever card is nearest at that point.
+// glides with the pointer's velocity before settling on the nearest card.
 // `cardStep` is the pixel distance (at the stage's live rendered height)
 // between adjacent slots — used to convert pointer movement into position.
 export default function usePosterCarousel({
@@ -40,25 +43,36 @@ export default function usePosterCarousel({
   const wheelLock = useRef(0);
   const touchStartX = useRef(null);
   const dragRef = useRef(null);
+  const momentumRef = useRef(null);
   const suppressClickRef = useRef(false);
   const [dragPosition, setDragPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  const cancelMomentum = useCallback(() => {
+    if (momentumRef.current == null) return;
+    window.cancelAnimationFrame(momentumRef.current);
+    momentumRef.current = null;
+  }, []);
+
   const goTo = useCallback(
     (index) => {
+      cancelMomentum();
       setDragPosition(null);
       setActive(Math.min(last, Math.max(0, index)));
     },
-    [last],
+    [cancelMomentum, last],
   );
 
   const step = useCallback(
     (dir) => {
+      cancelMomentum();
       setDragPosition(null);
       setActive((current) => Math.min(last, Math.max(0, current + dir)));
     },
-    [last],
+    [cancelMomentum, last],
   );
+
+  useEffect(() => () => cancelMomentum(), [cancelMomentum]);
 
   useEffect(() => {
     const el = rootRef.current;
@@ -125,6 +139,7 @@ export default function usePosterCarousel({
     const card = event.target.closest?.("[data-event-card]");
     if (!card) return;
 
+    cancelMomentum();
     dragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -132,6 +147,9 @@ export default function usePosterCarousel({
       position: dragPosition ?? active,
       step: Math.max(1, (event.currentTarget.clientHeight * cardStep) / stageHeight),
       cardIndex: Number(card.dataset.index),
+      lastX: event.clientX,
+      lastTime: event.timeStamp,
+      velocity: 0,
       dragging: false,
     };
     card.setPointerCapture(event.pointerId);
@@ -140,6 +158,14 @@ export default function usePosterCarousel({
   const onPointerMove = (event) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
+
+    const elapsed = event.timeStamp - drag.lastTime;
+    if (elapsed > 0) {
+      const velocity = -(event.clientX - drag.lastX) / drag.step / elapsed;
+      drag.velocity = drag.velocity * 0.5 + velocity * 0.5;
+      drag.lastX = event.clientX;
+      drag.lastTime = event.timeStamp;
+    }
 
     const dx = event.clientX - drag.startX;
     if (!drag.dragging && Math.abs(dx) < DRAG_INTENT) return;
@@ -154,6 +180,36 @@ export default function usePosterCarousel({
     // on its own when this doesn't actually change.
     setActive(Math.min(last, Math.max(0, Math.round(drag.position))));
     event.preventDefault();
+  };
+
+  const startMomentum = (startPosition, startVelocity) => {
+    let position = startPosition;
+    let velocity = Math.min(MOMENTUM_MAX, Math.max(-MOMENTUM_MAX, startVelocity));
+    let previousTime = performance.now();
+
+    const move = (time) => {
+      const elapsed = Math.min(32, time - previousTime);
+      const next = position + velocity * elapsed;
+      const bounded = Math.min(last, Math.max(0, next));
+      const hitEdge = bounded !== next;
+
+      previousTime = time;
+      position = bounded;
+      velocity *= Math.pow(MOMENTUM_FRICTION, elapsed / (1000 / 60));
+      setDragPosition(position);
+      setActive(Math.round(position));
+
+      if (hitEdge || Math.abs(velocity) < MOMENTUM_MIN) {
+        momentumRef.current = null;
+        setDragPosition(null);
+        return;
+      }
+
+      momentumRef.current = window.requestAnimationFrame(move);
+    };
+
+    setDragPosition(position);
+    momentumRef.current = window.requestAnimationFrame(move);
   };
 
   const finishDrag = (event, commit) => {
@@ -181,15 +237,19 @@ export default function usePosterCarousel({
 
     setIsDragging(false);
 
-    // Settle on whichever card is nearest wherever the drag ends up —
-    // could be any number of cards from where it started, or (on a
-    // canceled drag) simply wherever it already was.
     const finalPosition = commit
       ? Math.min(last, Math.max(0, drag.startPosition - (event.clientX - drag.startX) / drag.step))
       : drag.startPosition;
 
     setActive(Math.min(last, Math.max(0, Math.round(finalPosition))));
-    setDragPosition(null);
+    const velocity = event.timeStamp - drag.lastTime < 80 ? drag.velocity : 0;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!commit || reduceMotion || Math.abs(velocity) < MOMENTUM_MIN) {
+      setDragPosition(null);
+      return;
+    }
+
+    startMomentum(finalPosition, velocity);
   };
 
   // Components call this from a card's onClick instead of `goTo` directly.
