@@ -44,6 +44,7 @@
 }
 
 .tabViewport {
+  position: relative;
   overflow-x: auto;
   scrollbar-width: none;
   overscroll-behavior-inline: contain;
@@ -54,6 +55,7 @@
 }
 
 .tabList {
+  min-height: 275px;
   display: flex;
   align-items: flex-start;
   gap: 48px;
@@ -77,9 +79,6 @@
   color: #676767;
   font: inherit;
   cursor: pointer;
-  transition:
-    background-color 180ms ease,
-    color 180ms ease;
 }
 
 .portfolioTab img {
@@ -87,7 +86,6 @@
   height: 82px;
   object-fit: contain;
   filter: grayscale(1) brightness(0.69);
-  transition: filter 180ms ease;
 }
 
 .portfolioTab > span {
@@ -129,7 +127,7 @@
   display: flex;
   gap: 10px;
   padding: 5px 0 5px 24px;
-  background: linear-gradient(90deg, transparent, #fcfdff 24px);
+  background: transparent;
 }
 
 .navControlButton {
@@ -323,6 +321,7 @@
   }
 
   .tabList {
+    min-height: 230px;
     gap: 28px;
   }
 
@@ -378,6 +377,7 @@
   }
 
   .tabList {
+    min-height: 168px;
     gap: 16px;
     padding-right: 64px;
   }
@@ -475,12 +475,5 @@
   .actions > span,
   .actions a {
     width: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .portfolioTab,
-  .portfolioTab img {
-    transition: none;
   }
 }

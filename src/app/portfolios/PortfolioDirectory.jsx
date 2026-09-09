@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ArrowButton from "@/components/ui/ArrowButton";
 import { PORTFOLIO_APPLICATIONS, TEAM_PREVIEW } from "./portfolioData";
 import styles from "./portfolios.module.css";
+import usePortfolioMotion from "./usePortfolioMotion";
 
 function ArrowIcon() {
   return (
@@ -18,33 +19,34 @@ export default function PortfolioDirectory() {
   const [activeIndex, setActiveIndex] = useState(0);
   const tabViewportRef = useRef(null);
   const tabRefs = useRef([]);
+  const detailsRef = useRef(null);
   const activePortfolio = PORTFOLIO_APPLICATIONS[activeIndex];
+  const prepareTransition = usePortfolioMotion({
+    activeIndex, viewportRef: tabViewportRef, tabRefs, detailsRef,
+  });
+
+  const selectPortfolio = (index) => {
+    if (index === activeIndex) return;
+    prepareTransition();
+    setActiveIndex(index);
+  };
 
   const selectRelative = (offset) => {
     const count = PORTFOLIO_APPLICATIONS.length;
     const nextIndex = (activeIndex + offset + count) % count;
-    setActiveIndex(nextIndex);
+    selectPortfolio(nextIndex);
     return nextIndex;
   };
-
-  useEffect(() => {
-    const viewport = tabViewportRef.current;
-    const activeTab = tabRefs.current[activeIndex];
-    if (!viewport || !activeTab) return;
-
-    const left = activeTab.offsetLeft - (viewport.clientWidth - activeTab.offsetWidth) / 2;
-    viewport.scrollTo({ left });
-  }, [activeIndex]);
 
   const handleTabKeyDown = (event) => {
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      tabRefs.current[selectRelative(-1)]?.focus();
+      tabRefs.current[selectRelative(-1)]?.focus({ preventScroll: true });
     }
 
     if (event.key === "ArrowRight") {
       event.preventDefault();
-      tabRefs.current[selectRelative(1)]?.focus();
+      tabRefs.current[selectRelative(1)]?.focus({ preventScroll: true });
     }
   };
 
@@ -80,7 +82,7 @@ export default function PortfolioDirectory() {
                   aria-controls="portfolio-details"
                   tabIndex={selected ? 0 : -1}
                   data-selected={selected ? "true" : "false"}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => selectPortfolio(index)}
                   onKeyDown={handleTabKeyDown}
                 >
                   <Image
@@ -113,6 +115,7 @@ export default function PortfolioDirectory() {
       </div>
 
       <article
+        ref={detailsRef}
         className={styles.details}
         id="portfolio-details"
         role="tabpanel"
