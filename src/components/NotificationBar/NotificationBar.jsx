@@ -1,7 +1,7 @@
 import Asterisk from "@/components/ui/Asterisk";
 import styles from "./NotificationBar.module.css";
 
-const APPLY_HREF = "/apply";
+const APPLY_HREF = "/portfolios";
 const TICKER_ITEMS = 8;
 
 export default function NotificationBar() {

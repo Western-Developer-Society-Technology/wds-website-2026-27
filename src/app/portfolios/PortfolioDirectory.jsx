@@ -153,6 +153,16 @@ export default function PortfolioDirectory() {
         </div>
 
         <div className={styles.roleDetails}>
+          <div className={styles.actions}>
+            <span>
+              {activePortfolio.spots} {activePortfolio.spots === 1 ? "spot" : "spots"}
+            </span>
+            <a href="/apply">
+              apply now
+              <ArrowIcon />
+            </a>
+          </div>
+
           <h3>Responsibilities</h3>
           <ol className={styles.responsibilities} type="a">
             {activePortfolio.responsibilities.map((responsibility) => (
@@ -166,16 +176,6 @@ export default function PortfolioDirectory() {
               <li key={requirement}>{requirement}</li>
             ))}
           </ol>
-
-          <div className={styles.actions}>
-            <span>
-              {activePortfolio.spots} {activePortfolio.spots === 1 ? "spot" : "spots"}
-            </span>
-            <a href="/apply">
-              apply now
-              <ArrowIcon />
-            </a>
-          </div>
         </div>
       </article>
     </section>

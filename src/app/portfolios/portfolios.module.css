@@ -276,7 +276,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 16px;
-  margin-top: auto;
+  margin-bottom: 40px;
 }
 
 .actions > span,
@@ -454,7 +454,7 @@
   }
 
   .actions {
-    margin-top: 12px;
+    margin-bottom: 12px;
   }
 }
 

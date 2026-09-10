@@ -2,7 +2,7 @@ import "./globals.css";
 import TransitionProvider from "@/components/Transition/TransitionProvider";
 import NotificationBar from "@/components/NotificationBar/NotificationBar";
 
-const SHOW_NOTIFICATION_BAR = false;
+const SHOW_NOTIFICATION_BAR = true;
 
 export const metadata = {
   title: "Western Developers Society",
