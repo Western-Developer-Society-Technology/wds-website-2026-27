@@ -42,7 +42,7 @@
 
 .mark,
 .menu {
-  color: #1a1a1a;
+  color: var(--ink);
   transition: color 320ms var(--nav-ease);
 }
 

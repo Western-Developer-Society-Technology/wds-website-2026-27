@@ -157,7 +157,7 @@ export default function PortfolioDirectory() {
             <span>
               {activePortfolio.spots} {activePortfolio.spots === 1 ? "spot" : "spots"}
             </span>
-            <a href="/apply">
+            <a href={`/apply/${activePortfolio.id}`}>
               apply now
               <ArrowIcon />
             </a>
