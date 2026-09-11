@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import CornerButton from "@/components/ui/CornerButton";
-import QuestionField from "./QuestionField";
+import QuestionField, { ChoiceFilters } from "./QuestionField";
 import { buildApplicationPayload, hasAnswer, isObject, validateQuestion } from "./formModel";
 import styles from "./apply.module.css";
 
@@ -146,6 +146,7 @@ export default function ApplyForm({ application, accepting, siteKey }) {
 
   return (
     <div ref={root} className={styles.page} data-application-page="true">
+      <ChoiceFilters />
       <header className={styles.header}>
         <a href="/portfolios" className={styles.back} data-intro>← all portfolios</a>
         <h1 data-intro>{application.label.toLowerCase()} application</h1>

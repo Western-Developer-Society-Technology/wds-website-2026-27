@@ -208,6 +208,13 @@ textarea.field {
   gap: 8px;
 }
 
+.choiceFilters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
 .choice {
   display: flex;
   align-items: center;
@@ -233,44 +240,202 @@ textarea.field {
   background: var(--accent-hover);
 }
 
-.choice input {
+.choiceVisual {
+  --control-active: var(--surface);
+  --control-inner: var(--selected);
+  position: relative;
+  display: block;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.choiceVisual input {
   appearance: none;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
+  display: block;
+  width: 24px;
+  height: 24px;
   margin: 0;
-  border: 2px solid #767676;
-  background: transparent;
-  color: inherit;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
   cursor: pointer;
-  display: grid;
-  place-content: center;
+  box-shadow: inset 0 0 0 var(--control-border-width, 2px) var(--control-border-color, #767676);
+  transition: box-shadow 250ms ease;
 }
 
-.choice input[type="radio"] {
+.radioControl input {
   border-radius: 50%;
 }
 
-.choice input::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  transform: scale(0);
-  background: currentColor;
-  clip-path: polygon(14% 44%, 0 60%, 40% 100%, 100% 16%, 84% 4%, 39% 70%);
+.choiceVisual input:not(:checked):hover {
+  --control-border-color: var(--accent);
+  --control-border-width: 3px;
 }
 
-.choice input[type="radio"]::before {
-  border-radius: 50%;
-  clip-path: none;
+.choiceVisual input:checked {
+  --control-border-color: var(--control-active);
+  --control-border-width: 12px;
 }
 
-.choice input:checked {
-  border-color: currentColor;
+.choiceIcon {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  fill: var(--control-inner);
+  transform: scale(1.01) translateZ(0);
 }
 
-.choice input:checked::before {
-  transform: scale(1);
+.radioControl input:checked {
+  --control-border-width: 6.75px;
+  animation: radioFill 200ms ease-out;
+}
+
+.radioTop {
+  transform-origin: 12px -12px;
+  transform: translateY(0) scale(1.75, 1) translateZ(0);
+}
+
+.radioDot {
+  transform: translateY(-17px) translateZ(0);
+}
+
+.radioDrop {
+  transform: translateY(-14px) translateZ(0);
+}
+
+.radioControl input:checked + .choiceIcon .radioTop {
+  animation: radioTop 650ms ease-out 200ms both;
+}
+
+.radioControl input:checked + .choiceIcon .radioDot {
+  transform: translateY(0) translateZ(0);
+  animation: radioDot 500ms ease-out 200ms both;
+}
+
+.radioControl input:checked + .choiceIcon .radioDrop {
+  animation: radioDrop 500ms ease-out 400ms;
+}
+
+.checkboxControl input:checked {
+  animation: checkboxFill 200ms ease-out, checkboxCorners 500ms ease-out 200ms both;
+}
+
+.checkboxTick {
+  fill: none;
+  stroke: var(--control-inner);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16px 33px;
+  stroke-dashoffset: 20.5px;
+}
+
+.checkboxDot {
+  transform-origin: 10.5px 15.5px;
+  transform: translate(14px, -14px) scale(1) translateZ(0);
+}
+
+.checkboxDrop {
+  transform-origin: 25px -1px;
+}
+
+.checkboxControl input:checked + .choiceIcon .checkboxTick {
+  stroke-dasharray: 16.5px 33px;
+  stroke-dashoffset: 46.5px;
+  animation: checkboxTick 350ms ease-out 200ms both;
+}
+
+.checkboxControl input:checked + .choiceIcon .checkboxDot {
+  transform: translate(0, 0) scale(1) translateZ(0);
+  animation: checkboxDot 400ms ease-out 400ms both;
+}
+
+@keyframes radioFill {
+  from {
+    box-shadow: inset 0 0 0 3px var(--control-active);
+  }
+  to {
+    box-shadow: inset 0 0 0 12px var(--control-active);
+  }
+}
+
+@keyframes radioTop {
+  0% {
+    transform: translateY(0) scale(1.75, 1) translateZ(0);
+  }
+  25% {
+    transform: translateY(6px) scale(1, 1.25) translateZ(0);
+  }
+  100% {
+    transform: translateY(0) scale(1.75, 1) translateZ(0);
+  }
+}
+
+@keyframes radioDot {
+  0% {
+    transform: translateY(-17px) translateZ(0);
+  }
+  50% {
+    transform: translateY(2px) translateZ(0);
+  }
+  100% {
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes radioDrop {
+  from {
+    transform: translateY(-14px) translateZ(0);
+  }
+  to {
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes checkboxFill {
+  from {
+    box-shadow: inset 0 0 0 3px var(--control-active);
+  }
+  to {
+    box-shadow: inset 0 0 0 12px var(--control-active);
+  }
+}
+
+@keyframes checkboxCorners {
+  0%,
+  100% {
+    border-radius: 5px;
+  }
+  40% {
+    border-radius: 14px;
+  }
+}
+
+@keyframes checkboxTick {
+  0% {
+    stroke-dasharray: 16.5px 33px;
+    stroke-dashoffset: 20.5px;
+  }
+  46% {
+    stroke-dasharray: 14px 33px;
+    stroke-dashoffset: 48px;
+  }
+  100% {
+    stroke-dasharray: 16.5px 33px;
+    stroke-dashoffset: 46.5px;
+  }
+}
+
+@keyframes checkboxDot {
+  from {
+    transform: translate(14px, -14px) scale(1) translateZ(0);
+  }
+  to {
+    transform: translate(0, 0) scale(1) translateZ(0);
+  }
 }
 
 .scale {
@@ -553,6 +718,17 @@ textarea.field {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .choiceVisual input {
+    transition: none;
+  }
+  .choiceVisual input:checked,
+  .radioControl input:checked + .choiceIcon .radioTop,
+  .radioControl input:checked + .choiceIcon .radioDot,
+  .radioControl input:checked + .choiceIcon .radioDrop,
+  .checkboxControl input:checked + .choiceIcon .checkboxTick,
+  .checkboxControl input:checked + .choiceIcon .checkboxDot {
+    animation: none;
+  }
   .chevron {
     transition: none;
   }

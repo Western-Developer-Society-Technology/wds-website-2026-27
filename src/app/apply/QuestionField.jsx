@@ -3,6 +3,56 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./apply.module.css";
 
+export function ChoiceFilters() {
+  return (
+    <svg className={styles.choiceFilters} width="0" height="0" aria-hidden="true">
+      <defs>
+        <filter
+          id="choice-goo-light"
+          x="-50%"
+          width="200%"
+          y="-50%"
+          height="200%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.25" result="blur" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -7"
+            result="cm"
+          />
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
+function ChoiceIcon({ multiple }) {
+  return (
+    <svg
+      className={styles.choiceIcon}
+      viewBox="0 0 24 24"
+      filter="url(#choice-goo-light)"
+      aria-hidden="true"
+    >
+      {multiple ? (
+        <>
+          <path className={styles.checkboxTick} d="M4.5 10L10.5 16L24.5 1" />
+          <circle className={styles.checkboxDot} cx="10.5" cy="15.5" r="1.5" />
+          <circle className={styles.checkboxDrop} cx="25" cy="-1" r="2" />
+        </>
+      ) : (
+        <>
+          <circle className={styles.radioTop} cx="12" cy="-12" r="8" />
+          <circle className={styles.radioDot} cx="12" cy="12" r="5" />
+          <circle className={styles.radioDrop} cx="12" cy="12" r="2" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 function TextField({ question: q, value, onChange, attributes }) {
   const shared = {
     ...attributes,
@@ -32,22 +82,34 @@ function toggleOption(selected, option) {
     : [...selected, option];
 }
 
+function ChoiceControl({ multiple, children, ...inputProps }) {
+  return (
+    <label className={styles.choice}>
+      <span className={`${styles.choiceVisual} ${multiple ? styles.checkboxControl : styles.radioControl}`}>
+        <input {...inputProps} type={multiple ? "checkbox" : "radio"} />
+        <ChoiceIcon multiple={multiple} />
+      </span>
+      <span>{children}</span>
+    </label>
+  );
+}
+
 function ChoiceField({ question: q, value, onChange, attributes }) {
   const multiple = q.type === "checkboxes";
   return (
     <div className={styles.choices}>
       {q.options.map((option, index) => (
-        <label className={styles.choice} key={option}>
-          <input
-            {...attributes}
-            id={`${q.id}-${index}`}
-            type={multiple ? "checkbox" : "radio"}
-            checked={multiple ? (value || []).includes(option) : value === option}
-            value={option}
-            onChange={() => onChange(multiple ? toggleOption(value || [], option) : option)}
-          />
-          <span>{option}</span>
-        </label>
+        <ChoiceControl
+          {...attributes}
+          key={option}
+          id={`${q.id}-${index}`}
+          multiple={multiple}
+          checked={multiple ? (value || []).includes(option) : value === option}
+          value={option}
+          onChange={() => onChange(multiple ? toggleOption(value || [], option) : option)}
+        >
+          {option}
+        </ChoiceControl>
       ))}
     </div>
   );
@@ -97,21 +159,21 @@ function GridField({ question: q, value, onChange, attributes }) {
             <legend>{row}</legend>
             <div className={styles.gridOptions}>
               {q.columns.map((column, columnIndex) => (
-                <label className={styles.choice} key={column}>
-                  <input
-                    {...attributes}
-                    id={`${q.id}-${index}-${columnIndex}`}
-                    name={`${q.id}-${index}`}
-                    type={multiple ? "checkbox" : "radio"}
-                    checked={multiple ? selected.includes(column) : selected === column}
-                    value={column}
-                    onChange={() => onChange({
-                      ...value,
-                      [row]: multiple ? toggleOption(selected, column) : column,
-                    })}
-                  />
-                  <span>{column}</span>
-                </label>
+                <ChoiceControl
+                  {...attributes}
+                  key={column}
+                  id={`${q.id}-${index}-${columnIndex}`}
+                  name={`${q.id}-${index}`}
+                  multiple={multiple}
+                  checked={multiple ? selected.includes(column) : selected === column}
+                  value={column}
+                  onChange={() => onChange({
+                    ...value,
+                    [row]: multiple ? toggleOption(selected, column) : column,
+                  })}
+                >
+                  {column}
+                </ChoiceControl>
               ))}
             </div>
           </fieldset>
