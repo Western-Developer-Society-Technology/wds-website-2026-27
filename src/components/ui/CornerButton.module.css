@@ -70,6 +70,22 @@
   border-color: #1a1a1a;
 }
 
+/* Pink accent on a dark surface, for dark pages. */
+.pink {
+  background-color: #262626;
+  color: #f3f3f3;
+  /* Vertical padding for standalone use; homepage CTAs get their height
+     from their section's fixed sizes instead. */
+  padding: 18px 22px;
+}
+
+.pink .tl,
+.pink .tr,
+.pink .bl,
+.pink .br {
+  border-color: #fcafdd;
+}
+
 .button:hover,
 .button:focus-visible {
   background-color: var(--blue);
@@ -80,6 +96,14 @@
 .dark:focus-visible {
   background-color: #1a1a1a;
   color: #fff;
+}
+
+/* Variant hover rules must come after .button:hover: same specificity, so
+   source order decides which background wins. */
+.pink:hover,
+.pink:focus-visible {
+  background-color: #fcafdd;
+  color: #1a1a1a;
 }
 
 .button:hover .tl,

@@ -1,4 +1,5 @@
 import { PORTFOLIOS } from "@/components/sections/Portfolios/portfolioData";
+import { teamMembers } from "@/components/sections/Team/teamData";
 
 // Role descriptions, responsibilities, and requirements follow the
 // "WDS 26/27 Vice President Role Descriptions" document. The Flagship
@@ -147,8 +148,29 @@ export const PORTFOLIO_APPLICATIONS = PORTFOLIOS.map((portfolio) => {
   return { ...portfolio, ...application };
 });
 
-export const TEAM_PREVIEW = [
-  { id: "preview-1", name: "Stephanie Li", role: "VP of Marketing" },
-  { id: "preview-2", name: "Stephanie Li", role: "VP of Marketing" },
-  { id: "preview-3", name: "Stephanie Li", role: "VP of Marketing" },
-];
+const PORTFOLIO_ROLE_MAP = {
+  development: "VP Development",
+  internals: "VP Internals",
+  careers: "VP Careers",
+  externals: "VP Flagship",
+  finance: "VP Finance",
+  technology: "VP Technology",
+  marketing: "VP Marketing",
+};
+
+export const PORTFOLIO_TEAMS = Object.fromEntries(
+  Object.entries(PORTFOLIO_ROLE_MAP).map(([id, role]) => {
+    const members = teamMembers
+      .filter((member) => member.role === role)
+      .map(({ id: memberId, name, role: memberRole, src }) => ({
+        id: memberId,
+        name,
+        role: memberRole,
+        src,
+      }));
+
+    return [id, members];
+  }),
+);
+
+export const TEAM_PREVIEW = PORTFOLIO_TEAMS;

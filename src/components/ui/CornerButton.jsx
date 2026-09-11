@@ -6,8 +6,12 @@ export default function CornerButton({
   className = "",
   href,
   variant,
+  type = "button",
+  disabled,
 }) {
-  const classNames = `${styles.button} ${variant === "dark" ? styles.dark : ""} ${className}`.trim();
+  const variantClass =
+    variant === "dark" ? styles.dark : variant === "pink" ? styles.pink : "";
+  const classNames = `${styles.button} ${variantClass} ${className}`.trim();
   const content = (
     <>
       <span className={`${styles.tick} ${styles.tl}`} aria-hidden="true" />
@@ -36,7 +40,7 @@ export default function CornerButton({
   }
 
   return (
-    <button type="button" className={classNames}>
+    <button type={type} className={classNames} disabled={disabled}>
       {content}
     </button>
   );

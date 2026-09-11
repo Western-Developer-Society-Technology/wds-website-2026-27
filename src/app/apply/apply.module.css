@@ -5,8 +5,8 @@
   --selected: var(--accent);
   --selected-ink: #1a1a1a;
   --accent: #fcafdd;
-  --accent-ink: #1a1a1a;
   --accent-hover: #f6a8d6;
+  --accent-ink: #1a1a1a;
   width: min(100% - 2 * var(--gutter), 820px);
   margin: auto;
   padding: 140px 0 100px;
@@ -220,16 +220,57 @@ textarea.field {
   min-height: 56px;
 }
 
+.choice:hover {
+  background: #2e2e2e;
+}
+
 .choice:has(input:checked) {
   background: var(--selected);
   color: var(--selected-ink);
 }
 
+.choice:has(input:checked):hover {
+  background: var(--accent-hover);
+}
+
 .choice input {
+  appearance: none;
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  accent-color: var(--accent);
+  margin: 0;
+  border: 2px solid #767676;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+}
+
+.choice input[type="radio"] {
+  border-radius: 50%;
+}
+
+.choice input::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  transform: scale(0);
+  background: currentColor;
+  clip-path: polygon(14% 44%, 0 60%, 40% 100%, 100% 16%, 84% 4%, 39% 70%);
+}
+
+.choice input[type="radio"]::before {
+  border-radius: 50%;
+  clip-path: none;
+}
+
+.choice input:checked {
+  border-color: currentColor;
+}
+
+.choice input:checked::before {
+  transform: scale(1);
 }
 
 .scale {
@@ -261,9 +302,17 @@ textarea.field {
   font-size: 24px;
 }
 
+.scaleOption:hover span {
+  background: #2e2e2e;
+}
+
 .scaleOption:has(input:checked) span {
   background: var(--accent);
   color: var(--accent-ink);
+}
+
+.scaleOption:has(input:checked):hover span {
+  background: var(--accent-hover);
 }
 
 .starFilled span {
@@ -359,25 +408,12 @@ textarea.field {
   letter-spacing: 0;
 }
 
-.submit {
-  border: 0;
-  border-radius: 0;
-  padding: 20px 26px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font: inherit;
-  font-size: 20px;
-  letter-spacing: -0.04em;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.submit span {
-  margin-left: 24px;
-}
-
-.submit:hover:not(:disabled) {
-  background: var(--accent-hover);
+.submit:disabled,
+.submit:disabled:hover {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #262626;
+  color: #f3f3f3;
 }
 
 .feedback {

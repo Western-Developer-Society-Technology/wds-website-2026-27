@@ -205,12 +205,20 @@
 .person {
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: #ddd;
+  aspect-ratio: 0.985;
+  background: transparent;
 }
 
-.person img {
+.personPhoto {
+  position: absolute;
+  left: 3.08%;
+  top: 3.64%;
+  width: 93.84%;
+  height: 92.51%;
+  overflow: hidden;
+}
+
+.personPhoto img {
   object-fit: cover;
 }
 
@@ -222,11 +230,14 @@
   min-height: 24px;
   padding: 5px 8px;
   align-items: center;
-  background: var(--ink);
+  background: #1a1a1a;
   color: #fff;
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
   font-size: 12px;
-  line-height: 1;
-  letter-spacing: -0.04em;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
 }
 
 .person figcaption {

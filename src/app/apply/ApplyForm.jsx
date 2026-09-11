@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Turnstile } from "@marsidev/react-turnstile";
+import CornerButton from "@/components/ui/CornerButton";
 import QuestionField from "./QuestionField";
 import { buildApplicationPayload, hasAnswer, isObject, validateQuestion } from "./formModel";
 import styles from "./apply.module.css";
@@ -226,14 +227,14 @@ export default function ApplyForm({ application, accepting, siteKey }) {
                   : accepting ? "Review your answers before submitting." : "Submissions are closed."}
               </span>
             </p>
-            <button
-              className={styles.submit}
+            <CornerButton
               type="submit"
+              variant="pink"
+              className={styles.submit}
               disabled={!accepting || !siteKey || pending || Boolean(receipt)}
             >
-              {pending ? "submitting…" : receipt ? "submitted" : "submit application"}
-              <span aria-hidden="true">↗</span>
-            </button>
+              {pending ? "submitting…" : receipt ? "submitted" : "submit form"}
+            </CornerButton>
           </div>
           {questions.some((question) => errors[question.id]) && (
             <p className={styles.error} role="alert">

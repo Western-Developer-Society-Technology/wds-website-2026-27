@@ -135,15 +135,17 @@ export default function PortfolioDirectory() {
           <p className={styles.description}>{activePortfolio.description}</p>
 
           <ul className={styles.teamPreview} aria-label="WDS leadership preview">
-            {TEAM_PREVIEW.map((member) => (
+            {(TEAM_PREVIEW[activePortfolio.id] ?? []).map((member) => (
               <li key={member.id}>
                 <figure className={styles.person}>
-                  <Image
-                    src="/images/team/stephanieli.png"
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 25vw, 172px"
-                  />
+                  <span className={styles.personPhoto}>
+                    <Image
+                      src={member.src}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 25vw, 172px"
+                    />
+                  </span>
                   <figcaption>{member.name}</figcaption>
                   <span>{member.role}</span>
                 </figure>
