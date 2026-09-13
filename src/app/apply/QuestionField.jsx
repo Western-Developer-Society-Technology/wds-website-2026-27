@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import DateTimeField from "./DateTimeField";
 import styles from "./apply.module.css";
+
+gsap.registerPlugin(useGSAP);
 
 export function ChoiceFilters() {
   return (
@@ -116,11 +121,26 @@ function ChoiceField({ question: q, value, onChange, attributes }) {
 }
 
 function ScaleField({ question: q, value, onChange, attributes }) {
+  const root = useRef(null);
+  const highlight = useRef(null);
   const rating = q.type === "rating";
   const options = Array.from({ length: q.max - (q.min ?? 1) + 1 }, (_, i) => i + (q.min ?? 1));
+  const selectedIndex = options.findIndex((number) => value === String(number));
+
+  useGSAP(() => {
+    gsap.to(highlight.current, {
+      "--selected-index": Math.max(0, selectedIndex),
+      opacity: selectedIndex < 0 ? 0 : 1,
+      duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 0.55,
+      ease: "power3.out",
+      overwrite: true,
+    });
+  }, { scope: root, dependencies: [selectedIndex] });
+
   return (
     <div>
-      <div className={styles.scale}>
+      <div ref={root} className={styles.scale} style={{ "--option-count": options.length }}>
+        <div ref={highlight} className={styles.scaleHighlight} aria-hidden="true" />
         {options.map((number) => (
           <label
             className={`${styles.scaleOption} ${rating && Number(value) >= number ? styles.starFilled : ""}`}
@@ -295,8 +315,8 @@ const CONTROLS = {
   email: TextField,
   url: TextField,
   paragraph: TextField,
-  date: TextField,
-  time: TextField,
+  date: DateTimeField,
+  time: DateTimeField,
   dropdown: DropdownField,
   radio: ChoiceField,
   checkboxes: ChoiceField,

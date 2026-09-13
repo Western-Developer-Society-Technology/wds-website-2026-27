@@ -13,6 +13,16 @@ starts a new request. A separate database rule allows only one application per
 email address across all portfolios and hiring cycles. Email addresses are trimmed
 and lowercased before storage; no verification email is sent.
 
+## Application progress
+
+`ApplicationProgress.jsx` renders the Looped script WDS mark in the right-hand
+gutter. Valid, completed required answers determine progress. The pink stroke
+traces the continuous line backward from the tail of the s toward the w, with a
+slightly heavier weight than the unfilled stroke. Clearing an answer retracts
+the same line; reduced-motion preferences skip the animation. Sizing and stroke
+weights, including the compact mobile treatment, live in
+`ApplicationProgress.module.css`.
+
 ## Response format
 
 ```json

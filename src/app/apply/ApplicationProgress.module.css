@@ -1,0 +1,68 @@
+.dock {
+  --dock-width: min(220px, 20vh, max(96px, calc((100vw - var(--form-width) - 100px) / 2)));
+  position: fixed;
+  z-index: 60;
+  top: 50%;
+  right: max(24px, calc((100vw - var(--form-width)) / 4 - var(--dock-width) / 2));
+  width: var(--dock-width);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.progressMark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.lettering {
+  display: block;
+  width: 100%;
+  height: min(calc(var(--dock-width) * 3.5), calc(100vh - 140px));
+  overflow: visible;
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.letteringFill {
+  --progress: 0;
+  stroke: var(--accent);
+  stroke-width: 3.5px;
+  stroke-dasharray: var(--path-length, 1px) var(--path-length, 1px);
+  stroke-dashoffset: calc((var(--progress) - 1) * var(--path-length, 1px));
+}
+
+.progressCount {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+  .dock {
+    --dock-width: min(44px, 20vh);
+    right: 7px;
+  }
+
+  .progressMark {
+    gap: 8px;
+  }
+
+  .lettering {
+    stroke-width: 2px;
+  }
+
+  .letteringFill {
+    stroke-width: 2.35px;
+  }
+
+  .progressCount {
+    font-size: 10px;
+    writing-mode: vertical-rl;
+  }
+}

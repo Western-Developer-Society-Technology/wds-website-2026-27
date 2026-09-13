@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import CornerButton from "@/components/ui/CornerButton";
 import QuestionField, { ChoiceFilters } from "./QuestionField";
+import ApplicationProgress from "./ApplicationProgress";
 import { buildApplicationPayload, hasAnswer, isObject, validateQuestion } from "./formModel";
 import styles from "./apply.module.css";
 
@@ -15,7 +16,6 @@ const UNCONFIRMED_MESSAGE = "We could not confirm your submission. Your answers 
 
 export default function ApplyForm({ application, accepting, siteKey }) {
   const root = useRef(null);
-  const progress = useRef(null);
   const feedback = useRef(null);
   const [answers, setAnswers] = useState({});
   const [errors, setErrors] = useState({});
@@ -47,16 +47,6 @@ export default function ApplyForm({ application, accepting, siteKey }) {
     });
     return () => media.revert();
   }, { scope: root });
-
-  useGSAP(() => {
-    // Continue from the current progress instead of restarting at zero.
-    gsap.to(progress.current, {
-      scaleY: completed / required.length,
-      duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 0.8,
-      ease: "expo.out",
-      overwrite: true,
-    });
-  }, { scope: root, dependencies: [completed] });
 
   useGSAP(() => {
     if (receipt) {
@@ -154,6 +144,7 @@ export default function ApplyForm({ application, accepting, siteKey }) {
           <span>director hiring {application.cycle}</span>
         </div>
       </header>
+      <ApplicationProgress completed={completed} total={required.length} />
       <div className={styles.layout}>
         <form className={styles.form} onSubmit={submitApplication} noValidate>
           <div className={styles.honeypot} aria-hidden="true">
@@ -252,19 +243,6 @@ export default function ApplyForm({ application, accepting, siteKey }) {
             )}
           </div>
         </form>
-      </div>
-      <div
-        className={styles.progressDock}
-        role="progressbar"
-        aria-label="Application progress"
-        aria-valuenow={completed}
-        aria-valuemin={0}
-        aria-valuemax={required.length}
-      >
-        <div className={styles.progressTrack}>
-          <div ref={progress} className={styles.progressFill} />
-        </div>
-        <span className={styles.progressCount}>{completed} / {required.length}</span>
       </div>
     </div>
   );
