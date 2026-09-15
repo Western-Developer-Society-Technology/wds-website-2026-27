@@ -2,7 +2,7 @@
 
 Edit questions in `applicationData.js`; keep question IDs unique and `name` and
 `email` required. Increment `version` when publishing changes. Work samples use
-HTTPS links. `formModel.js` validates answers on the client and server.
+HTTP and HTTPS links. `formModel.js` validates answers on the client and server.
 
 The form posts to `src/app/api/applications/route.js`, which Vercel runs as a
 serverless function. It verifies Turnstile and inserts a submission into Neon.

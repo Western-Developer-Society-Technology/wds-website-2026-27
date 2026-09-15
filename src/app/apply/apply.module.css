@@ -33,7 +33,7 @@
   font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 1.05;
-  margin: 28px 0;
+  margin: 28px 0 8px;
   overflow-wrap: anywhere;
 }
 
@@ -50,7 +50,6 @@
 }
 
 .layout {
-  border-top: 1px solid var(--line);
   padding-top: 28px;
 }
 
@@ -71,12 +70,6 @@
 
 .section {
   scroll-margin-top: 110px;
-  padding-bottom: 22px;
-}
-
-.section + .section {
-  padding-top: 36px;
-  border-top: 1px solid var(--line);
 }
 
 .section h2 {
@@ -539,7 +532,6 @@ textarea.field {
   justify-content: space-between;
   align-items: center;
   gap: 24px;
-  border-top: 1px solid var(--line);
   padding-top: 30px;
 }
 
@@ -854,7 +846,9 @@ textarea.field {
 
 .answerFields {
   border: 0;
-  padding: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 38px 0 0;
   margin: 0;
   min-width: 0;
 }
@@ -926,7 +920,7 @@ textarea.field {
     margin-bottom: 32px;
   }
   .header h1 {
-    margin: 22px 0;
+    margin: 22px 0 8px;
     font-size: clamp(48px, 10.6vw, 80px);
   }
   .intro {
@@ -952,6 +946,9 @@ textarea.field {
   }
   .question {
     margin-bottom: 32px;
+  }
+  .answerFields {
+    padding-top: 32px;
   }
   .submit {
     width: 100%;

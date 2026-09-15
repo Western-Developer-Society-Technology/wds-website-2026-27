@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import DateTimeField from "./DateTimeField";
+import { countWords, getCharacterLimit } from "./formModel";
 import styles from "./apply.module.css";
 
 gsap.registerPlugin(useGSAP);
@@ -64,16 +65,16 @@ function TextField({ question: q, value, onChange, attributes }) {
     className: styles.field,
     value: value || "",
     onChange: (event) => onChange(event.target.value),
-    placeholder: q.placeholder,
-    maxLength: q.maxLength,
+    placeholder: q.id === "name" ? "Your Name" : ["short", "paragraph"].includes(q.type) ? "Type something..." : q.placeholder,
+    maxLength: getCharacterLimit(q),
     autoComplete: q.autoComplete,
   };
   if (q.type === "paragraph") {
     return (
       <>
         <textarea {...shared} rows={5} />
-        {q.maxLength && (
-          <span className={styles.counter}>{(value || "").length} / {q.maxLength}</span>
+        {q.maxWords && (
+          <span className={styles.counter}>{countWords(value)} / {q.maxWords} words</span>
         )}
       </>
     );
@@ -124,7 +125,7 @@ function ScaleField({ question: q, value, onChange, attributes }) {
   const root = useRef(null);
   const highlight = useRef(null);
   const rating = q.type === "rating";
-  const options = Array.from({ length: q.max - (q.min ?? 1) + 1 }, (_, i) => i + (q.min ?? 1));
+  const options = q.options ?? Array.from({ length: q.max - (q.min ?? 1) + 1 }, (_, i) => i + (q.min ?? 1));
   const selectedIndex = options.findIndex((number) => value === String(number));
 
   useGSAP(() => {

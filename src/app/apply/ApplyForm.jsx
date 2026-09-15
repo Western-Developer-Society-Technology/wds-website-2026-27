@@ -7,7 +7,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import CornerButton from "@/components/ui/CornerButton";
 import QuestionField, { ChoiceFilters } from "./QuestionField";
 import ApplicationProgress from "./ApplicationProgress";
-import { buildApplicationPayload, hasAnswer, isObject, validateQuestion } from "./formModel";
+import { buildApplicationPayload, hasAnswer, isObject, isQuestionVisible, validateQuestion } from "./formModel";
 import styles from "./apply.module.css";
 
 gsap.registerPlugin(useGSAP);
@@ -27,7 +27,8 @@ export default function ApplyForm({ application, accepting, siteKey }) {
   const turnstile = useRef(null);
   const attempt = useRef(null);
   const submitting = useRef(false);
-  const questions = application.sections.flatMap((section) => section.questions);
+  const questions = application.sections.flatMap((section) => section.questions)
+    .filter((question) => isQuestionVisible(question, answers));
   // Optional answers are not needed to reach 100%.
   const required = questions.filter((question) => question.required);
   const completed = required.filter((question) =>
@@ -155,17 +156,14 @@ export default function ApplyForm({ application, accepting, siteKey }) {
           </div>
           <p className={styles.requiredNote}>Fields marked <span>*</span> are required.</p>
           <fieldset className={styles.answerFields} disabled={pending || Boolean(receipt)}>
-            {application.sections.map((section, index) => (
+            {application.sections.map((section) => (
               <section
                 className={styles.section}
                 id={`section-${section.id}`}
                 key={section.id}
-                aria-labelledby={`heading-${section.id}`}
+                aria-label={section.title}
               >
-                <h2 id={`heading-${section.id}`}>
-                  <span>0{index + 1}</span>{section.title}
-                </h2>
-                {section.questions.map((question) => (
+                 {section.questions.filter((question) => isQuestionVisible(question, answers)).map((question) => (
                   <QuestionField
                     key={question.id}
                     question={question}

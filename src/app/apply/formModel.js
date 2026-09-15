@@ -25,8 +25,17 @@ function validChoices(value, options) {
   );
 }
 
+export function countWords(value) {
+  return typeof value === "string" && value.trim() ? value.trim().split(/\s+/u).length : 0;
+}
+
+export function getCharacterLimit(question) {
+  const defaults = { short: 200, email: 254, url: 2048 };
+  return question.maxLength ?? defaults[question.type] ?? 4000;
+}
+
 export function validateQuestion(question, value) {
-  const maxLength = question.maxLength ?? 4000;
+  const maxLength = getCharacterLimit(question);
   if (typeof value === "string" && value.length > maxLength) {
     return `Please use no more than ${maxLength} characters.`;
   }
@@ -63,10 +72,17 @@ export function validateQuestion(question, value) {
 
   if (typeof value !== "string") return "Please enter a valid answer.";
 
+  if (question.maxWords && countWords(value) > question.maxWords) {
+    return `Please use no more than ${question.maxWords} words.`;
+  }
+
   if (["radio", "dropdown"].includes(question.type)) {
     return question.options.includes(value) ? "" : "Please choose a valid option.";
   }
   if (["scale", "rating"].includes(question.type)) {
+    if (question.type === "scale" && question.options) {
+      return question.options.includes(value) ? "" : "Please choose a valid rating.";
+    }
     const valid = /^\d+$/.test(value) &&
       Number(value) >= (question.min ?? 1) && Number(value) <= question.max;
     return valid ? "" : "Please choose a valid rating.";
@@ -79,11 +95,11 @@ export function validateQuestion(question, value) {
   if (question.type === "url") {
     try {
       const url = new URL(value.trim());
-      return url.protocol === "https:" && !url.username && !url.password
+      return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password
         ? ""
-        : "Please enter an HTTPS link.";
+        : "Please enter a valid web link.";
     } catch {
-      return "Please enter an HTTPS link.";
+      return "Please enter a valid web link.";
     }
   }
   if (question.type === "date") {
@@ -98,6 +114,14 @@ export function validateQuestion(question, value) {
   return ["short", "paragraph"].includes(question.type) ? "" : "Unsupported question type.";
 }
 
+export function isQuestionVisible(question, answers) {
+  if (!question.showWhen) return true;
+  const { questionId, min, max } = question.showWhen;
+  const value = answers[questionId];
+  return typeof value === "string" && /^\d+$/.test(value) &&
+    Number(value) >= min && Number(value) <= max;
+}
+
 export function validateAnswers(application, answers) {
   if (!isObject(answers)) return { errors: { form: "Invalid answers." } };
   const questions = application.sections.flatMap((section) => section.questions);
@@ -109,6 +133,7 @@ export function validateAnswers(application, answers) {
 
   const normalized = {};
   for (const question of questions) {
+    if (!isQuestionVisible(question, answers)) continue;
     const value = answers[question.id];
     const error = validateQuestion(question, value);
     if (error) {
@@ -128,6 +153,10 @@ export function buildApplicationPayload(application, answers) {
     portfolio: application.id,
     cycle: application.cycle,
     version: application.version,
-    answers: { ...answers },
+    answers: Object.fromEntries(
+      application.sections.flatMap((section) => section.questions)
+        .filter((question) => isQuestionVisible(question, answers) && answers[question.id] !== undefined)
+        .map((question) => [question.id, answers[question.id]]),
+    ),
   };
 }

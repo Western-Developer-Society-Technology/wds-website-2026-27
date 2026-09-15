@@ -10,16 +10,301 @@ const INTERESTS = {
   finance: ["Budgeting", "Record keeping", "Financial reporting"],
 };
 
+const CAREERS_SECTIONS = [
+  {
+    id: "introduction",
+    title: "basic questions",
+    questions: [
+      {
+        id: "name",
+        type: "short",
+        label: "Full Name",
+        placeholder: "your full name",
+        autoComplete: "name",
+        required: true,
+        maxLength: 120,
+      },
+      {
+        id: "email",
+        type: "email",
+        label: "Preferred Email",
+        placeholder: "you@example.com",
+        autoComplete: "email",
+        required: true,
+        maxLength: 254,
+      },
+      {
+        id: "year",
+        type: "dropdown",
+        label: "Year of Study",
+        placeholder: "select your year",
+        options: ["1", "2", "3", "4", "5+"],
+        required: true,
+      },
+    ],
+  },
+  {
+    id: "portfolio",
+    title: "portfolio questions",
+    questions: [
+      {
+        id: "motivation",
+        type: "paragraph",
+        label: "Why WDS and why Careers?",
+        required: true,
+      },
+      {
+        id: "event_engagement",
+        type: "paragraph",
+        label: "Event engagement has been low, and attendance at our events has been below expectations. How would you approach identifying the cause and improving engagement?",
+        required: true,
+      },
+      {
+        id: "event_proposal",
+        type: "paragraph",
+        label: "You have the opportunity to introduce a new careers event. What would you propose and why, and how would you approach planning and executing it from start to finish?",
+        required: true,
+      },
+    ],
+  },
+];
+
+const MARKETING_SECTIONS = [
+  {
+    id: "introduction",
+    title: "basic questions",
+    questions: [
+      {
+        id: "name",
+        type: "short",
+        label: "Full name",
+        placeholder: "your full name",
+        autoComplete: "name",
+        required: true,
+        maxLength: 120,
+      },
+      {
+        id: "year",
+        type: "dropdown",
+        label: "Year of Study",
+        placeholder: "select your year",
+        options: ["1", "2", "3", "4", "5+"],
+        required: true,
+      },
+      {
+        id: "program",
+        type: "short",
+        label: "Program",
+        required: true,
+        maxLength: 200,
+      },
+      {
+        id: "email",
+        type: "email",
+        label: "Western email",
+        placeholder: "you@uwo.ca",
+        autoComplete: "email",
+        required: true,
+        maxLength: 254,
+      },
+      {
+        id: "instagram",
+        type: "url",
+        label: "Instagram profile link",
+        placeholder: "https://instagram.com/yourusername",
+        required: true,
+        maxLength: 2048,
+      },
+    ],
+  },
+  {
+    id: "portfolio",
+    title: "portfolio questions",
+    questions: [
+      {
+        id: "marketing_experience",
+        type: "paragraph",
+        label: "Do you have any marketing, design, content, or social media experience? If so, tell us about it.",
+        required: true,
+      },
+      {
+        id: "work_sample",
+        type: "url",
+        label: "Link your portfolio or any work samples (portfolio site, Figma, Drive folder, Instagram, etc.)",
+        description: "Share a link and make sure reviewers can access it.",
+        required: true,
+        placeholder: "https://",
+        maxLength: 2048,
+      },
+      {
+        id: "interests",
+        type: "checkboxes",
+        label: "Which areas of marketing interest you most?",
+        description: "Choose as many as you like.",
+        options: ["Graphic design", "Social media and content", "Videography and photography", "Copywriting", "Brand and strategy", "Event coverage"],
+        required: true,
+      },
+      {
+        id: "tools",
+        type: "checkboxes",
+        label: "Which tools are you comfortable using?",
+        required: true,
+        description: "Choose all that apply.",
+        options: ["Canva", "Figma", "Photoshop", "Illustrator", "InDesign", "Premiere Pro", "CapCut", "After Effects", "Lightroom", "Other"],
+      },
+      {
+        id: "commitments",
+        type: "paragraph",
+        label: "What other commitments will you have this year?",
+        required: true,
+      },
+      {
+        id: "weekly_hours",
+        type: "short",
+        label: "How many hours per week can you commit to WDS?",
+        required: true,
+        maxLength: 120,
+      },
+      {
+        id: "motivation",
+        type: "paragraph",
+        label: "Why do you want to be on the Marketing portfolio?",
+        required: true,
+        maxWords: 200,
+      },
+      {
+        id: "marketing_feedback",
+        type: "paragraph",
+        label: "Look at our current marketing. What is one thing you would change?",
+        required: true,
+        maxWords: 100,
+      },
+      {
+        id: "niche_fact",
+        type: "paragraph",
+        label: "Tell us a niche fact about yourself that you don't usually tell people.",
+        required: true,
+      },
+    ],
+  },
+];
+
+const FLAGSHIP_SECTIONS = [
+  {
+    id: "introduction",
+    title: "basic questions",
+    questions: [
+      { id: "name", type: "short", label: "Full name", autoComplete: "name", required: true, maxLength: 120 },
+      { id: "email", type: "email", label: "School email", placeholder: "you@uwo.ca", autoComplete: "email", required: true, maxLength: 254 },
+      { id: "year", type: "dropdown", label: "Year", placeholder: "select your year", options: ["1", "2", "3", "4", "5+"], required: true },
+      { id: "major", type: "short", label: "Major", required: true, maxLength: 200 },
+    ],
+  },
+  {
+    id: "portfolio",
+    title: "portfolio questions",
+    questions: [
+      { id: "motivation", type: "paragraph", label: "Why do you want to join flagship?", required: true },
+      { id: "event_experience", type: "paragraph", label: "Tell us about your experience in organizing events.", required: true },
+      { id: "spark_idea", type: "paragraph", label: "What’s one thing you would add to spark?", required: true },
+      { id: "resume", type: "url", label: "Please add your resume.", description: "Share a link to your resume and make sure reviewers can access it.", placeholder: "https://", required: true, maxLength: 2048 },
+    ],
+  },
+];
+
+const DEVELOPMENT_SECTIONS = [
+  {
+    id: "introduction",
+    title: "basic questions",
+    questions: [
+      { id: "name", type: "short", label: "Full name", autoComplete: "name", required: true, maxLength: 120 },
+      { id: "email", type: "email", label: "Preferred Email", placeholder: "you@example.com", autoComplete: "email", required: true, maxLength: 254 },
+      { id: "year", type: "dropdown", label: "Year of Study", placeholder: "select your year", options: ["1", "2", "3", "4", "5+"], required: true },
+    ],
+  },
+  {
+    id: "portfolio",
+    title: "portfolio questions",
+    questions: [
+      { id: "motivation", type: "paragraph", label: "Why should we hire you? How are you different from everyone else applying?", required: true },
+      { id: "ml_familiarity", type: "scale", label: "How familiar are you with machine learning concepts, such as neural networks?", min: 1, max: 10, lowLabel: "Not familiar", highLabel: "Very familiar", required: true },
+      { id: "programming_familiarity", type: "paragraph", label: "How familiar are you with programming (DSA, full-stack development, etc.)?", description: "Tell us about your skills and any relevant projects or experience.", required: true },
+    ],
+  },
+];
+
+const TECHNOLOGY_SECTIONS = [
+  {
+    id: "introduction",
+    title: "basic questions",
+    questions: [
+      { id: "name", type: "short", label: "Full Name", autoComplete: "name", required: true, maxLength: 120 },
+      { id: "email", type: "email", label: "Western Email", placeholder: "you@uwo.ca", autoComplete: "email", required: true, maxLength: 254 },
+      { id: "year", type: "dropdown", label: "Year", placeholder: "select your year", options: ["1", "2", "3", "4", "5+"], required: true },
+      { id: "program", type: "short", label: "Program", required: true, maxLength: 200 },
+    ],
+  },
+  {
+    id: "portfolio",
+    title: "portfolio questions",
+    questions: [
+      { id: "weekly_hours", type: "radio", label: "How much time will you have available this year to participate in WDS activities (as a director)?", options: ["Less than 5 hours a week", "5 - 10 hours a week", "More than 10 hours a week"], required: true },
+      { id: "commitments", type: "paragraph", label: "List any other clubs, commitments, or activities you are currently involved in or plan to participate in this year.", required: true },
+      { id: "motivation", type: "paragraph", label: "Why do you want to join the Technology Portfolio at WDS, and what would you like to contribute this year?", required: true },
+      { id: "project", type: "paragraph", label: "Briefly walk us through a project you built or contributed to that you’re proud of.", required: true },
+      { id: "workshop", type: "paragraph", label: "Design a 60-minute technical workshop you would theoretically run for WDS members. Briefly describe the topic, structure, and how you would make it engaging and accessible to students with different levels of experience.", required: true },
+      { id: "website_feedback", type: "paragraph", label: "What would you change about the current WDS website?", required: true },
+      { id: "hackathons", type: "scale", label: "How many hackathons have you participated in?", options: ["0", "1", "2", "3+", "5+", "7+", "10+", "15+", "20+", "30+"], required: true },
+      { id: "tech_opinion", type: "paragraph", label: "What is an unpopular tech opinion or development hill you are willing to die on?", required: true },
+      { id: "linkedin", type: "url", label: "LinkedIn", description: "Optional. Share a link to your LinkedIn profile.", placeholder: "https://", maxLength: 2048 },
+      { id: "instagram", type: "url", label: "Instagram", description: "Optional. Share a link to your Instagram profile.", placeholder: "https://instagram.com/yourusername", maxLength: 2048 },
+      { id: "work_sample", type: "url", label: "Portfolio", description: "Optional. Share a link and make sure reviewers can access it.", placeholder: "https://", maxLength: 2048 },
+    ],
+  },
+];
+
+const INTERNALS_SECTIONS = [
+  {
+    id: "introduction",
+    title: "basic questions",
+    questions: [
+      { id: "name", type: "short", label: "Full Name", autoComplete: "name", required: true, maxLength: 120 },
+      { id: "email", type: "email", label: "Preferred Email", placeholder: "you@example.com", autoComplete: "email", required: true, maxLength: 254 },
+      { id: "program", type: "short", label: "Current Program", required: true, maxLength: 200 },
+      { id: "year", type: "dropdown", label: "Year of Study", placeholder: "select your year", options: ["1", "2", "3", "4", "5+"], required: true },
+    ],
+  },
+  {
+    id: "portfolio",
+    title: "portfolio questions",
+    questions: [
+      { id: "commitments", type: "paragraph", label: "What's your realistic weekly commitment, and what else are you juggling this year? (2 sentences)", required: true },
+      { id: "motivation", type: "paragraph", label: "Why Internals at WDS, and what do you want to be true about this club by April that isn't true now? (3-4 sentences)", required: true },
+      { id: "community_event", type: "paragraph", label: "Pitch one community event you'd run this year. Tell us the format, who it's for, and why someone busy would actually show up. (3-4 sentences)", required: true },
+      { id: "community", type: "paragraph", label: "Define community. What kind of community do you hope to build in WDS? (3-4 sentences)", required: true },
+    ],
+  },
+];
+
+const PORTFOLIO_SECTIONS = {
+  technology: TECHNOLOGY_SECTIONS,
+  internals: INTERNALS_SECTIONS,
+  careers: CAREERS_SECTIONS,
+  marketing: MARKETING_SECTIONS,
+  externals: FLAGSHIP_SECTIONS,
+  development: DEVELOPMENT_SECTIONS,
+};
+
 // Keep IDs stable: saved answers use them as keys.
 export function getApplication(id) {
   const portfolio = PORTFOLIOS.find((item) => item.id === id);
   if (!portfolio) return null;
   return {
     id,
-    label: portfolio.label,
+    label: id === "externals" ? "Flagship" : portfolio.label,
     cycle: "2026–27",
-    version: 1,
-    sections: [
+    version: id === "marketing" ? 5 : id === "internals" ? 4 : PORTFOLIO_SECTIONS[id] ? 3 : 1,
+    sections: (PORTFOLIO_SECTIONS[id] || [
       {
         id: "introduction",
         title: "basic questions",
@@ -101,7 +386,7 @@ export function getApplication(id) {
             id: "work_sample",
             type: "url",
             label: "Work sample link",
-            description: "Optional. Share an HTTPS portfolio, GitHub, or Drive link and make sure reviewers can access it.",
+            description: "Optional. Share a portfolio, GitHub, or Drive link and make sure reviewers can access it.",
             placeholder: "https://",
             maxLength: 2048,
           },
@@ -144,6 +429,15 @@ export function getApplication(id) {
           },
         ],
       },
-    ],
+    ]).map((section) => ({
+      ...section,
+      questions: section.questions.map((question) => {
+        // Preserve explicit word/character limits; sentence guidance can coexist with the word cap.
+        if (question.type !== "paragraph" || question.maxWords || question.maxLength) {
+          return question;
+        }
+        return { ...question, maxWords: 300 };
+      }),
+    })),
   };
 }
