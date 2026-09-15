@@ -301,7 +301,7 @@ export function getApplication(id) {
   if (!portfolio) return null;
   return {
     id,
-    label: id === "externals" ? "Flagship" : portfolio.label,
+    label: portfolio.label,
     cycle: "2026–27",
     version: id === "marketing" ? 5 : id === "internals" ? 4 : PORTFOLIO_SECTIONS[id] ? 3 : 1,
     sections: (PORTFOLIO_SECTIONS[id] || [

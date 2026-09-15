@@ -2,8 +2,8 @@ import { PORTFOLIOS } from "@/components/sections/Portfolios/portfolioData";
 import { teamMembers } from "@/components/sections/Team/teamData";
 
 // Role descriptions, responsibilities, and requirements follow the
-// "WDS 26/27 Vice President Role Descriptions" document. The Flagship
-// (Spark Hackathon) mandate is listed under externals, the matching tile.
+// "WDS 26/27 Vice President Role Descriptions" document. Flagship
+// (Spark Hackathon) retains the legacy externals ID for links and saved applications.
 const APPLICATION_DETAILS = {
   development: {
     tags: ["Project Management", "Leadership"],

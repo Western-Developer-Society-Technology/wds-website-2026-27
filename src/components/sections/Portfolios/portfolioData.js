@@ -22,7 +22,7 @@ export const PORTFOLIOS = [
   },
   {
     id: "externals",
-    label: "Externals",
+    label: "Flagship",
     src: "/icons/portfolios/externals.svg",
     w: 151.429,
     h: 106,
