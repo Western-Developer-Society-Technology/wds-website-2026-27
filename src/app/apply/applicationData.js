@@ -207,7 +207,6 @@ const FLAGSHIP_SECTIONS = [
       { id: "motivation", type: "paragraph", label: "Why do you want to join flagship?", required: true },
       { id: "event_experience", type: "paragraph", label: "Tell us about your experience in organizing events.", required: true },
       { id: "spark_idea", type: "paragraph", label: "What’s one thing you would add to spark?", required: true },
-      { id: "resume", type: "url", label: "Please add your resume.", description: "Share a link to your resume and make sure reviewers can access it.", placeholder: "https://", required: true, maxLength: 2048 },
     ],
   },
 ];
@@ -229,6 +228,7 @@ const DEVELOPMENT_SECTIONS = [
       { id: "motivation", type: "paragraph", label: "Why should we hire you? How are you different from everyone else applying?", required: true },
       { id: "ml_familiarity", type: "scale", label: "How familiar are you with machine learning concepts, such as neural networks?", min: 1, max: 10, lowLabel: "Not familiar", highLabel: "Very familiar", required: true },
       { id: "programming_familiarity", type: "paragraph", label: "How familiar are you with programming (DSA, full-stack development, etc.)?", description: "Tell us about your skills and any relevant projects or experience.", required: true },
+      { id: "github", type: "url", label: "GitHub profile link", placeholder: "https://github.com/yourusername", required: true, maxLength: 2048 },
     ],
   },
 ];
@@ -297,13 +297,14 @@ const PORTFOLIO_SECTIONS = {
 
 // Keep IDs stable: saved answers use them as keys.
 export function getApplication(id) {
+  if (id === "finance") return null;
   const portfolio = PORTFOLIOS.find((item) => item.id === id);
   if (!portfolio) return null;
   return {
     id,
     label: portfolio.label,
     cycle: "2026–27",
-    version: id === "marketing" ? 5 : id === "internals" ? 4 : PORTFOLIO_SECTIONS[id] ? 3 : 1,
+    version: id === "marketing" ? 7 : ["internals", "development"].includes(id) ? 6 : id === "externals" ? 4 : PORTFOLIO_SECTIONS[id] ? 5 : 3,
     sections: (PORTFOLIO_SECTIONS[id] || [
       {
         id: "introduction",
@@ -431,7 +432,18 @@ export function getApplication(id) {
       },
     ]).map((section) => ({
       ...section,
-      questions: section.questions.map((question) => {
+      questions: [
+        ...section.questions,
+        ...(section.id === "portfolio" ? [{
+          id: "resume",
+          type: "url",
+          label: "Resume link",
+          description: `${id === "externals" ? "" : "Optional. "}Share a link to your resume and make sure reviewers can access it.`,
+          placeholder: "https://",
+          required: id === "externals",
+          maxLength: 2048,
+        }] : []),
+      ].map((question) => {
         // Preserve explicit word/character limits; sentence guidance can coexist with the word cap.
         if (question.type !== "paragraph" || question.maxWords || question.maxLength) {
           return question;

@@ -156,13 +156,17 @@ export default function PortfolioDirectory() {
 
         <div className={styles.roleDetails}>
           <div className={styles.actions}>
-            <span>
-              {activePortfolio.spots} {activePortfolio.spots === 1 ? "spot" : "spots"}
-            </span>
-            <a href={`/apply/${activePortfolio.id}`}>
-              apply now
-              <ArrowIcon />
-            </a>
+            {activePortfolio.id === "finance" ? (
+              <button type="button" disabled>
+                apply now
+                <ArrowIcon />
+              </button>
+            ) : (
+              <a href={`/apply/${activePortfolio.id}`}>
+                apply now
+                <ArrowIcon />
+              </a>
+            )}
           </div>
 
           <h3>Responsibilities</h3>

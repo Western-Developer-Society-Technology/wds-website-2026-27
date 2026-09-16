@@ -290,8 +290,8 @@
   margin-bottom: 40px;
 }
 
-.actions > span,
-.actions a {
+.actions a,
+.actions button {
   display: flex;
   min-height: 48px;
   padding: 0 28px;
@@ -304,15 +304,19 @@
   white-space: nowrap;
 }
 
-.actions > span {
-  background: #e1e1e1;
-  color: #333;
-}
-
 .actions a {
   gap: 12px;
   background: var(--blue);
   color: #fff;
+}
+
+.actions button:disabled {
+  gap: 12px;
+  border: 0;
+  background: #e1e1e1;
+  color: #777;
+  font-family: inherit;
+  cursor: not-allowed;
 }
 
 .actions a:hover,
@@ -483,8 +487,8 @@
     flex-direction: column;
   }
 
-  .actions > span,
-  .actions a {
+  .actions a,
+  .actions button {
     width: 100%;
   }
 }

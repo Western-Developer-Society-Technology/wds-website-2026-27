@@ -150,7 +150,7 @@ export const PORTFOLIO_APPLICATIONS = PORTFOLIOS.map((portfolio) => {
 
 const PORTFOLIO_ROLE_MAP = {
   development: "VP Development",
-  internals: "VP Internals",
+  internals: "VP Internal",
   careers: "VP Careers",
   externals: "VP Flagship",
   finance: "VP Finance",
