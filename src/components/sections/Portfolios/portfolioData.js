@@ -21,9 +21,9 @@ export const PORTFOLIOS = [
     h: 106,
   },
   {
-    id: "externals",
+    id: "flagship",
     label: "Flagship",
-    src: "/icons/portfolios/externals.svg",
+    src: "/icons/portfolios/flagship.svg",
     w: 151.429,
     h: 106,
   },
@@ -56,7 +56,7 @@ export const PORTFOLIO_BY_ID = Object.fromEntries(
 
 export const GRID = [
   [null, null, null, null, null, null, null, null],
-  [null, null, "development", "internals", "careers", "externals", null, null],
+  [null, null, "development", "internals", "careers", "flagship", null, null],
   [null, null, "finance", "technology", "marketing", "asterisk", null, null],
   [null, null, null, null, null, null, null, null],
 ];

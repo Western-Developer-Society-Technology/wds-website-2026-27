@@ -2,8 +2,7 @@ import { PORTFOLIOS } from "@/components/sections/Portfolios/portfolioData";
 import { teamMembers } from "@/components/sections/Team/teamData";
 
 // Role descriptions, responsibilities, and requirements follow the
-// "WDS 26/27 Vice President Role Descriptions" document. Flagship
-// (Spark Hackathon) retains the legacy externals ID for links and saved applications.
+// "WDS 26/27 Vice President Role Descriptions" document.
 const APPLICATION_DETAILS = {
   development: {
     tags: ["Project Management", "Leadership"],
@@ -62,7 +61,7 @@ const APPLICATION_DETAILS = {
       "Able to secure sponsors and support event funding initiatives",
     ],
   },
-  externals: {
+  flagship: {
     tags: ["Partnerships", "Outreach"],
     spots: 3,
     description:
@@ -152,7 +151,7 @@ const PORTFOLIO_ROLE_MAP = {
   development: "VP Development",
   internals: "VP Internal",
   careers: "VP Careers",
-  externals: "VP Flagship",
+  flagship: "VP Flagship",
   finance: "VP Finance",
   technology: "VP Technology",
   marketing: "VP Marketing",

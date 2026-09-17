@@ -6,7 +6,7 @@ const INTERESTS = {
   development: ["Project planning", "Building products", "Team leadership"],
   internals: ["Team socials", "Member experience", "Merchandise"],
   careers: ["Workshops", "Industry outreach", "Networking events"],
-  externals: ["Sponsorships", "Event logistics", "Partnerships"],
+  flagship: ["Sponsorships", "Event logistics", "Partnerships"],
   finance: ["Budgeting", "Record keeping", "Financial reporting"],
 };
 
@@ -291,7 +291,7 @@ const PORTFOLIO_SECTIONS = {
   internals: INTERNALS_SECTIONS,
   careers: CAREERS_SECTIONS,
   marketing: MARKETING_SECTIONS,
-  externals: FLAGSHIP_SECTIONS,
+  flagship: FLAGSHIP_SECTIONS,
   development: DEVELOPMENT_SECTIONS,
 };
 
@@ -304,7 +304,7 @@ export function getApplication(id) {
     id,
     label: portfolio.label,
     cycle: "2026–27",
-    version: id === "marketing" ? 7 : ["internals", "development"].includes(id) ? 6 : id === "externals" ? 4 : PORTFOLIO_SECTIONS[id] ? 5 : 3,
+    version: id === "marketing" ? 7 : ["internals", "development"].includes(id) ? 6 : id === "flagship" ? 4 : PORTFOLIO_SECTIONS[id] ? 5 : 3,
     sections: (PORTFOLIO_SECTIONS[id] || [
       {
         id: "introduction",
@@ -438,9 +438,9 @@ export function getApplication(id) {
           id: "resume",
           type: "url",
           label: "Resume link",
-          description: `${id === "externals" ? "" : "Optional. "}Share a link to your resume and make sure reviewers can access it.`,
+          description: `${id === "flagship" ? "" : "Optional. "}Share a link to your resume and make sure reviewers can access it.`,
           placeholder: "https://",
-          required: id === "externals",
+          required: id === "flagship",
           maxLength: 2048,
         }] : []),
       ].map((question) => {
