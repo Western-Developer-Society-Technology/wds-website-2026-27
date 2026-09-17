@@ -50,6 +50,8 @@ export async function POST(request) {
     const sql = neon(process.env.DATABASE_URL);
     const hash = createHash("sha256").update(JSON.stringify({
       portfolio: body.portfolio,
+      // Older open tabs still send cycle. Preserve their hashes for receipt recovery;
+      // new clients omit it, so JSON.stringify excludes it from new hashes.
       cycle: body.cycle,
       version: body.version,
       answers: body.answers,
@@ -70,7 +72,7 @@ export async function POST(request) {
 
     const form = getApplication(body.portfolio);
     if (!form) return error("Application not found.", 404);
-    if (body.cycle !== form.cycle || body.version !== form.version) {
+    if (body.version !== form.version) {
       return error("This form has changed. Please reload before submitting.", 409);
     }
     const { answers, errors } = validateAnswers(form, body.answers);
@@ -126,8 +128,8 @@ export async function POST(request) {
     // The no-op update returns the original receipt if another retry saved first.
     const [row] = await sql`
       INSERT INTO wds_site.application_submissions
-        (id, portfolio, cycle, form_version, applicant_name, applicant_email, response, idempotency_key, payload_hash)
-      VALUES (${response.id}, ${form.id}, ${form.cycle}, ${form.version}, ${answers.name}, ${answers.email},
+        (id, portfolio, form_version, applicant_name, applicant_email, response, idempotency_key, payload_hash)
+      VALUES (${response.id}, ${form.id}, ${form.version}, ${answers.name}, ${answers.email},
         ${JSON.stringify(response)}::jsonb, ${body.idempotencyKey}, ${hash})
       ON CONFLICT (idempotency_key) DO UPDATE SET idempotency_key = EXCLUDED.idempotency_key
         WHERE application_submissions.payload_hash = EXCLUDED.payload_hash

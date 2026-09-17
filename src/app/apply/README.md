@@ -10,7 +10,7 @@ Each row stores normal identifying fields plus one `response` JSONB object.
 Retries with unchanged answers use the same request ID to avoid duplicate rows.
 The ID lasts for the current page session. Reloading the page or changing answers
 starts a new request. A separate database rule allows only one application per
-email address across all portfolios and hiring cycles. Email addresses are trimmed
+email address across the entire submissions table. Email addresses are trimmed
 and lowercased before storage; no verification email is sent.
 
 ## Application progress
@@ -61,7 +61,6 @@ CREATE TABLE IF NOT EXISTS wds_site.application_submissions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   submitted_at timestamptz NOT NULL DEFAULT now(),
   portfolio text NOT NULL,
-  cycle text NOT NULL,
   form_version integer NOT NULL,
   applicant_name text NOT NULL,
   applicant_email text NOT NULL,

@@ -151,7 +151,6 @@ export function validateAnswers(application, answers) {
 export function buildApplicationPayload(application, answers) {
   return {
     portfolio: application.id,
-    cycle: application.cycle,
     version: application.version,
     answers: Object.fromEntries(
       application.sections.flatMap((section) => section.questions)
