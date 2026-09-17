@@ -10,8 +10,8 @@ Each row stores normal identifying fields plus one `response` JSONB object.
 Retries with unchanged answers use the same request ID to avoid duplicate rows.
 The ID lasts for the current page session. Reloading the page or changing answers
 starts a new request. A separate database rule allows only one application per
-email address across the entire submissions table. Email addresses are trimmed
-and lowercased before storage; no verification email is sent.
+email address for each portfolio. Email addresses are trimmed and lowercased
+before storage; no verification email is sent.
 
 ## Application progress
 
@@ -70,7 +70,23 @@ CREATE TABLE IF NOT EXISTS wds_site.application_submissions (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS application_submissions_email_unique
-  ON wds_site.application_submissions (lower(btrim(applicant_email)));
+  ON wds_site.application_submissions (lower(btrim(applicant_email)), portfolio);
+```
+
+For an existing database created with the original email-only index, run this
+once to allow the same applicant to apply to different portfolios while keeping
+duplicate submissions for one portfolio blocked:
+
+```sql
+BEGIN;
+
+CREATE UNIQUE INDEX application_submissions_email_portfolio_unique
+  ON wds_site.application_submissions (lower(btrim(applicant_email)), portfolio);
+DROP INDEX wds_site.application_submissions_email_unique;
+ALTER INDEX wds_site.application_submissions_email_portfolio_unique
+  RENAME TO application_submissions_email_unique;
+
+COMMIT;
 ```
 
 Set these in Vercel's environment settings (and ignored `.env` for local use):

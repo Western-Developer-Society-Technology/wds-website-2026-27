@@ -139,7 +139,7 @@ export async function POST(request) {
       : error("This request ID was already used for different answers.", 409);
   } catch (cause) {
     if (cause.code === "23505" && cause.constraint === "application_submissions_email_unique") {
-      const message = "An application has already been submitted with this email address.";
+      const message = "An application has already been submitted for this role with this email address.";
       return reply({ error: message, errors: { email: message } }, 409);
     }
     // Database errors can contain credentials or answers. Keep them out of the response.
