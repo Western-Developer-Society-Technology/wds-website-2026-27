@@ -259,9 +259,10 @@
 }
 
 .roleDetails h3 {
+  margin-top: auto;
   margin-bottom: 20px;
   color: #666;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
 }
 
@@ -276,7 +277,9 @@
 
 .portfolioDescription {
   max-width: 62ch;
-  margin-bottom: 40px;
+  margin-bottom: auto;
+  font-size: 17px;
+  line-height: 1.6;
 }
 
 .actions {
