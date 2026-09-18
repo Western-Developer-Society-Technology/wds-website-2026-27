@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Turnstile } from "@marsidev/react-turnstile";
@@ -13,6 +13,23 @@ import styles from "./apply.module.css";
 gsap.registerPlugin(useGSAP);
 
 const UNCONFIRMED_MESSAGE = "We could not confirm your submission. Your answers are still here. Please retry; the same request will not be saved twice.";
+
+// Keep unfinished and hidden answers, but never files or malformed cached values.
+function draftAnswers(application, answers) {
+  const strings = (value) => Array.isArray(value) && value.every((item) => typeof item === "string");
+  return Object.fromEntries(application.sections.flatMap((section) => section.questions)
+    .filter((question) => {
+      const value = answers[question.id];
+      if (question.type === "file") return false;
+      if (question.type === "checkboxes") return strings(value);
+      if (question.rows) {
+        return isObject(value) && Object.values(value).every((item) =>
+          question.type === "checkboxGrid" ? strings(item) : typeof item === "string");
+      }
+      return typeof value === "string";
+    })
+    .map((question) => [question.id, answers[question.id]]));
+}
 
 export default function ApplyForm({ application, accepting, siteKey }) {
   const root = useRef(null);
@@ -27,6 +44,19 @@ export default function ApplyForm({ application, accepting, siteKey }) {
   const turnstile = useRef(null);
   const attempt = useRef(null);
   const submitting = useRef(false);
+  const draftKey = `wds:application-draft:${application.cycle}:${application.id}:v${application.version}`;
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(draftKey));
+      // Restore browser-only state after hydration; saving happens only on edits.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (isObject(saved)) setAnswers(draftAnswers(application, saved));
+    } catch {
+      // An unreadable draft must not prevent filling out the form.
+    }
+  }, [application, draftKey]);
+
   const questions = application.sections.flatMap((section) => section.questions)
     .filter((question) => isQuestionVisible(question, answers));
   // Optional answers are not needed to reach 100%.
@@ -61,7 +91,13 @@ export default function ApplyForm({ application, accepting, siteKey }) {
 
   function update(question, value) {
     if (submitting.current || receipt) return;
-    setAnswers((current) => ({ ...current, [question.id]: value }));
+    const next = { ...answers, [question.id]: value };
+    setAnswers(next);
+    try {
+      sessionStorage.setItem(draftKey, JSON.stringify(draftAnswers(application, next)));
+    } catch {
+      // Continue normally when browser storage is unavailable or full.
+    }
     setErrors((current) => ({
       ...current,
       [question.id]: (question.type === "file" || current[question.id]) ? validateQuestion(question, value) : "",
@@ -132,6 +168,11 @@ export default function ApplyForm({ application, accepting, siteKey }) {
         throw new Error(UNCONFIRMED_MESSAGE);
       }
       setReceipt(result.id);
+      try {
+        sessionStorage.removeItem(draftKey);
+      } catch {
+        // Storage cleanup must not turn a confirmed submission into an error.
+      }
     } catch (error) {
       const unconfirmed = error.name === "TimeoutError" ||
         error instanceof TypeError || error instanceof SyntaxError;

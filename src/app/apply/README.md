@@ -14,6 +14,11 @@ starts a new request. A separate database rule allows only one application per
 email address for each portfolio. Email addresses are trimmed and lowercased
 before storage; no verification email is sent.
 
+Answer drafts are saved in `sessionStorage` per cycle, portfolio, and form version.
+They survive reloads in the same tab and are cleared after a confirmed submission.
+Resumes must be selected again after reload; verification must also be completed again.
+If browser storage is unavailable, the form still works without draft recovery.
+
 ## Application progress
 
 `ApplicationProgress.jsx` renders the Looped script WDS mark in the right-hand
