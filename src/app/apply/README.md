@@ -129,9 +129,9 @@ uses the submission ID to avoid duplicate rows, and logs counts or a generic fai
 Google Sheet with the service account email as an editor and add these GitHub Actions
 repository secrets:
 
-- `DATABASE_URL`: a read-only database connection string.
+- `SHEETS_DATABASE_URL`: a read-only database connection string.
 - `GOOGLE_SERVICE_ACCOUNT_JSON`: the complete service-account JSON document.
-- `GOOGLE_SHEET_ID`: the ID between `/d/` and `/edit` in the Sheet URL.
+- `GOOGLE_SHEETS_SPREADSHEET_ID`: the ID between `/d/` and `/edit` in the Sheet URL.
 
 The Google Sheets API must be enabled in the service account's Google Cloud
 project. The workflow does not use Vercel and does not need Vercel credentials.

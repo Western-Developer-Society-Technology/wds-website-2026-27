@@ -19,10 +19,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -33,12 +33,12 @@ jobs:
       - name: Validate sync configuration
         shell: bash
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SHEETS_DATABASE_URL: ${{ secrets.SHEETS_DATABASE_URL }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
         run: |
           missing=0
-          for name in DATABASE_URL GOOGLE_SERVICE_ACCOUNT_JSON GOOGLE_SHEET_ID; do
+          for name in SHEETS_DATABASE_URL GOOGLE_SERVICE_ACCOUNT_JSON GOOGLE_SHEETS_SPREADSHEET_ID; do
             if [ -z "${!name}" ]; then
               echo "::error title=Missing GitHub Actions secret::$name is not configured as a repository Actions secret."
               missing=1
@@ -49,6 +49,6 @@ jobs:
       - name: Sync applications
         run: node scripts/sync-applications.mjs
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.SHEETS_DATABASE_URL }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
