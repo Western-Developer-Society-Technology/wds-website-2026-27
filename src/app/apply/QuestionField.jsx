@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import DateTimeField from "./DateTimeField";
+import ResumeUploadField from "./ResumeUploadField";
 import { countWords, getCharacterLimit } from "./formModel";
 import styles from "./apply.module.css";
 
@@ -312,6 +313,7 @@ function DropdownField({ question: q, value, onChange, attributes }) {
 }
 
 const CONTROLS = {
+  file: ResumeUploadField,
   short: TextField,
   email: TextField,
   url: TextField,

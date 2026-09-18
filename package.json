@@ -6,12 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test src/app/apply/*.test.mjs tests/*.test.mjs",
+    "test:build": "npm run build && TEST_BUILT_ROUTE=true npm test"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@marsidev/react-turnstile": "^1.6.1",
     "@neondatabase/serverless": "^1.1.0",
+    "@neslinesli93/qpdf-wasm": "0.3.0",
+    "@vercel/firewall": "^1.2.5",
     "gsap": "^3.15.0",
     "motion": "^13.1.1",
     "next": "16.3.5",

@@ -164,6 +164,41 @@ textarea.field {
   margin-top: 8px;
 }
 
+.fileInput {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  border: 1px dashed var(--muted);
+}
+
+.fileInput::file-selector-button {
+  margin-right: 16px;
+  padding: 10px 16px;
+  border: 0;
+  background: var(--selected);
+  color: var(--selected-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.fileInput:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.fileDetails {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
 .choices {
   display: grid;
   gap: 8px;

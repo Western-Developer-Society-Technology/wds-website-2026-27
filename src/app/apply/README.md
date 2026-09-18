@@ -5,9 +5,10 @@ Edit questions in `applicationData.js`; keep question IDs unique and `name` and
 HTTP and HTTPS links. `formModel.js` validates answers on the client and server.
 
 The form posts to `src/app/api/applications/route.js`, which Vercel runs as a
-serverless function. It verifies Turnstile and inserts a submission into Neon.
+serverless function. `src/lib/applications/submit.js` verifies Turnstile, validates
+the required PDF, uploads it to Supabase Storage, and inserts the application into Neon.
 Each row stores normal identifying fields plus one `response` JSONB object.
-Retries with unchanged answers use the same request ID to avoid duplicate rows.
+Retries with unchanged answers and PDF bytes use the same request ID to avoid duplicate rows.
 The ID lasts for the current page session. Reloading the page or changing answers
 starts a new request. A separate database rule allows only one application per
 email address for each portfolio. Email addresses are trimmed and lowercased
@@ -96,6 +97,60 @@ Set these in Vercel's environment settings (and ignored `.env` for local use):
 - `CLOUDFLARE_SECRET_KEY`: its server-side secret.
 - `TURNSTILE_ALLOWED_HOSTNAMES`: `westerndevsociety.ca,www.westerndevsociety.ca`.
 - `APPLICATIONS_OPEN`: `true` when ready to accept submissions; closed otherwise.
+- `SUPABASE_URL`: the hiring project's HTTPS URL.
+- `SUPABASE_SECRET_KEY`: a server-only secret API key (not the Postgres password).
+- `SUPABASE_RESUME_BUCKET`: `application-resumes` (the dedicated public-download bucket).
+
+Run `db/migrations/20260918_resume_storage.sql` on Supabase. It is repeatable,
+preserves existing objects, and denies anonymous/authenticated listing and writes,
+even if another policy grants broad access. Public object downloads bypass SELECT
+RLS. Never expose the secret key to the browser. The Neon connection cannot apply
+this Supabase migration.
+
+PDFs use random, non-overwriting paths and unsigned public URLs, with no expiry.
+Deployments and Sheets sync do not delete files. Only a confirmed unused upload is
+automatically removed; uncertain database commits retain their PDFs. Reconcile
+orphans manually against `response.questions[].file.path`, after in-flight requests
+finish; never delete by age alone. Do not enable lifecycle cleanup for this bucket.
+Keep the Supabase project active/funded and retain its bucket and objects for at
+least two months after hiring (preferably indefinitely). Provider availability,
+project suspension/deletion, and administrator actions prevent an absolute
+permanence guarantee. Storage is not a backup; retain a separate backup if needed.
+
+The form discloses that applications and resume links are public. A public Sheet
+exposes every exported answer and email; public access does not mean edit access.
+Restrict spreadsheet editing to the service account and trusted administrators.
+
+## Google Sheets sync
+
+`.github/workflows/sync-applications.yml` runs the read-only sync hourly and can
+also be started manually from GitHub Actions. It creates one tab per portfolio,
+uses the submission ID to avoid duplicate rows, and logs counts or a generic failure. Share the
+Google Sheet with the service account email as an editor and add these GitHub Actions
+repository secrets:
+
+- `DATABASE_URL`: a read-only database connection string.
+- `GOOGLE_SERVICE_ACCOUNT_JSON`: the complete service-account JSON document.
+- `GOOGLE_SHEET_ID`: the ID between `/d/` and `/edit` in the Sheet URL.
+
+The Google Sheets API must be enabled in the service account's Google Cloud
+project. The workflow does not use Vercel and does not need Vercel credentials.
+
+The export adds one row per application, with question text in column headers,
+wrapped answers, frozen headers, and borders between applications. Historical
+`externals` records go in the Flagship tab. Writes use `RAW` so answers cannot
+execute spreadsheet formulas. New columns and row capacity grow as needed.
+Rate-limited/transient reads and fixed-range writes retry with bounded backoff.
+An uncertain write stops the job; the next run rereads IDs before adding rows.
+Existing rows are not updated when database records change or are deleted.
+
+GitHub's concurrency group is the single-writer lock. Run manual syncs through
+`workflow_dispatch`, not concurrently from a local terminal or another repository.
+Do not move/delete/edit IDs or sort the underlying rows while syncing; use filter
+views instead. The hourly schedule runs only on the default branch, may be delayed
+or skipped by GitHub, and may be disabled after 60 days of repository inactivity.
+Monitor failed/missing runs and dispatch a catch-up run; all saved applications are
+read on every run, so missed hours do not discard submissions.
 
 The server page passes only the public site key to the widget. The API checks
 Turnstile's success, action, and hostname; there is no test-key bypass.
@@ -103,20 +158,19 @@ The public site redirects to `www.westerndevsociety.ca`, so that hostname must b
 allowed. For local testing, also allow `localhost` in Cloudflare's widget settings
 and `TURNSTILE_ALLOWED_HOSTNAMES`.
 
-The ignored `.env` file is local only. Set all five variables in Vercel's Production
+The ignored `.env` file is local only. Set the variables above in Vercel's Production
 environment before deploying. Environment changes require a new deployment.
 
 ## Before opening applications
 
 1. Confirm the question content; increment `version` when changing it.
 2. Create the database table and configure the environment variables above.
-3. Run `npm test`, `npm run lint`, `npm run build`, and `npm audit --omit=dev`.
+3. Run `npm test`, `npm run test:build`, `npm run lint`, and `npm audit --omit=dev`.
+   The built-route test exercises QPDF after Next compilation with mocked services.
 4. Test on a preview deployment with its own database and allowed Turnstile hostname.
    Confirm a successful receipt matches the saved row, a retry returns the same
    receipt, invalid verification is rejected, and closed applications cannot be saved.
 5. Enable `APPLICATIONS_OPEN=true` in production and redeploy when those checks pass.
 
-The API reads the database before verifying Turnstile so it can recover receipts
-after a lost response. Turnstile protects new inserts, but it does not rate-limit
-those reads. Use Vercel's request controls if the endpoint receives abusive traffic.
+The API rate-limits `POST /api/applications` via Vercel Firewall (rule ID `resume-application`, 60 req/IP/60s). Configure and publish that rule before opening uploads; requests fail closed without it.
 Vercel and Neon usage counts toward the limits of the configured plans.

@@ -1,7 +1,10 @@
+import { validateResumeFile } from "../../lib/applications/resume.js";
+
 export const isObject = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
 function isEmptyAnswer(value) {
+  if (typeof value?.arrayBuffer === "function") return value.size === 0;
   if (value === undefined || value === null) return true;
   if (typeof value === "string") return value.trim().length === 0;
   if (Array.isArray(value)) return value.length === 0;
@@ -10,6 +13,7 @@ function isEmptyAnswer(value) {
 }
 
 export function hasAnswer(question, value) {
+  if (question.type === "file") return !validateResumeFile(value);
   if (question.rows) {
     return isObject(value) && question.rows.every((row) => value[row]?.length > 0);
   }
@@ -35,6 +39,7 @@ export function getCharacterLimit(question) {
 }
 
 export function validateQuestion(question, value) {
+  if (question.type === "file") return validateResumeFile(value);
   const maxLength = getCharacterLimit(question);
   if (typeof value === "string" && value.length > maxLength) {
     return `Please use no more than ${maxLength} characters.`;
@@ -154,7 +159,7 @@ export function buildApplicationPayload(application, answers) {
     version: application.version,
     answers: Object.fromEntries(
       application.sections.flatMap((section) => section.questions)
-        .filter((question) => isQuestionVisible(question, answers) && answers[question.id] !== undefined)
+        .filter((question) => question.type !== "file" && isQuestionVisible(question, answers) && answers[question.id] !== undefined)
         .map((question) => [question.id, answers[question.id]]),
     ),
   };

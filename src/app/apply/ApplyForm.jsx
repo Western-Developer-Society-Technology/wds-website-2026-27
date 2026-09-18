@@ -64,14 +64,14 @@ export default function ApplyForm({ application, accepting, siteKey }) {
     setAnswers((current) => ({ ...current, [question.id]: value }));
     setErrors((current) => ({
       ...current,
-      [question.id]: current[question.id] ? validateQuestion(question, value) : "",
+      [question.id]: (question.type === "file" || current[question.id]) ? validateQuestion(question, value) : "",
     }));
   }
 
   function focusFirstError(nextErrors) {
     const question = questions.find((question) => nextErrors[question.id]);
     if (!question) return;
-    root.current.querySelector(`[data-question="${question.id}"]`)
+    root.current?.querySelector(`[data-question="${question.id}"]`)
       ?.querySelector('input:not([type="hidden"]), textarea, [role="combobox"]')
       ?.focus();
   }
@@ -90,33 +90,42 @@ export default function ApplyForm({ application, accepting, siteKey }) {
       return;
     }
 
-    const payload = buildApplicationPayload(application, answers);
-    const serialized = JSON.stringify(payload);
-    const retry = attempt.current?.payload === serialized;
-    if (!token && !retry) {
-      setMessage("Please complete the verification first.");
-      return;
-    }
-    // Reuse the request ID when retrying after a lost response.
-    if (!retry) attempt.current = { payload: serialized, key: crypto.randomUUID() };
+    const website = new FormData(event.currentTarget).get("website");
     submitting.current = true;
     setPending(true);
     try {
+      const payload = buildApplicationPayload(application, answers);
+      const digest = await crypto.subtle.digest("SHA-256", await answers.resume.arrayBuffer());
+      const resumeHash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      const serialized = JSON.stringify({ ...payload, resumeHash });
+      const retry = attempt.current?.payload === serialized;
+      if (!token && !retry) {
+        setMessage("Please complete the verification first.");
+        return;
+      }
+      // File bytes, not just the filename, determine whether this is a retry.
+      if (!retry) attempt.current = { payload: serialized, key: crypto.randomUUID() };
+      const data = new FormData();
+      data.append("payload", JSON.stringify({
+        ...payload,
+        idempotencyKey: attempt.current.key,
+        turnstileToken: token,
+        website,
+      }));
+      data.append("resume", answers.resume);
       const response = await fetch("/api/applications", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...payload,
-          idempotencyKey: attempt.current.key,
-          turnstileToken: token,
-          website: new FormData(event.currentTarget).get("website"),
-        }),
-        signal: AbortSignal.timeout(30000),
+        body: data,
+        signal: AbortSignal.timeout(60000),
       });
       const result = await response.json();
       if (!isObject(result)) throw new Error(UNCONFIRMED_MESSAGE);
       if (!response.ok) {
-        if (isObject(result.errors)) setErrors(result.errors);
+        if (isObject(result.errors)) {
+          setErrors(result.errors);
+          // Wait for finally to re-enable the fieldset before focusing a field.
+          requestAnimationFrame(() => focusFirstError(result.errors));
+        }
         throw new Error(result.errors?.form || result.error || "Your application could not be saved. Please try again.");
       }
       if (typeof result.id !== "string" || !result.id) {

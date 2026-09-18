@@ -1,4 +1,5 @@
-import { PORTFOLIOS } from "@/components/sections/Portfolios/portfolioData";
+import { PORTFOLIOS } from "../../components/sections/Portfolios/portfolioData.js";
+import { MAX_RESUME_BYTES } from "../../lib/applications/resume.js";
 
 const INTERESTS = {
   technology: ["Web development", "Technical workshops", "Hackathon team"],
@@ -304,7 +305,7 @@ export function getApplication(id) {
     id,
     label: portfolio.label,
     cycle: "2026–27",
-    version: id === "marketing" ? 7 : ["internals", "development"].includes(id) ? 6 : id === "flagship" ? 4 : PORTFOLIO_SECTIONS[id] ? 5 : 3,
+    version: id === "marketing" ? 8 : ["internals", "development"].includes(id) ? 7 : id === "flagship" ? 5 : PORTFOLIO_SECTIONS[id] ? 6 : 4,
     sections: (PORTFOLIO_SECTIONS[id] || [
       {
         id: "introduction",
@@ -436,12 +437,11 @@ export function getApplication(id) {
         ...section.questions,
         ...(section.id === "portfolio" ? [{
           id: "resume",
-          type: "url",
-          label: "Resume link",
-          description: `${id === "flagship" ? "" : "Optional. "}Share a link to your resume and make sure reviewers can access it.`,
-          placeholder: "https://",
-          required: id === "flagship",
-          maxLength: 2048,
+          type: "file",
+          label: "Resume",
+          description: "Upload one PDF, maximum 500 KB and 10 pages. Do not include sensitive information you do not want to share publicly.",
+          required: true,
+          maxBytes: MAX_RESUME_BYTES,
         }] : []),
       ].map((question) => {
         // Preserve explicit word/character limits; sentence guidance can coexist with the word cap.
