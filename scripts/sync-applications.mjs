@@ -8,10 +8,11 @@ class SyncError extends Error {}
 
 const SYNC_ID_HEADER = "Application ID";
 const VISIBLE_BASE_HEADERS = [
-  "Submitted At",
   "Applicant Name",
   "Applicant Email",
 ];
+const SUBMITTED_AT_HEADER = "Submitted At";
+const PREVIOUS_CURRENT_HEADERS = [SYNC_ID_HEADER, SUBMITTED_AT_HEADER, ...VISIBLE_BASE_HEADERS];
 const LEGACY_BASE_HEADERS = [
   "Submission ID",
   "Submitted At",
@@ -89,10 +90,10 @@ function questionTitle(question) {
 function questionColumns(existingHeaders, records) {
   const headers = existingHeaders ?? [];
   const isLegacy = headers[0] === LEGACY_BASE_HEADERS[0];
-  const isCurrent = headers[0] === SYNC_ID_HEADER;
+  const layout = getSheetLayout(headers);
   const existingQuestionHeaders = isLegacy
     ? headers.slice(LEGACY_BASE_HEADERS.length)
-    : isCurrent ? headers.slice(1 + VISIBLE_BASE_HEADERS.length) : [];
+    : layout ? headers.slice(layout.questionStart, layout.questionEnd) : [];
   const currentTitles = new Map();
   const columns = [];
   const seen = new Set();
@@ -130,6 +131,44 @@ function parseQuestionHeader(header) {
   return legacy ? { title: legacy[1], id: legacy[2] } : { title: header, id: header };
 }
 
+function getSheetLayout(headers) {
+  if (LEGACY_BASE_HEADERS.every((header, index) => headers[index] === header)) {
+    return {
+      kind: "legacy",
+      questionStart: LEGACY_BASE_HEADERS.length,
+      questionEnd: headers.length,
+      submittedIndex: 1,
+      nameIndex: 4,
+      emailIndex: 5,
+    };
+  }
+  if (PREVIOUS_CURRENT_HEADERS.every((header, index) => headers[index] === header)) {
+    return {
+      kind: "previous",
+      questionStart: PREVIOUS_CURRENT_HEADERS.length,
+      questionEnd: headers.length,
+      submittedIndex: 1,
+      nameIndex: 2,
+      emailIndex: 3,
+    };
+  }
+  if (headers[0] === SYNC_ID_HEADER && headers[1] === VISIBLE_BASE_HEADERS[0] &&
+      headers[2] === VISIBLE_BASE_HEADERS[1]) {
+    const submittedIndex = headers.lastIndexOf(SUBMITTED_AT_HEADER);
+    if (submittedIndex >= 3) {
+      return {
+        kind: "current",
+        questionStart: 3,
+        questionEnd: submittedIndex,
+        submittedIndex,
+        nameIndex: 1,
+        emailIndex: 2,
+      };
+    }
+  }
+  return null;
+}
+
 function questionIds(records) {
   return questionColumns([], records).map(({ header }) => header);
 }
@@ -158,14 +197,12 @@ export function mergeHeaders(existingHeaders, records) {
   while (headers.at(-1) === "") headers.pop();
 
   if (!headers.length) {
-    return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionIds(records)];
+    return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionIds(records), SUBMITTED_AT_HEADER];
   }
-  const current = headers[0] === SYNC_ID_HEADER && VISIBLE_BASE_HEADERS.every((header, index) => headers[index + 1] === header);
-  const legacy = LEGACY_BASE_HEADERS.every((header, index) => headers[index] === header);
-  if (!current && !legacy) {
+  if (!getSheetLayout(headers)) {
     throw new SyncError("A portfolio tab has an unexpected header row. Refusing to overwrite it.");
   }
-  return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionColumns(headers, records).map(({ header }) => header)];
+  return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionColumns(headers, records).map(({ header }) => header), SUBMITTED_AT_HEADER];
 }
 
 function formatDateTime(value) {
@@ -202,47 +239,15 @@ export function buildSheetRow(record, headers) {
   }
   const fields = {
     [SYNC_ID_HEADER]: record.id,
-    "Submitted At": record.submitted_at,
     "Applicant Name": record.applicant_name,
     "Applicant Email": record.applicant_email,
+    [SUBMITTED_AT_HEADER]: record.submitted_at,
   };
 
   return headers.map((header) => formatCell(
     Object.hasOwn(fields, header) ? fields[header] : questionAnswers.get(header),
     header,
   ));
-}
-
-function questionColumnForHeader(header, columns) {
-  const parsed = parseQuestionHeader(header);
-  return columns.find((column) => column.header === header || column.id === parsed?.id);
-}
-
-function migrateSheetRow(row, existingHeaders, headers, columns) {
-  const legacy = existingHeaders[0] === LEGACY_BASE_HEADERS[0];
-  const oldQuestions = legacy
-    ? existingHeaders.slice(LEGACY_BASE_HEADERS.length)
-    : existingHeaders.slice(1 + VISIBLE_BASE_HEADERS.length);
-  const questionIndexes = new Map();
-  for (const [offset, header] of oldQuestions.entries()) {
-    const column = questionColumnForHeader(header, columns);
-    if (!column) continue;
-    const indexes = questionIndexes.get(column.id) ?? [];
-    indexes.push((legacy ? LEGACY_BASE_HEADERS.length : 1 + VISIBLE_BASE_HEADERS.length) + offset);
-    questionIndexes.set(column.id, indexes);
-  }
-  const firstValue = (indexes) => indexes?.map((index) => row[index]).find((value) => value !== undefined && value !== "") ?? "";
-  const baseValues = {
-    [SYNC_ID_HEADER]: row[0],
-    "Submitted At": row[legacy ? 1 : 1],
-    "Applicant Name": row[legacy ? 4 : 2],
-    "Applicant Email": row[legacy ? 5 : 3],
-  };
-  return headers.map((header) => {
-    if (Object.hasOwn(baseValues, header)) return formatCell(baseValues[header], header);
-    const column = columns.find(({ header: columnHeader }) => columnHeader === header);
-    return formatCell(firstValue(questionIndexes.get(column?.id)), header);
-  });
 }
 
 function columnName(index) {
@@ -406,36 +411,51 @@ export async function syncPortfolioTab(accessToken, spreadsheetId, title, record
   );
   const values = valuesResponse.values ?? [];
   const existingHeaders = values[0] ?? [];
-  const headers = mergeHeaders(existingHeaders, records);
-  const headerChanged = JSON.stringify(headers) !== JSON.stringify(existingHeaders);
-  const columns = questionColumns(existingHeaders, records);
+  const existingLayout = getSheetLayout(existingHeaders);
+  const existingSyncedHeaders = existingLayout?.kind === "current"
+    ? existingHeaders.slice(0, existingLayout.submittedIndex + 1)
+    : existingHeaders;
+  const headers = mergeHeaders(existingSyncedHeaders, records);
+  const headerChanged = JSON.stringify(headers) !== JSON.stringify(existingSyncedHeaders);
   const lastColumn = columnName(headers.length - 1);
 
   const dataRows = values.slice(1);
   const lastDataRow = dataRows.findLastIndex((row) => row.some(Boolean));
-  if (dataRows.slice(0, lastDataRow + 1).some((row) => !row[0])) {
+  const oldSyncedColumnCount = existingSyncedHeaders.length;
+  if (dataRows.slice(0, lastDataRow + 1).some((row) =>
+    !row[0] && row.slice(0, oldSyncedColumnCount).some(Boolean))) {
     throw new SyncError("A portfolio tab contains duplicate or missing application IDs.");
   }
-  const existingRows = dataRows.filter((row) => row[0]);
-  const ids = existingRows.map((row) => String(row[0]));
+  const ids = dataRows.map((row) => row[0]).filter(Boolean).map(String);
   if (new Set(ids).size !== ids.length) throw new SyncError("A portfolio tab contains duplicate application IDs.");
   const existingIds = new Set(ids);
   if (new Set(records.map((record) => record.id)).size !== records.length) throw new SyncError("Duplicate source IDs.");
   const pending = records.filter((record) => !existingIds.has(record.id));
-  const migratedRows = headerChanged
-    ? existingRows.map((row) => migrateSheetRow(row, existingHeaders, headers, columns))
-    : existingRows;
+  const recordsById = new Map(records.map((record) => [record.id, record]));
+  const clearedRow = () => Array(headers.length).fill("");
+  const reconciledRows = dataRows.map((row) => recordsById.has(String(row[0]))
+    ? buildSheetRow(recordsById.get(String(row[0])), headers)
+    : clearedRow());
   const pendingRows = pending.map((record) => buildSheetRow(record, headers));
-  const allRows = [...migratedRows, ...pendingRows];
+  const allRows = [...reconciledRows, ...pendingRows];
   if (allRows.some((row) => Buffer.byteLength(JSON.stringify(row)) > 500_000)) {
     throw new SyncError("A submission exceeds the spreadsheet row budget.");
   }
   const rowCount = Math.max(allRows.length + 1, 1);
   const sheetId = properties.sheetId;
-  const oldColumnCount = Math.max(...values.map((row) => row.length), existingHeaders.length, 1);
-  if (headerChanged || pendingRows.length) {
-    const valuesToWrite = headerChanged ? [headers, ...allRows] : pendingRows;
-    const startRow = headerChanged ? 1 : existingRows.length + 2;
+  const oldSubmittedIndex = existingLayout?.kind === "current" ? existingLayout.submittedIndex : null;
+  const insertedColumns = oldSubmittedIndex !== null ? Math.max(0, headers.length - existingSyncedHeaders.length) : 0;
+  if (insertedColumns) {
+    await googleRequest(accessToken, `${spreadsheetPath(spreadsheetId)}:batchUpdate`, "POST", {
+      requests: [{ insertDimension: {
+        range: { sheetId, dimension: "COLUMNS", startIndex: oldSubmittedIndex, endIndex: oldSubmittedIndex + insertedColumns },
+        inheritFromBefore: false,
+      } }],
+    });
+  }
+  if (headerChanged || allRows.length) {
+    const valuesToWrite = headerChanged ? [headers, ...allRows] : allRows;
+    const startRow = headerChanged ? 1 : 2;
     const endRow = startRow + valuesToWrite.length - 1;
     const query = new URLSearchParams({ valueInputOption: "RAW", includeValuesInResponse: "false" });
     await googleRequest(
@@ -447,11 +467,11 @@ export async function syncPortfolioTab(accessToken, spreadsheetId, title, record
   }
 
   const staleRanges = [];
-  if (oldColumnCount > headers.length) {
-    staleRanges.push(`${quotedTitle}!${columnName(headers.length)}:${columnName(oldColumnCount - 1)}`);
+  if (oldSyncedColumnCount > headers.length) {
+    staleRanges.push(`${quotedTitle}!${columnName(headers.length)}:${columnName(oldSyncedColumnCount - 1)}`);
   }
   if (values.length > rowCount) {
-    staleRanges.push(`${quotedTitle}!A${rowCount + 1}:${columnName(oldColumnCount - 1)}${values.length}`);
+    staleRanges.push(`${quotedTitle}!A${rowCount + 1}:${lastColumn}${values.length}`);
   }
   for (const staleRange of staleRanges) {
     await googleRequest(accessToken, valuesPath(spreadsheetId, staleRange, ":clear"), "POST", {});
@@ -459,6 +479,18 @@ export async function syncPortfolioTab(accessToken, spreadsheetId, title, record
 
   const visibleRange = { sheetId, startRowIndex: 0, endRowIndex: rowCount, startColumnIndex: 1, endColumnIndex: headers.length };
   const formattingRange = { ...visibleRange, endRowIndex: Math.max(rowCount, 1) };
+  const bodyRange = { ...formattingRange, startRowIndex: 1 };
+  const questionEnd = headers.length - 1;
+  const bodyFormatRequests = rowCount > 1 ? [{ repeatCell: {
+    range: bodyRange,
+    cell: { userEnteredFormat: {
+      backgroundColor: { red: 1, green: 0.96, blue: 0.98 },
+      wrapStrategy: "WRAP",
+      verticalAlignment: "TOP",
+      textFormat: { foregroundColor: { red: 0.1, green: 0.1, blue: 0.1 } },
+    } },
+    fields: "userEnteredFormat(backgroundColor,wrapStrategy,verticalAlignment,textFormat(foregroundColor))",
+  } }] : [];
   await googleRequest(accessToken, `${spreadsheetPath(spreadsheetId)}:batchUpdate`, "POST", {
     requests: [
       { updateSheetProperties: {
@@ -470,12 +502,12 @@ export async function syncPortfolioTab(accessToken, spreadsheetId, title, record
         fields: "gridProperties(rowCount,columnCount,frozenRowCount)",
       } },
       { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 0, endIndex: 1 }, properties: { hiddenByUser: true, pixelSize: 1 }, fields: "hiddenByUser,pixelSize" } },
-      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 2 }, properties: { pixelSize: 180 }, fields: "pixelSize" } },
-      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 2, endIndex: 3 }, properties: { pixelSize: 190 }, fields: "pixelSize" } },
-      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 3, endIndex: 4 }, properties: { pixelSize: 250 }, fields: "pixelSize" } },
-      ...(headers.length > 4 ? [{ updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 4, endIndex: headers.length }, properties: { pixelSize: 300 }, fields: "pixelSize" } }] : []),
-      { repeatCell: { range: formattingRange, cell: { userEnteredFormat: { wrapStrategy: "WRAP", verticalAlignment: "TOP" } }, fields: "userEnteredFormat(wrapStrategy,verticalAlignment)" } },
-      { repeatCell: { range: { ...visibleRange, endRowIndex: 1 }, cell: { userEnteredFormat: { textFormat: { bold: true }, backgroundColor: { red: 0.9, green: 0.93, blue: 0.97 }, verticalAlignment: "MIDDLE", wrapStrategy: "WRAP" } }, fields: "userEnteredFormat(textFormat,backgroundColor,verticalAlignment,wrapStrategy)" } },
+      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 2 }, properties: { pixelSize: 190 }, fields: "pixelSize" } },
+      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 2, endIndex: 3 }, properties: { pixelSize: 250 }, fields: "pixelSize" } },
+      ...(questionEnd > 3 ? [{ updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 3, endIndex: questionEnd }, properties: { pixelSize: 300 }, fields: "pixelSize" } }] : []),
+      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: questionEnd, endIndex: headers.length }, properties: { pixelSize: 180 }, fields: "pixelSize" } },
+      ...bodyFormatRequests,
+      { repeatCell: { range: { ...visibleRange, endRowIndex: 1 }, cell: { userEnteredFormat: { textFormat: { bold: true, foregroundColor: { red: 1, green: 1, blue: 1 } }, backgroundColor: { red: 0, green: 0.318, blue: 1 }, verticalAlignment: "MIDDLE", wrapStrategy: "WRAP" } }, fields: "userEnteredFormat(textFormat,backgroundColor,verticalAlignment,wrapStrategy)" } },
       { updateBorders: { range: formattingRange, top: { style: "SOLID" }, bottom: { style: "SOLID" }, left: { style: "SOLID" }, right: { style: "SOLID" }, innerHorizontal: { style: "SOLID" }, innerVertical: { style: "SOLID" } } },
       { autoResizeDimensions: { dimensions: { sheetId, dimension: "ROWS", startIndex: 0, endIndex: rowCount } } },
       { updateDimensionProperties: { range: { sheetId, dimension: "ROWS", startIndex: 0, endIndex: 1 }, properties: { pixelSize: 56 }, fields: "pixelSize" } },

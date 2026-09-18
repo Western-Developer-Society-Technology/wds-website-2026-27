@@ -125,7 +125,7 @@ Restrict spreadsheet editing to the service account and trusted administrators.
 
 `.github/workflows/sync-applications.yml` runs the read-only sync hourly and can
 also be started manually from GitHub Actions. It creates one tab per portfolio,
-uses the submission ID to avoid duplicate rows, and logs counts or a generic failure. Share the
+uses the application ID to avoid duplicate rows, and logs counts or a generic failure. Share the
 Google Sheet with the service account email as an editor and add these GitHub Actions
 repository secrets:
 
@@ -143,10 +143,14 @@ idempotency. Question IDs are not displayed. Answers preserve paragraph breaks,
 wrap in wide columns, and rows auto-size. Headers are frozen and borders separate
 the answers. Historical `externals` records go in the Flagship tab. Writes use
 `RAW` so answers cannot execute spreadsheet formulas. New columns and row capacity
-grow as needed, and existing legacy exports are migrated on their next sync.
-Rate-limited/transient reads and fixed-range writes retry with bounded backoff.
-An uncertain write stops the job; the next run rereads IDs before adding rows.
-Existing rows are not updated when database records change or are deleted.
+grow as needed, and existing legacy exports are migrated on their next sync. The
+synced section runs from the hidden ID column through the final `Submitted At`
+column. Each run reconciles that section against the database: current rows are
+refreshed, new rows are added, and deleted applications have their synced cells
+cleared. Reviewer-owned columns to the right are never written or formatted; notes
+on a deleted application's row are therefore preserved beside an otherwise blank
+synced section. Rate-limited/transient reads and deterministic range writes retry
+with bounded backoff.
 
 GitHub's concurrency group is the single-writer lock. Run manual syncs through
 `workflow_dispatch`, not concurrently from a local terminal or another repository.
