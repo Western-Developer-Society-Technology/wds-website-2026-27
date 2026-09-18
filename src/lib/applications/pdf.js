@@ -34,11 +34,11 @@ export async function validatePdf(bytes) {
         const terminated = worker?.terminate();
         if (terminated) {
           terminated.then(
-            () => resolve(result === true),
-            () => resolve(false),
+            () => resolve(result),
+            () => resolve("termination"),
           );
         } else {
-          resolve(result === true);
+          resolve(result);
         }
       };
       try {
@@ -49,15 +49,20 @@ export async function validatePdf(bytes) {
           execArgv: [],
           resourceLimits: { maxOldGenerationSizeMb: 64, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 },
         });
-        timer = setTimeout(() => finish(false), 5000);
+        timer = setTimeout(() => finish("timeout"), 5000);
         worker.once("message", finish);
-        worker.once("error", () => finish(false));
-        worker.once("exit", () => finish(false));
+        worker.once("error", () => finish("worker-error"));
+        worker.once("exit", () => finish("exit"));
       } catch {
-        finish(false);
+        finish("startup");
       }
     });
-    if (!valid) throw new ApplicationError(INVALID_PDF, 400, { resume: INVALID_PDF });
+    if (valid === false) throw new ApplicationError(INVALID_PDF, 400, { resume: INVALID_PDF });
+    if (valid !== true) {
+      const reason = ["startup", "worker-error", "exit", "timeout", "termination", "initialization"].includes(valid) ? valid : "unexpected-result";
+      console.error(`PDF validation unavailable: ${reason}.`);
+      throw new ApplicationError("Resume validation is temporarily unavailable. Please try again later.", 503);
+    }
   } finally {
     activeWorkers -= 1;
   }

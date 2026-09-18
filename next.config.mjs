@@ -4,6 +4,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/api/applications": [
       "./src/lib/applications/pdf-worker.cjs",
+      "./node_modules/@neslinesli93/qpdf-wasm/package.json",
       "./node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.js",
       "./node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.wasm",
     ],

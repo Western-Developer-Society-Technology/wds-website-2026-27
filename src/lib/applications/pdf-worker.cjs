@@ -75,8 +75,14 @@ function inspect(document) {
 }
 
 (async () => {
+  let qpdf;
   try {
-    const qpdf = await createQpdf({ noInitialRun: true, locateFile: () => qpdfWasmPath });
+    qpdf = await createQpdf({ noInitialRun: true, locateFile: () => qpdfWasmPath });
+  } catch {
+    parentPort.postMessage("initialization");
+    return;
+  }
+  try {
     const write = qpdf.FS.write;
     qpdf.FS.write = function (stream, buffer, offset, length, position, ...rest) {
       if ((position ?? stream.position) + length > MAX_OUTPUT) throw new Error("PDF output limit");
