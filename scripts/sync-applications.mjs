@@ -6,7 +6,13 @@ const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_SHEETS_API = "https://sheets.googleapis.com/v4";
 class SyncError extends Error {}
 
-const BASE_HEADERS = [
+const SYNC_ID_HEADER = "Application ID";
+const VISIBLE_BASE_HEADERS = [
+  "Submitted At",
+  "Applicant Name",
+  "Applicant Email",
+];
+const LEGACY_BASE_HEADERS = [
   "Submission ID",
   "Submitted At",
   "Portfolio",
@@ -76,22 +82,56 @@ function responseQuestions(response) {
   );
 }
 
-function questionHeader(question) {
-  return `${question.question || question.id} [${question.id}]`;
+function questionTitle(question) {
+  return question.question || question.id;
+}
+
+function questionColumns(existingHeaders, records) {
+  const headers = existingHeaders ?? [];
+  const isLegacy = headers[0] === LEGACY_BASE_HEADERS[0];
+  const isCurrent = headers[0] === SYNC_ID_HEADER;
+  const existingQuestionHeaders = isLegacy
+    ? headers.slice(LEGACY_BASE_HEADERS.length)
+    : isCurrent ? headers.slice(1 + VISIBLE_BASE_HEADERS.length) : [];
+  const currentTitles = new Map();
+  const columns = [];
+  const seen = new Set();
+  const currentQuestions = records.flatMap((record) => responseQuestions(record.response));
+
+  for (const question of currentQuestions) {
+    currentTitles.set(question.id, questionTitle(question));
+  }
+  for (const header of existingQuestionHeaders) {
+    const parsed = parseQuestionHeader(header);
+    if (!parsed) continue;
+    const matchingQuestion = currentQuestions.find((question) => questionTitle(question) === parsed.title);
+    const id = matchingQuestion?.id ?? parsed.id;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    columns.push({ id, title: currentTitles.get(id) ?? parsed.title });
+  }
+  for (const question of currentQuestions) {
+    if (seen.has(question.id)) continue;
+    seen.add(question.id);
+    columns.push({ id: question.id, title: questionTitle(question) });
+  }
+
+  const titleCounts = new Map();
+  return columns.map((column) => {
+    const count = (titleCounts.get(column.title) ?? 0) + 1;
+    titleCounts.set(column.title, count);
+    return { ...column, header: count === 1 ? column.title : `${column.title} (${count})` };
+  });
+}
+
+function parseQuestionHeader(header) {
+  if (typeof header !== "string" || !header) return null;
+  const legacy = header.match(/^(.*) \[([^\]]+)\]$/);
+  return legacy ? { title: legacy[1], id: legacy[2] } : { title: header, id: header };
 }
 
 function questionIds(records) {
-  const ids = [];
-  const seen = new Set();
-  for (const record of records) {
-    for (const question of responseQuestions(record.response)) {
-      const header = questionHeader(question);
-      if (seen.has(header)) continue;
-      seen.add(header);
-      ids.push(header);
-    }
-  }
-  return ids;
+  return questionColumns([], records).map(({ header }) => header);
 }
 
 export function groupSubmissions(records) {
@@ -117,52 +157,92 @@ export function mergeHeaders(existingHeaders, records) {
   const headers = [...(existingHeaders ?? [])];
   while (headers.at(-1) === "") headers.pop();
 
-  if (!headers.length) return [...BASE_HEADERS, ...questionIds(records)];
-  if (BASE_HEADERS.some((header, index) => headers[index] !== header)) {
-    throw new Error("A portfolio tab has an unexpected header row. Refusing to overwrite it.");
+  if (!headers.length) {
+    return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionIds(records)];
   }
-
-  // Upgrade the initial export's bare question IDs without moving its columns.
-  const questions = records.flatMap((record) => responseQuestions(record.response));
-  for (let index = BASE_HEADERS.length; index < headers.length; index++) {
-    const question = questions.find((question) => question.id === headers[index]);
-    if (question) headers[index] = questionHeader(question);
+  const current = headers[0] === SYNC_ID_HEADER && VISIBLE_BASE_HEADERS.every((header, index) => headers[index + 1] === header);
+  const legacy = LEGACY_BASE_HEADERS.every((header, index) => headers[index] === header);
+  if (!current && !legacy) {
+    throw new SyncError("A portfolio tab has an unexpected header row. Refusing to overwrite it.");
   }
-  if (new Set(headers).size !== headers.length) throw new Error("Duplicate spreadsheet headers.");
-
-  const existing = new Set(headers);
-  for (const id of questionIds(records)) {
-    if (existing.has(id)) continue;
-    existing.add(id);
-    headers.push(id);
-  }
-  return headers;
+  return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionColumns(headers, records).map(({ header }) => header)];
 }
 
-function formatCell(value) {
+function formatDateTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return String(value ?? "");
+  return `${new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Toronto",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(date)}`;
+}
+
+function formatCell(value, header) {
   if (value === undefined || value === null) return "";
-  if (value instanceof Date) return value.toISOString();
-  if (Array.isArray(value)) return value.map(formatCell).join(", ");
+  if (header === "Submitted At") return formatDateTime(value);
+  if (value instanceof Date) return formatDateTime(value);
+  if (Array.isArray(value)) return value.map((item) => formatCell(item)).join("\n");
   if (typeof value === "object") return Object.entries(value).map(([key, answer]) => `${key}: ${formatCell(answer)}`).join("\n");
-  return String(value);
+  return String(value).replaceAll("\r\n", "\n").replaceAll("\r", "\n").trim();
 }
 
 export function buildSheetRow(record, headers) {
-  const answers = new Map(
-    responseQuestions(record.response).map((question) => [questionHeader(question), question.answer]),
-  );
+  const questionAnswers = new Map();
+  const titleCounts = new Map();
+  for (const question of responseQuestions(record.response)) {
+    const title = questionTitle(question);
+    const count = (titleCounts.get(title) ?? 0) + 1;
+    titleCounts.set(title, count);
+    questionAnswers.set(count === 1 ? title : `${title} (${count})`, question.answer);
+  }
   const fields = {
-    "Submission ID": record.id,
+    [SYNC_ID_HEADER]: record.id,
     "Submitted At": record.submitted_at,
-    Portfolio: record.portfolio,
-    "Form Version": record.form_version,
     "Applicant Name": record.applicant_name,
     "Applicant Email": record.applicant_email,
   };
 
   return headers.map((header) => formatCell(
-    Object.hasOwn(fields, header) ? fields[header] : answers.get(header),
+    Object.hasOwn(fields, header) ? fields[header] : questionAnswers.get(header),
+    header,
   ));
+}
+
+function questionColumnForHeader(header, columns) {
+  const parsed = parseQuestionHeader(header);
+  return columns.find((column) => column.header === header || column.id === parsed?.id);
+}
+
+function migrateSheetRow(row, existingHeaders, headers, columns) {
+  const legacy = existingHeaders[0] === LEGACY_BASE_HEADERS[0];
+  const oldQuestions = legacy
+    ? existingHeaders.slice(LEGACY_BASE_HEADERS.length)
+    : existingHeaders.slice(1 + VISIBLE_BASE_HEADERS.length);
+  const questionIndexes = new Map();
+  for (const [offset, header] of oldQuestions.entries()) {
+    const column = questionColumnForHeader(header, columns);
+    if (!column) continue;
+    const indexes = questionIndexes.get(column.id) ?? [];
+    indexes.push((legacy ? LEGACY_BASE_HEADERS.length : 1 + VISIBLE_BASE_HEADERS.length) + offset);
+    questionIndexes.set(column.id, indexes);
+  }
+  const firstValue = (indexes) => indexes?.map((index) => row[index]).find((value) => value !== undefined && value !== "") ?? "";
+  const baseValues = {
+    [SYNC_ID_HEADER]: row[0],
+    "Submitted At": row[legacy ? 1 : 1],
+    "Applicant Name": row[legacy ? 4 : 2],
+    "Applicant Email": row[legacy ? 5 : 3],
+  };
+  return headers.map((header) => {
+    if (Object.hasOwn(baseValues, header)) return formatCell(baseValues[header], header);
+    const column = columns.find(({ header: columnHeader }) => columnHeader === header);
+    return formatCell(firstValue(questionIndexes.get(column?.id)), header);
+  });
 }
 
 function columnName(index) {
@@ -196,7 +276,8 @@ export async function googleRequest(accessToken, path, method = "GET", body, att
       body: body ? JSON.stringify(body) : undefined,
       signal: AbortSignal.timeout(20000),
     });
-  } catch {
+  } catch (cause) {
+    if (cause?.code === "ERR_ASSERTION") throw cause;
     throw new SyncError("Google Sheets could not be reached. Retry the workflow.");
   }
   // Only repeat reads and deterministic range writes. A tab-creation POST can
@@ -327,75 +408,79 @@ export async function syncPortfolioTab(accessToken, spreadsheetId, title, record
   const existingHeaders = values[0] ?? [];
   const headers = mergeHeaders(existingHeaders, records);
   const headerChanged = JSON.stringify(headers) !== JSON.stringify(existingHeaders);
+  const columns = questionColumns(existingHeaders, records);
   const lastColumn = columnName(headers.length - 1);
 
-  const ids = values.slice(1).map((row) => row[0]).filter(Boolean).map(String);
-  if (new Set(ids).size !== ids.length || values.slice(1).some((row) => !row[0] && row.some(Boolean))) {
-    throw new Error("A portfolio tab contains duplicate or missing submission IDs.");
+  const dataRows = values.slice(1);
+  const lastDataRow = dataRows.findLastIndex((row) => row.some(Boolean));
+  if (dataRows.slice(0, lastDataRow + 1).some((row) => !row[0])) {
+    throw new SyncError("A portfolio tab contains duplicate or missing application IDs.");
   }
+  const existingRows = dataRows.filter((row) => row[0]);
+  const ids = existingRows.map((row) => String(row[0]));
+  if (new Set(ids).size !== ids.length) throw new SyncError("A portfolio tab contains duplicate application IDs.");
   const existingIds = new Set(ids);
-  if (new Set(records.map((record) => record.id)).size !== records.length) throw new Error("Duplicate source IDs.");
+  if (new Set(records.map((record) => record.id)).size !== records.length) throw new SyncError("Duplicate source IDs.");
   const pending = records.filter((record) => !existingIds.has(record.id));
-  const rowCount = Math.max(values.length, 1) + pending.length;
+  const migratedRows = headerChanged
+    ? existingRows.map((row) => migrateSheetRow(row, existingHeaders, headers, columns))
+    : existingRows;
+  const pendingRows = pending.map((record) => buildSheetRow(record, headers));
+  const allRows = [...migratedRows, ...pendingRows];
+  if (allRows.some((row) => Buffer.byteLength(JSON.stringify(row)) > 500_000)) {
+    throw new SyncError("A submission exceeds the spreadsheet row budget.");
+  }
+  const rowCount = Math.max(allRows.length + 1, 1);
   const sheetId = properties.sheetId;
-  const range = { sheetId, startRowIndex: 0, endRowIndex: rowCount, startColumnIndex: 0, endColumnIndex: headers.length };
+  const oldColumnCount = Math.max(...values.map((row) => row.length), existingHeaders.length, 1);
+  if (headerChanged || pendingRows.length) {
+    const valuesToWrite = headerChanged ? [headers, ...allRows] : pendingRows;
+    const startRow = headerChanged ? 1 : existingRows.length + 2;
+    const endRow = startRow + valuesToWrite.length - 1;
+    const query = new URLSearchParams({ valueInputOption: "RAW", includeValuesInResponse: "false" });
+    await googleRequest(
+      accessToken,
+      `${valuesPath(spreadsheetId, `${quotedTitle}!A${startRow}:${lastColumn}${endRow}`)}?${query}`,
+      "PUT",
+      { values: valuesToWrite },
+    );
+  }
+
+  const staleRanges = [];
+  if (oldColumnCount > headers.length) {
+    staleRanges.push(`${quotedTitle}!${columnName(headers.length)}:${columnName(oldColumnCount - 1)}`);
+  }
+  if (values.length > rowCount) {
+    staleRanges.push(`${quotedTitle}!A${rowCount + 1}:${columnName(oldColumnCount - 1)}${values.length}`);
+  }
+  for (const staleRange of staleRanges) {
+    await googleRequest(accessToken, valuesPath(spreadsheetId, staleRange, ":clear"), "POST", {});
+  }
+
+  const visibleRange = { sheetId, startRowIndex: 0, endRowIndex: rowCount, startColumnIndex: 1, endColumnIndex: headers.length };
+  const formattingRange = { ...visibleRange, endRowIndex: Math.max(rowCount, 1) };
   await googleRequest(accessToken, `${spreadsheetPath(spreadsheetId)}:batchUpdate`, "POST", {
     requests: [
       { updateSheetProperties: {
         properties: { sheetId, gridProperties: {
-          rowCount: Math.max(properties.gridProperties.rowCount, rowCount),
-          columnCount: Math.max(properties.gridProperties.columnCount, headers.length),
+          rowCount: Math.max(properties.gridProperties?.rowCount ?? 1000, rowCount),
+          columnCount: Math.max(properties.gridProperties?.columnCount ?? 26, headers.length),
           frozenRowCount: 1,
         } },
         fields: "gridProperties(rowCount,columnCount,frozenRowCount)",
       } },
-      { repeatCell: { range, cell: { userEnteredFormat: { wrapStrategy: "WRAP", verticalAlignment: "TOP" } }, fields: "userEnteredFormat(wrapStrategy,verticalAlignment)" } },
-      { repeatCell: { range: { ...range, endRowIndex: 1 }, cell: { userEnteredFormat: { textFormat: { bold: true }, backgroundColor: { red: 0.9, green: 0.93, blue: 0.97 } } }, fields: "userEnteredFormat(textFormat,backgroundColor)" } },
-      { updateBorders: { range, bottom: { style: "SOLID" }, innerHorizontal: { style: "SOLID" }, innerVertical: { style: "SOLID" } } },
+      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 0, endIndex: 1 }, properties: { hiddenByUser: true, pixelSize: 1 }, fields: "hiddenByUser,pixelSize" } },
+      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 2 }, properties: { pixelSize: 180 }, fields: "pixelSize" } },
+      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 2, endIndex: 3 }, properties: { pixelSize: 190 }, fields: "pixelSize" } },
+      { updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 3, endIndex: 4 }, properties: { pixelSize: 250 }, fields: "pixelSize" } },
+      ...(headers.length > 4 ? [{ updateDimensionProperties: { range: { sheetId, dimension: "COLUMNS", startIndex: 4, endIndex: headers.length }, properties: { pixelSize: 300 }, fields: "pixelSize" } }] : []),
+      { repeatCell: { range: formattingRange, cell: { userEnteredFormat: { wrapStrategy: "WRAP", verticalAlignment: "TOP" } }, fields: "userEnteredFormat(wrapStrategy,verticalAlignment)" } },
+      { repeatCell: { range: { ...visibleRange, endRowIndex: 1 }, cell: { userEnteredFormat: { textFormat: { bold: true }, backgroundColor: { red: 0.9, green: 0.93, blue: 0.97 }, verticalAlignment: "MIDDLE", wrapStrategy: "WRAP" } }, fields: "userEnteredFormat(textFormat,backgroundColor,verticalAlignment,wrapStrategy)" } },
+      { updateBorders: { range: formattingRange, top: { style: "SOLID" }, bottom: { style: "SOLID" }, left: { style: "SOLID" }, right: { style: "SOLID" }, innerHorizontal: { style: "SOLID" }, innerVertical: { style: "SOLID" } } },
+      { autoResizeDimensions: { dimensions: { sheetId, dimension: "ROWS", startIndex: 0, endIndex: rowCount } } },
+      { updateDimensionProperties: { range: { sheetId, dimension: "ROWS", startIndex: 0, endIndex: 1 }, properties: { pixelSize: 56 }, fields: "pixelSize" } },
     ],
   });
-
-  if (headerChanged) {
-    const query = new URLSearchParams({ valueInputOption: "RAW" });
-    await googleRequest(
-      accessToken,
-      `${valuesPath(spreadsheetId, `${quotedTitle}!A1:${lastColumn}1`)}?${query}`,
-      "PUT",
-      { values: [headers] },
-    );
-  }
-
-  // Bound batches by bytes, since paragraph answers vary greatly in length.
-  const batches = [];
-  let batch = [];
-  let bytes = 0;
-  for (const record of pending) {
-    const row = buildSheetRow(record, headers);
-    const rowBytes = Buffer.byteLength(JSON.stringify(row)) + 1;
-    if (rowBytes > 500_000) throw new Error("A submission exceeds the spreadsheet row budget.");
-    if (batch.length && bytes + rowBytes > 500_000) {
-      batches.push(batch);
-      batch = [];
-      bytes = 0;
-    }
-    batch.push(row);
-    bytes += rowBytes;
-  }
-  if (batch.length) batches.push(batch);
-  let nextRow = Math.max(values.length, 1) + 1;
-  for (const values of batches) {
-    const query = new URLSearchParams({
-      valueInputOption: "RAW",
-      includeValuesInResponse: "false",
-    });
-    await googleRequest(
-      accessToken,
-      `${valuesPath(spreadsheetId, `${quotedTitle}!A${nextRow}:${lastColumn}${nextRow + values.length - 1}`)}?${query}`,
-      "PUT",
-      { values },
-    );
-    nextRow += values.length;
-  }
 
   return { total: records.length, appended: pending.length };
 }

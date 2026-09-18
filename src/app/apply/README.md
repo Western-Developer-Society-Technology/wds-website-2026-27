@@ -136,10 +136,14 @@ repository secrets:
 The Google Sheets API must be enabled in the service account's Google Cloud
 project. The workflow does not use Vercel and does not need Vercel credentials.
 
-The export adds one row per application, with question text in column headers,
-wrapped answers, frozen headers, and borders between applications. Historical
-`externals` records go in the Flagship tab. Writes use `RAW` so answers cannot
-execute spreadsheet formulas. New columns and row capacity grow as needed.
+The export shows submitted time, applicant name/email, and one readable question
+column per answer; Submission ID, portfolio, and form version are omitted from the
+reviewer view. A hidden first column stores the application ID solely for
+idempotency. Question IDs are not displayed. Answers preserve paragraph breaks,
+wrap in wide columns, and rows auto-size. Headers are frozen and borders separate
+the answers. Historical `externals` records go in the Flagship tab. Writes use
+`RAW` so answers cannot execute spreadsheet formulas. New columns and row capacity
+grow as needed, and existing legacy exports are migrated on their next sync.
 Rate-limited/transient reads and fixed-range writes retry with bounded backoff.
 An uncertain write stops the job; the next run rereads IDs before adding rows.
 Existing rows are not updated when database records change or are deleted.
