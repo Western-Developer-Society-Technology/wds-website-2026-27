@@ -22,7 +22,7 @@ WebAssembly.Memory.prototype.grow = function (pages) {
 const forbiddenKeys = new Set([
   "/JS", "/JavaScript", "/AA", "/OpenAction", "/AcroForm", "/XFA",
   "/EmbeddedFiles", "/EF", "/AF", "/RichMediaContent", "/RichMediaSettings",
-  "/Collection", "/Launch", "/Next", "/PA", "/PresSteps",
+  "/Collection", "/Launch", "/PA", "/PresSteps",
 ]);
 const forbiddenTypes = new Set(["/EmbeddedFile", "/Filespec"]);
 const forbiddenAnnotations = new Set(["/FileAttachment", "/RichMedia", "/Movie", "/Sound", "/Screen", "/3D", "/Widget"]);
