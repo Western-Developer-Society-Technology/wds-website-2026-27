@@ -4,6 +4,7 @@ import { neon } from "@neondatabase/serverless";
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_SHEETS_API = "https://sheets.googleapis.com/v4";
+class SyncError extends Error {}
 
 const BASE_HEADERS = [
   "Submission ID",
@@ -29,7 +30,7 @@ const BASIC_QUESTION_IDS = new Set(["name", "email"]);
 
 function requiredEnv(name) {
   const value = process.env[name]?.trim();
-  if (!value) throw new Error(`${name} is not configured.`);
+  if (!value) throw new SyncError(`${name} is not configured in GitHub Actions repository secrets.`);
   return value;
 }
 
@@ -38,10 +39,10 @@ function parseServiceAccount(value) {
   try {
     credentials = JSON.parse(value);
   } catch {
-    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON must contain valid JSON.");
+    throw new SyncError("GOOGLE_SERVICE_ACCOUNT_JSON must contain the complete valid JSON service-account key.");
   }
   if (!credentials.client_email || !credentials.private_key) {
-    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON is missing service-account credentials.");
+    throw new SyncError("GOOGLE_SERVICE_ACCOUNT_JSON is missing client_email or private_key.");
   }
   return credentials;
 }
@@ -183,16 +184,21 @@ function encodeRange(range) {
   return encodeURIComponent(range);
 }
 
-async function googleRequest(accessToken, path, method = "GET", body, attempt = 0) {
-  const response = await fetch(`${GOOGLE_SHEETS_API}${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      ...(body ? { "Content-Type": "application/json" } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(20000),
-  });
+export async function googleRequest(accessToken, path, method = "GET", body, attempt = 0) {
+  let response;
+  try {
+    response = await fetch(`${GOOGLE_SHEETS_API}${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        ...(body ? { "Content-Type": "application/json" } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch {
+    throw new SyncError("Google Sheets could not be reached. Retry the workflow.");
+  }
   // Only repeat reads and deterministic range writes. A tab-creation POST can
   // have succeeded even when its response failed; the next run discovers it.
   if ([429, 500, 502, 503, 504].includes(response.status) && ["GET", "PUT"].includes(method) && attempt < 3) {
@@ -209,10 +215,20 @@ async function googleRequest(accessToken, path, method = "GET", body, attempt = 
   try {
     result = await response.json();
   } catch {
-    throw new Error("Google Sheets returned an invalid response.");
+    throw new SyncError("Google Sheets returned an invalid response.");
   }
   if (!response.ok) {
-    throw new Error(`Google Sheets request failed with status ${response.status}.`);
+    const status = typeof result.error?.status === "string" && /^[A-Z_]+$/.test(result.error.status)
+      ? ` ${result.error.status}` : "";
+    const reasons = [...new Set((result.error?.details ?? []).flatMap((detail) =>
+      (detail.violations ?? detail.errors ?? []).map((error) => error.reason).filter((reason) =>
+        typeof reason === "string" && /^[A-Za-z_]+$/.test(reason),
+      ),
+    ))];
+    const hint = response.status === 403
+      ? " Enable the Google Sheets API and share the spreadsheet with the service-account client_email as Editor."
+      : response.status === 404 ? " Check GOOGLE_SHEET_ID and share the spreadsheet with the service account." : "";
+    throw new SyncError(`Google Sheets request failed (${response.status}${status}${reasons.length ? `; ${reasons.join(", ")}` : ""}).${hint}`);
   }
   return result;
 }
@@ -221,7 +237,7 @@ function base64Url(value) {
   return Buffer.from(value).toString("base64url");
 }
 
-async function getGoogleAccessToken(credentials) {
+export async function getGoogleAccessToken(credentials) {
   const issuedAt = Math.floor(Date.now() / 1000);
   const encodedHeader = base64Url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
   const encodedClaims = base64Url(JSON.stringify({
@@ -232,19 +248,26 @@ async function getGoogleAccessToken(credentials) {
     exp: issuedAt + 3600,
   }));
   const unsignedToken = `${encodedHeader}.${encodedClaims}`;
-  const signature = createSign("RSA-SHA256")
-    .update(unsignedToken)
-    .sign(credentials.private_key)
-    .toString("base64url");
-  const response = await fetch(GOOGLE_TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: `${unsignedToken}.${signature}`,
-    }),
-    signal: AbortSignal.timeout(15000),
-  });
+  let signature;
+  try {
+    signature = createSign("RSA-SHA256").update(unsignedToken).sign(credentials.private_key).toString("base64url");
+  } catch {
+    throw new SyncError("GOOGLE_SERVICE_ACCOUNT_JSON contains an invalid private_key.");
+  }
+  let response;
+  try {
+    response = await fetch(GOOGLE_TOKEN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        assertion: `${unsignedToken}.${signature}`,
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+  } catch {
+    throw new SyncError("Google authentication could not be reached. Retry the workflow.");
+  }
   let result = {};
   try {
     result = await response.json();
@@ -252,7 +275,8 @@ async function getGoogleAccessToken(credentials) {
     result = {};
   }
   if (!response.ok || typeof result.access_token !== "string") {
-    throw new Error(`Google authentication failed with status ${response.status}.`);
+    const reason = typeof result.error === "string" && /^[a-z_]+$/.test(result.error) ? ` (${result.error})` : "";
+    throw new SyncError(`Google authentication failed with status ${response.status}${reason}. Check GOOGLE_SERVICE_ACCOUNT_JSON and the service account's enabled status.`);
   }
   return result.access_token;
 }
@@ -381,11 +405,16 @@ async function main() {
   const spreadsheetId = requiredEnv("GOOGLE_SHEET_ID");
   const credentials = parseServiceAccount(requiredEnv("GOOGLE_SERVICE_ACCOUNT_JSON"));
   const sql = neon(databaseUrl);
-  const rows = await sql`
-    SELECT id, submitted_at, portfolio, form_version, applicant_name, applicant_email, response
-    FROM wds_site.application_submissions
-    ORDER BY submitted_at ASC, id ASC
-  `;
+  let rows;
+  try {
+    rows = await sql`
+      SELECT id, submitted_at, portfolio, form_version, applicant_name, applicant_email, response
+      FROM wds_site.application_submissions
+      ORDER BY submitted_at ASC, id ASC
+    `;
+  } catch {
+    throw new SyncError("Database read failed. Check DATABASE_URL and SELECT permission on wds_site.application_submissions.");
+  }
   const groups = groupSubmissions(rows.map(normalizeRecord));
   const accessToken = await getGoogleAccessToken(credentials);
   const tabs = await ensurePortfolioTabs(accessToken, spreadsheetId);
@@ -401,10 +430,11 @@ async function main() {
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
-  main().catch(() => {
+  main().catch((cause) => {
     // A write may have succeeded even if its response was lost. The next run
     // rereads IDs before sending anything.
-    console.error("Application sync failed. Check database access, Google credentials, and tab headers. Rerunning safely rechecks submission IDs.");
+    const detail = cause instanceof SyncError ? cause.message : "Unexpected sync failure.";
+    console.error(`Application sync failed: ${detail} Rerunning safely rechecks submission IDs.`);
     process.exitCode = 1;
   });
 }
