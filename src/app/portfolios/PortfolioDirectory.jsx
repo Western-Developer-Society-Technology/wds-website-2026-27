@@ -169,19 +169,10 @@ export default function PortfolioDirectory() {
             )}
           </div>
 
-          <h3>Responsibilities</h3>
-          <ol className={styles.responsibilities} type="a">
-            {activePortfolio.responsibilities.map((responsibility) => (
-              <li key={responsibility}>{responsibility}</li>
-            ))}
-          </ol>
-
-          <h3>Are you fit for this role?</h3>
-          <ol className={styles.requirements}>
-            {activePortfolio.requirements.map((requirement) => (
-              <li key={requirement}>{requirement}</li>
-            ))}
-          </ol>
+          <h3>Description</h3>
+          <p className={styles.portfolioDescription}>
+            {activePortfolio.portfolioDescription}
+          </p>
         </div>
       </article>
     </section>

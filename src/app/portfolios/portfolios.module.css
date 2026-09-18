@@ -274,11 +274,8 @@
   margin-top: 8px;
 }
 
-.responsibilities {
-  margin-bottom: 40px;
-}
-
-.requirements {
+.portfolioDescription {
+  max-width: 62ch;
   margin-bottom: 40px;
 }
 
