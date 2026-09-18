@@ -280,7 +280,7 @@ const INTERNALS_SECTIONS = [
     title: "portfolio questions",
     questions: [
       { id: "commitments", type: "paragraph", label: "What's your realistic weekly commitment, and what else are you juggling this year? (2 sentences)", required: true },
-      { id: "motivation", type: "paragraph", label: "Why Internals at WDS, and what do you want to be true about this club by April that isn't true now? (3-4 sentences)", required: true },
+      { id: "motivation", type: "paragraph", label: "Why Internals at WDS? (3-4 sentences)", required: true },
       { id: "community_event", type: "paragraph", label: "Pitch one community event you'd run this year. Tell us the format, who it's for, and why someone busy would actually show up. (3-4 sentences)", required: true },
       { id: "community", type: "paragraph", label: "Define community. What kind of community do you hope to build in WDS? (3-4 sentences)", required: true },
     ],
