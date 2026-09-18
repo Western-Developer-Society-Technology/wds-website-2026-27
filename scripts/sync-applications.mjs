@@ -1,6 +1,7 @@
 import { createSign } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { neon } from "@neondatabase/serverless";
+import { getApplication } from "../src/app/apply/applicationData.js";
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_SHEETS_API = "https://sheets.googleapis.com/v4";
@@ -84,10 +85,10 @@ function responseQuestions(response) {
 }
 
 function questionTitle(question) {
-  return question.question || question.id;
+  return question.question || question.label || question.id;
 }
 
-function questionColumns(existingHeaders, records) {
+function questionColumns(existingHeaders, records, formQuestions = []) {
   const headers = existingHeaders ?? [];
   const isLegacy = headers[0] === LEGACY_BASE_HEADERS[0];
   const layout = getSheetLayout(headers);
@@ -97,7 +98,10 @@ function questionColumns(existingHeaders, records) {
   const currentTitles = new Map();
   const columns = [];
   const seen = new Set();
-  const currentQuestions = records.flatMap((record) => responseQuestions(record.response));
+  const currentQuestions = [
+    ...formQuestions,
+    ...records.flatMap((record) => responseQuestions(record.response)),
+  ];
 
   for (const question of currentQuestions) {
     currentTitles.set(question.id, questionTitle(question));
@@ -169,8 +173,8 @@ function getSheetLayout(headers) {
   return null;
 }
 
-function questionIds(records) {
-  return questionColumns([], records).map(({ header }) => header);
+function questionIds(records, formQuestions) {
+  return questionColumns([], records, formQuestions).map(({ header }) => header);
 }
 
 export function groupSubmissions(records) {
@@ -192,17 +196,17 @@ export function groupSubmissions(records) {
   return groups;
 }
 
-export function mergeHeaders(existingHeaders, records) {
+export function mergeHeaders(existingHeaders, records, formQuestions = []) {
   const headers = [...(existingHeaders ?? [])];
   while (headers.at(-1) === "") headers.pop();
 
   if (!headers.length) {
-    return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionIds(records), SUBMITTED_AT_HEADER];
+    return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionIds(records, formQuestions), SUBMITTED_AT_HEADER];
   }
   if (!getSheetLayout(headers)) {
     throw new SyncError("A portfolio tab has an unexpected header row. Refusing to overwrite it.");
   }
-  return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionColumns(headers, records).map(({ header }) => header), SUBMITTED_AT_HEADER];
+  return [SYNC_ID_HEADER, ...VISIBLE_BASE_HEADERS, ...questionColumns(headers, records, formQuestions).map(({ header }) => header), SUBMITTED_AT_HEADER];
 }
 
 function formatDateTime(value) {
@@ -403,7 +407,7 @@ async function ensurePortfolioTabs(accessToken, spreadsheetId) {
   return tabs;
 }
 
-export async function syncPortfolioTab(accessToken, spreadsheetId, title, records, properties) {
+export async function syncPortfolioTab(accessToken, spreadsheetId, title, records, properties, formQuestions = []) {
   const quotedTitle = quoteSheetTitle(title);
   const valuesResponse = await googleRequest(
     accessToken,
@@ -415,7 +419,7 @@ export async function syncPortfolioTab(accessToken, spreadsheetId, title, record
   const existingSyncedHeaders = existingLayout?.kind === "current"
     ? existingHeaders.slice(0, existingLayout.submittedIndex + 1)
     : existingHeaders;
-  const headers = mergeHeaders(existingSyncedHeaders, records);
+  const headers = mergeHeaders(existingSyncedHeaders, records, formQuestions);
   const headerChanged = JSON.stringify(headers) !== JSON.stringify(existingSyncedHeaders);
   const lastColumn = columnName(headers.length - 1);
 
@@ -539,7 +543,11 @@ async function main() {
   let appended = 0;
   for (const portfolio of PORTFOLIO_ORDER) {
     const title = PORTFOLIO_TABS.get(portfolio);
-    const result = await syncPortfolioTab(accessToken, spreadsheetId, title, groups.get(portfolio), tabs.get(title));
+    const application = getApplication(portfolio);
+    const formQuestions = application?.sections
+      .flatMap((section) => section.questions)
+      .filter((question) => !BASIC_QUESTION_IDS.has(question.id)) ?? [];
+    const result = await syncPortfolioTab(accessToken, spreadsheetId, title, groups.get(portfolio), tabs.get(title), formQuestions);
     appended += result.appended;
     console.log(`${title}: ${result.total} submissions, ${result.appended} appended`);
   }

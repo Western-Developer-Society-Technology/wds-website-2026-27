@@ -150,7 +150,8 @@ refreshed, new rows are added, and deleted applications have their synced cells
 cleared. Reviewer-owned columns to the right are never written or formatted; notes
 on a deleted application's row are therefore preserved beside an otherwise blank
 synced section. Rate-limited/transient reads and deterministic range writes retry
-with bounded backoff.
+with bounded backoff. Empty portfolio tabs still receive the complete question
+header from that portfolio's form definition, with blank response cells.
 
 GitHub's concurrency group is the single-writer lock. Run manual syncs through
 `workflow_dispatch`, not concurrently from a local terminal or another repository.
