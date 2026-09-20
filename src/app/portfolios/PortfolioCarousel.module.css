@@ -3,7 +3,7 @@
   --content-left: max(var(--gutter), calc((100vw - var(--content-max)) / 2));
   position: relative;
   height: calc(230 * var(--upx));
-  margin-top: 104px;
+  margin-top: 48px;
   overflow: clip;
   touch-action: pan-y;
   user-select: none;
@@ -34,10 +34,10 @@
   display: flex;
   width: calc(160 * var(--upx));
   height: calc(160 * var(--upx));
-  padding: calc(24 * var(--upx)) calc(14 * var(--upx)) calc(18 * var(--upx));
+  padding: calc(20 * var(--upx)) calc(14 * var(--upx));
   border: 0;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   flex-direction: column;
   gap: calc(18 * var(--upx));
   background: #f1f1f1;
@@ -59,6 +59,14 @@
   object-fit: contain;
   filter: grayscale(1) brightness(0.69);
   pointer-events: none;
+}
+
+.card[data-id="marketing"] img {
+  width: calc(48 * var(--upx));
+}
+
+.card[data-id="flagship"] img {
+  width: calc(78 * var(--upx));
 }
 
 .card > span {
@@ -136,7 +144,7 @@
   .bleed {
     --upx: calc(100vw / 780);
     height: calc(270 * var(--upx));
-    margin-top: 56px;
+    margin-top: 32px;
   }
 
   .deck {

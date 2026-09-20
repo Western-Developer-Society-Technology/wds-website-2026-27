@@ -24,8 +24,8 @@ export const PORTFOLIOS = [
     id: "flagship",
     label: "Flagship",
     src: "/icons/portfolios/flagship.svg",
-    w: 151.429,
-    h: 106,
+    w: 160,
+    h: 116,
   },
   {
     id: "finance",
@@ -46,7 +46,7 @@ export const PORTFOLIOS = [
     label: "Marketing",
     src: "/icons/portfolios/marketing.svg",
     w: 93,
-    h: 128,
+    h: 116,
   },
 ];
 

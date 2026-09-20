@@ -87,6 +87,7 @@ export default function PortfolioCarousel({ portfolios, onActiveChange }) {
               onClick={() => onCardActivate(index)}
               data-event-card
               data-index={index}
+              data-id={portfolio.id}
               aria-label={portfolio.label}
               aria-current={index === active ? "true" : undefined}
               aria-controls="portfolio-details"
