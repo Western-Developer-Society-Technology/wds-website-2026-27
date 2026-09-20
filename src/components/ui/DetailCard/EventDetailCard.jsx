@@ -4,7 +4,7 @@ import styles from "./DetailCard.module.css";
 // Maps an event record (see src/components/sections/Events/eventData.js)
 // onto the generic DetailCard. `action` is omitted entirely for previous
 // events (no rsvp).
-export default function EventDetailCard({ event, theme = "light", action }) {
+export default function EventDetailCard({ event, theme = "light", action, actions }) {
   return (
     <DetailCard
       theme={theme}
@@ -13,6 +13,7 @@ export default function EventDetailCard({ event, theme = "light", action }) {
       pills={[event.location, event.time].filter(Boolean)}
       photos={event.photos ?? []}
       action={action}
+      actions={actions}
     >
       {event.body?.map((paragraph, index) => (
         <p key={index}>{paragraph}</p>

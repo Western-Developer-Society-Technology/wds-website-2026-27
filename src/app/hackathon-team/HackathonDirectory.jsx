@@ -1,200 +1,106 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import ArrowButton from "@/components/ui/ArrowButton";
+import UpcomingCarousel from "@/components/ui/UpcomingCarousel/UpcomingCarousel";
+import EventDetailCard from "@/components/ui/DetailCard/EventDetailCard";
 import { socials } from "@/components/sections/Footer/socialData";
+import { HACKATHONS } from "./hackathonData";
 import styles from "./hackathon-team.module.css";
 
-const posters = [
-  { title: "Hack the North", src: "hack-the-north", event: "north" },
-  { title: "Hack the Valley 11", src: "hack-the-valley", event: "valley" },
-  { title: "Hack Western 13", src: "hack-western", event: "western" },
-  { title: "Hack the Valley", src: "forest-poster", event: "valley" },
-  { title: "Hack the Valley", src: "forest-poster", event: "valley" },
-  { title: "Hack the Valley", src: "forest-poster", event: "valley" },
-];
-
-const photos = [
-  { src: "north-announcement", alt: "Hack the North is back announcement", width: 165 },
-  { src: "north-group", alt: "Hack the North participants posing together", width: 309 },
-  { src: "north-collage", alt: "A collage of Hack the North highlights", width: 166 },
-  { src: "north-community", alt: "The Hack the North community", width: 310 },
-];
-
-function HackathonGallery() {
-  const trackRef = useRef(null);
-  const [edges, setEdges] = useState({ start: true, end: false });
-
-  useEffect(() => {
-    const track = trackRef.current;
-    const updateEdges = () => {
-      setEdges({
-        start: track.scrollLeft <= 2,
-        end: track.scrollLeft >= track.scrollWidth - track.clientWidth - 2,
-      });
-    };
-    const observer = new ResizeObserver(updateEdges);
-    observer.observe(track);
-    track.addEventListener("scroll", updateEdges, { passive: true });
-    return () => {
-      observer.disconnect();
-      track.removeEventListener("scroll", updateEdges);
-    };
-  }, []);
-
-  const scroll = (direction) => {
-    const track = trackRef.current;
-    const step = track.firstElementChild.getBoundingClientRect().width + 18;
-    track.scrollBy({ left: direction * step });
-  };
-
-  return (
-    <div className={styles.gallery}>
-      <div className={styles.galleryViewport}>
-        <div
-          ref={trackRef}
-          className={styles.photoTrack}
-          tabIndex={0}
-          role="region"
-          aria-label="Hack the North photos"
-        >
-          {photos.map((photo) => (
-            <Image
-              key={photo.src}
-              src={`/images/hackathon-team/${photo.src}.webp`}
-              alt={photo.alt}
-              width={photo.width}
-              height={207}
-              sizes="(max-width: 600px) 75vw, 310px"
-              className={styles.galleryPhoto}
-              style={{ aspectRatio: `${photo.width} / 207` }}
-            />
-          ))}
-        </div>
-      </div>
-      <div className={styles.galleryControls}>
-        <ArrowButton direction="prev" onClick={() => scroll(-1)} disabled={edges.start} ariaLabel="Previous photo" />
-        <ArrowButton onClick={() => scroll(1)} disabled={edges.end} ariaLabel="Next photo" />
-      </div>
-    </div>
-  );
-}
-
 export default function HackathonDirectory() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const trackRef = useRef(null);
-  const tabRefs = useRef([]);
-  const active = posters[activeIndex];
-  const isNorth = active.event === "north";
+  const [active, setActive] = useState(0);
+  const hackathon = HACKATHONS[active];
   const discord = socials.find((link) => link.id === "discord");
 
-  useEffect(() => {
-    const track = trackRef.current;
-    const tab = tabRefs.current[activeIndex];
-    track.scrollTo({ left: tab.offsetLeft - tabRefs.current[0].offsetLeft });
-  }, [activeIndex]);
-
-  const handleKeyDown = (event) => {
-    let next = activeIndex;
-    if (event.key === "ArrowRight") next = Math.min(posters.length - 1, activeIndex + 1);
-    else if (event.key === "ArrowLeft") next = Math.max(0, activeIndex - 1);
-    else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = posters.length - 1;
-    else return;
-    event.preventDefault();
-    setActiveIndex(next);
-    tabRefs.current[next].focus({ preventScroll: true });
-  };
+  const actions = [
+    {
+      label: hackathon.ctaLabel,
+      href: discord.href,
+      external: true,
+      tone: "ink",
+    },
+    ...(hackathon.applicationsClosed
+      ? [{ label: "applications closed", disabled: true }]
+      : []),
+  ];
 
   return (
-    <section aria-labelledby="hackathon-heading">
-      <div className={styles.carousel}>
-        <div ref={trackRef} className={styles.posterTrack} role="tablist" aria-label="Upcoming hackathons">
-          {posters.map((poster, index) => (
-            <button
-              key={`${poster.src}-${index}`}
-              ref={(node) => { tabRefs.current[index] = node; }}
-              id={`hackathon-tab-${index}`}
-              type="button"
-              role="tab"
-              aria-label={poster.title}
-              aria-selected={index === activeIndex}
-              aria-controls="hackathon-details"
-              tabIndex={index === activeIndex ? 0 : -1}
-              className={styles.poster}
-              onClick={() => setActiveIndex(index)}
-              onKeyDown={handleKeyDown}
-            >
-              <Image
-                src={`/images/hackathon-team/${poster.src}.webp`}
-                alt=""
-                fill
-                sizes="(max-width: 600px) 60vw, 275px"
-                preload={index === 0}
-                draggable={false}
-              />
-            </button>
-          ))}
+    <>
+      <section className={styles.upcoming} aria-labelledby="hackathon-heading">
+        <div className={styles.inner}>
+          <div className={styles.head}>
+            <p className={styles.label}>hackathon team</p>
+            <div className={styles.headingGroup}>
+              <h1 id="hackathon-heading" className={styles.heading}>
+                upcoming
+              </h1>
+            </div>
+          </div>
         </div>
-        <div className={styles.posterControls}>
-          <ArrowButton direction="prev" onClick={() => setActiveIndex(activeIndex - 1)} disabled={activeIndex === 0} ariaLabel="Previous hackathon" />
-          <ArrowButton onClick={() => setActiveIndex(activeIndex + 1)} disabled={activeIndex === posters.length - 1} ariaLabel="Next hackathon" />
-        </div>
-      </div>
 
-      <article
-        className={styles.details}
-        id="hackathon-details"
-        role="tabpanel"
-        aria-labelledby={`hackathon-tab-${activeIndex}`}
-        tabIndex={0}
-      >
-        <div className={styles.eventSummary}>
-          <p className={styles.date}>{isNorth ? "September 18-20, 2026" : "Details coming soon"}</p>
-          <h2 className={styles.eventTitle}>{active.title}</h2>
-          {isNorth && (
-            <>
-              <div className={styles.pills} aria-label="Event details">
-                <span>Waterloo, ON, CA</span>
-                <span>In-Person</span>
+        <UpcomingCarousel
+          events={HACKATHONS}
+          onActiveChange={setActive}
+          ariaLabel="Upcoming hackathon posters"
+          size="compact"
+        />
+
+        <div className={styles.inner}>
+          <EventDetailCard event={hackathon} actions={actions} />
+        </div>
+      </section>
+
+      <section className={styles.about} aria-labelledby="about-team-heading">
+        <div className={styles.inner}>
+          <div className={styles.aboutGrid}>
+            <div>
+              <h2 id="about-team-heading" className={styles.aboutHeading}>
+                what is wds<br />
+                hackathon<br />
+                team?
+              </h2>
+              <div className={styles.aboutCopy}>
+                <p>
+                  The WDS Hackathon Team is a program that brings Western students
+                  together to compete at top hackathons while representing Western
+                  Developers Society. We work to secure sponsorships and funding
+                  to help cover hackathon-related costs, then open applications to
+                  students who have already been accepted to eligible hackathons.
+                </p>
+                <p>
+                  Selected applicants are matched with other WDS members and attend
+                  the hackathon together as a team, representing WDS throughout the
+                  event. When sponsorship funding is available, team members can
+                  receive benefits such as financial support for travel,
+                  registration, and other hackathon expenses.
+                </p>
               </div>
-              <HackathonGallery />
-            </>
-          )}
-        </div>
-        <div className={styles.eventContent}>
-          <div className={styles.eventCopy}>
-            {isNorth ? (
-              <>
-                <p>
-                  Welcome to Canada&apos;s biggest hackathon<br />
-                  This September, join 1,000+ hackers from around the world and
-                  build with people who think differently. Learn from world-class
-                  mentors, connect with the community, and turn ideas into
-                  something real. 13 years in, Hack the North continues to bring
-                  hands-on workshops, unforgettable experiences, and real
-                  connections with the companies shaping what&apos;s next in tech.
-                </p>
-                <p>
-                  Not from Waterloo? We cover food, help with travel expenses,
-                  and provide lodging so you can focus on turning your dreams
-                  into reality.
-                </p>
-              </>
-            ) : (
-              <p>More details coming soon. Connect with the WDS community for hackathon and team updates.</p>
-            )}
-          </div>
-          <div className={styles.actions}>
-            <a href={discord.href} target="_blank" rel="noopener noreferrer" className={styles.join}>
-              {isNorth ? "join a team" : "join our community"}
-              <span className={styles.srOnly}> on Discord (opens in a new tab)</span>
-            </a>
-            {isNorth && <button type="button" className={styles.closed} disabled>applications closed</button>}
+            </div>
+            <figure className={styles.teamVisual}>
+              <Image
+                src="/images/hackathon-team/team.webp"
+                alt="WDS members celebrating together with gold SPARK balloons"
+                width={410}
+                height={274}
+                sizes="(max-width: 600px) 70vw, (max-width: 900px) 410px, 30vw"
+                className={styles.teamPhoto}
+              />
+              {["topLeft", "topRight", "bottomLeft", "bottomRight"].map((corner) => (
+                <Image
+                  key={corner}
+                  src="/images/hackathon-team/corner.svg"
+                  alt=""
+                  width={30}
+                  height={30}
+                  className={`${styles.corner} ${styles[corner]}`}
+                  aria-hidden="true"
+                />
+              ))}
+            </figure>
           </div>
         </div>
-      </article>
-    </section>
+      </section>
+    </>
   );
 }

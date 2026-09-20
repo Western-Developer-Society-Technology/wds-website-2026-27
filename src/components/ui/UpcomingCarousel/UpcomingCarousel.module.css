@@ -107,6 +107,10 @@
   gap: 10px;
 }
 
+.bleed[data-size="compact"] {
+  --upx: calc(100vw / 1512 * 0.88);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .deck,
   .deckIn {
@@ -130,7 +134,15 @@
     transform: translate3d(140vw, 0, 0);
   }
 
+  .deckIn {
+    transform: translate3d(0, 0, 0);
+  }
+
   .fade {
     width: 28vw;
+  }
+
+  .bleed[data-size="compact"] {
+    --upx: calc(100vw / 780 * 0.88);
   }
 }

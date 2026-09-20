@@ -60,7 +60,12 @@ function cardStyle(index, position) {
   };
 }
 
-export default function UpcomingCarousel({ events, onActiveChange }) {
+export default function UpcomingCarousel({
+  events,
+  onActiveChange,
+  ariaLabel = "Upcoming event posters",
+  size = "default",
+}) {
   const { active, position, isDragging, moving, atStart, atEnd, onCardActivate, step, rootRef, rootProps, stageProps } =
     usePosterCarousel({
       count: events.length,
@@ -78,13 +83,13 @@ export default function UpcomingCarousel({ events, onActiveChange }) {
   }, [active, onActiveChange]);
 
   return (
-    <div ref={rootRef} className={styles.bleed} {...rootProps}>
+    <div ref={rootRef} className={styles.bleed} data-size={size} {...rootProps}>
       <div
         ref={stageRef}
         className={`${styles.stage} ${moving ? styles.stageMoving : ""} ${isDragging ? styles.stageDragging : ""}`}
         role="region"
         aria-roledescription="carousel"
-        aria-label="Upcoming event posters"
+        aria-label={ariaLabel}
         tabIndex={0}
         {...stageProps}
       >

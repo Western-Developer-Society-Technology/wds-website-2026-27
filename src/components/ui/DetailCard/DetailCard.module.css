@@ -109,8 +109,15 @@
   margin-bottom: 4px;
 }
 
-.action {
+.actions {
   align-self: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.action {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -123,6 +130,7 @@
   font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
   font-size: 17px;
   letter-spacing: -0.34px;
+  text-decoration: none;
   cursor: pointer;
   transition: background-color 150ms ease;
 }
@@ -130,6 +138,25 @@
 .action:hover,
 .action:focus-visible {
   background: #003bc2;
+}
+
+.action[data-tone="ink"] {
+  background: #000;
+}
+
+.action[data-tone="ink"]:hover,
+.action[data-tone="ink"]:focus-visible {
+  background: #333;
+}
+
+.action:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.action:disabled:hover,
+.action:disabled:focus-visible {
+  background: var(--blue);
 }
 
 .actionArrow {
@@ -194,10 +221,24 @@
   margin-top: 16px;
 }
 
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 @media (max-width: 900px) {
   .card {
     grid-template-columns: 1fr;
     padding: 32px 24px;
+  }
+
+  .actions {
+    align-self: stretch;
+    justify-content: flex-start;
   }
 }
 
