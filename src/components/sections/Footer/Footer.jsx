@@ -50,6 +50,7 @@ export default function Footer({ variant = "page", theme = "light" }) {
       aria-label="Footer"
       data-variant={variant}
       data-theme={theme}
+      data-nav-on-dark={theme === "dark" ? "" : undefined}
       data-warp={warped ? "on" : "off"}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}

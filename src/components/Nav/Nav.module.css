@@ -47,7 +47,9 @@
 }
 
 .nav[data-raised="true"] .mark,
-.nav[data-raised="true"] .menu {
+.nav[data-raised="true"] .menu,
+.nav[data-on-dark="true"] .mark,
+.nav[data-on-dark="true"] .menu {
   color: #fcfdff;
 }
 

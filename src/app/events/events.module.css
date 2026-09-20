@@ -1,7 +1,7 @@
 .upcoming {
   background: #fcfdff;
   overflow-x: clip;
-  padding-top: 140px;
+  padding-top: 160px;
   padding-bottom: 160px;
 }
 
@@ -87,7 +87,7 @@
 
 @media (max-width: 768px) {
   .upcoming {
-    padding-top: 100px;
+    padding-top: 128px;
   }
 
   .upcoming .inner:last-child,

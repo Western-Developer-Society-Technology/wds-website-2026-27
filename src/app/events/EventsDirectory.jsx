@@ -29,7 +29,11 @@ export default function EventsDirectory() {
           </div>
         </div>
 
-        <UpcomingCarousel events={UPCOMING_EVENTS} onActiveChange={setUpcomingActive} />
+        <UpcomingCarousel
+          events={UPCOMING_EVENTS}
+          onActiveChange={setUpcomingActive}
+          size="compact"
+        />
 
         <div className={styles.inner}>
           <EventDetailCard
@@ -40,7 +44,7 @@ export default function EventsDirectory() {
         </div>
       </section>
 
-      <section className={styles.previous} aria-label="Previous events">
+      <section className={styles.previous} aria-label="Previous events" data-nav-on-dark="">
         <div className={styles.inner}>
           <div className={styles.head}>
             <p className={styles.label}>previous</p>
