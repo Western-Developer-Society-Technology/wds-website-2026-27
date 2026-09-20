@@ -22,7 +22,9 @@ export default function HackathonDirectory() {
     },
     ...(hackathon.applicationsClosed
       ? [{ label: "applications closed", disabled: true }]
-      : []),
+      : hackathon.website
+        ? [{ label: "hackathon website", href: hackathon.website, external: true }]
+        : []),
   ];
 
   return (

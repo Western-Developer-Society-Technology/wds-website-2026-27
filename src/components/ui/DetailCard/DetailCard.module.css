@@ -189,6 +189,7 @@
   width: auto;
   scroll-snap-align: start;
   overflow: hidden;
+  background: #e1e1e1;
 }
 
 .photoImg {

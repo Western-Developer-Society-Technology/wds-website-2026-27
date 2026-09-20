@@ -10,11 +10,8 @@
 // To move one between sections (e.g. once it's happened): cut it from one
 // array and paste it into the other. No other code needs to change.
 
-const PLACEHOLDER_PHOTO = "/images/events/placeholders/photo-placeholder.svg";
-
 function placeholderPhotos(count, widths) {
   return Array.from({ length: count }, (_, index) => ({
-    src: PLACEHOLDER_PHOTO,
     alt: "",
     width: widths?.[index] ?? 309,
     height: 207,
@@ -22,6 +19,25 @@ function placeholderPhotos(count, widths) {
 }
 
 export const UPCOMING_EVENTS = [
+  {
+    id: "agm",
+    title: "AGM - Annual General Meeting",
+    date: "September 18, 2026",
+    src: "/images/events/agm.jpg",
+    alt: "AGM - Annual General Meeting event poster",
+    location: "Ivey 1130",
+    time: "6pm - 8pm",
+    body: [
+      "Another year, another WDS AGM!!!!!! 🤩🤩.",
+      "Come meet us at our Annual General Meeting! We’ll be kicking off the year with an evening full of fun, networking, and free food... (yes, free food) So come say hi, and let's get to know each other!",
+      "See you there 👀",
+    ],
+    list: {
+      heading: "Info:",
+      items: ["📆 Fri, Sept 18", "⏰ 6:00 PM", "📍 Ivey Rm 1130"],
+    },
+    photos: placeholderPhotos(3, [165, 309, 166]),
+  },
   {
     id: "jobs-in-2026",
     title: "jobs in 2026",

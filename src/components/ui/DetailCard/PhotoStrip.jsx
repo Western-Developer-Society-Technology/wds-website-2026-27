@@ -41,13 +41,15 @@ export default function PhotoStrip({ photos, theme }) {
             className={styles.photo}
             style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
           >
-            <Image
-              src={photo.src}
-              alt={photo.alt ?? ""}
-              fill
-              sizes="(max-width: 768px) 45vw, 310px"
-              className={styles.photoImg}
-            />
+            {photo.src ? (
+              <Image
+                src={photo.src}
+                alt={photo.alt ?? ""}
+                fill
+                sizes="(max-width: 768px) 45vw, 310px"
+                className={styles.photoImg}
+              />
+            ) : null}
           </div>
         ))}
       </div>
