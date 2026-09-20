@@ -1,4 +1,5 @@
 import Nav from "@/components/Nav/Nav";
+import Footer from "@/components/sections/Footer/Footer";
 import PortfolioDirectory from "./PortfolioDirectory";
 
 export const metadata = {
@@ -10,6 +11,7 @@ export default function PortfoliosPage() {
     <main>
       <Nav />
       <PortfolioDirectory />
+      <Footer />
     </main>
   );
 }

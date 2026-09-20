@@ -1,4 +1,5 @@
 import Nav from "@/components/Nav/Nav";
+import Footer from "@/components/sections/Footer/Footer";
 import EventsDirectory from "./EventsDirectory";
 
 export const metadata = {
@@ -10,6 +11,7 @@ export default function EventsPage() {
     <main>
       <Nav />
       <EventsDirectory />
+      <Footer theme="dark" />
     </main>
   );
 }

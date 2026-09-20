@@ -18,6 +18,10 @@
   background: transparent;
 }
 
+.dark {
+  background: #1a1a1a;
+}
+
 .footer[data-warp="on"] {
   animation: warp 3s cubic-bezier(0.56, 0, 0.37, 1) both;
 }

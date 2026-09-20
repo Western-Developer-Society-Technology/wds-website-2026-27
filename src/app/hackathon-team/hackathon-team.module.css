@@ -3,7 +3,7 @@
   --panel-inset: clamp(24px, 2.78vw, 42px);
   background: #fff;
   min-height: 100vh;
-  padding: 140px 0 385px;
+  padding: 140px 0 160px;
   letter-spacing: -0.02em;
 }
 
