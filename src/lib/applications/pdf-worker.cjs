@@ -20,13 +20,36 @@ WebAssembly.Memory.prototype.grow = function (pages) {
 };
 
 const forbiddenKeys = new Set([
-  "/JS", "/JavaScript", "/AA", "/OpenAction", "/AcroForm", "/XFA",
+  // /OpenAction is allowed when it resolves to a safe destination or action (see below).
+  "/JS", "/JavaScript", "/AA", "/AcroForm", "/XFA",
   "/EmbeddedFiles", "/EF", "/AF", "/RichMediaContent", "/RichMediaSettings",
   "/Collection", "/Launch", "/PA", "/PresSteps",
 ]);
 const forbiddenTypes = new Set(["/EmbeddedFile", "/Filespec"]);
 const forbiddenAnnotations = new Set(["/FileAttachment", "/RichMedia", "/Movie", "/Sound", "/Screen", "/3D", "/Widget"]);
-const forbiddenActions = new Set(["/JavaScript", "/Launch", "/GoToR", "/GoToE", "/SubmitForm", "/ImportData", "/Rendition", "/Movie", "/Sound"]);
+// Resume-safe actions: internal GoTo, http(s)/mailto URI links, and page Named actions.
+const safeActions = new Set(["/URI", "/GoTo", "/Named"]);
+const safeNamedActions = new Set(["/FirstPage", "/LastPage", "/NextPage", "/PrevPage"]);
+const forbiddenActions = new Set([
+  "/JavaScript", "/Launch", "/GoToR", "/GoToE", "/SubmitForm", "/ImportData",
+  "/Rendition", "/Movie", "/Sound", "/Hide", "/ResetForm", "/SetOCGState",
+  "/Trans", "/GoTo3DView", "/Thread", "/RichMediaExecute",
+]);
+
+function isSafeAction(action, resolve) {
+  if (!action || typeof action !== "object" || Array.isArray(action)) return false;
+  const kind = resolve(action["/S"]);
+  if (!safeActions.has(kind) || forbiddenActions.has(kind)) return false;
+  if (kind === "/Named" && !safeNamedActions.has(resolve(action["/N"]))) return false;
+  return true;
+}
+
+function isSafeOpenAction(openAction, resolve) {
+  // Catalog /OpenAction may be a destination (array / name) or an action dictionary.
+  if (Array.isArray(openAction)) return true;
+  if (typeof openAction === "string") return true;
+  return isSafeAction(openAction, resolve);
+}
 
 function inspect(document) {
   if (document.encrypt?.encrypted || !document.pages?.length || document.pages.length > 10) return false;
@@ -56,9 +79,10 @@ function inspect(document) {
       if (forbiddenActions.has(resolve(value["/S"]))) return false;
       // /S also occurs in non-action dictionaries; check actual action entries.
       if (value["/A"] !== undefined || resolve(value["/Type"]) === "/Action") {
-        const action = resolve(value["/A"] ?? value);
-        const kind = resolve(action?.["/S"]);
-        if (!["/URI", "/GoTo"].includes(kind)) return false;
+        if (!isSafeAction(resolve(value["/A"] ?? value), resolve)) return false;
+      }
+      if (value["/OpenAction"] !== undefined && !isSafeOpenAction(resolve(value["/OpenAction"]), resolve)) {
+        return false;
       }
       if (value["/URI"] !== undefined) {
         const uri = resolve(value["/URI"]);
