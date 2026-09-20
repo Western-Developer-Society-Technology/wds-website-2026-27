@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import TransitionProvider from "@/components/Transition/TransitionProvider";
 import NotificationBar from "@/components/NotificationBar/NotificationBar";
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }) {
       <body>
         {SHOW_NOTIFICATION_BAR && <NotificationBar />}
         <TransitionProvider>{children}</TransitionProvider>
+        <Analytics />
       </body>
     </html>
   );
