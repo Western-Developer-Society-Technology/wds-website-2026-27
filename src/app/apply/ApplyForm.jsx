@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import CornerButton from "@/components/ui/CornerButton";
-import QuestionField, { ChoiceFilters } from "./QuestionField";
+import QuestionField, { ChoiceControl, ChoiceFilters } from "./QuestionField";
 import ApplicationProgress from "./ApplicationProgress";
 import { buildApplicationPayload, hasAnswer, isObject, isQuestionVisible, validateQuestion } from "./formModel";
 import styles from "./apply.module.css";
@@ -35,6 +35,7 @@ export default function ApplyForm({ application, accepting, siteKey }) {
   const root = useRef(null);
   const feedback = useRef(null);
   const [answers, setAnswers] = useState({});
+  const [membershipAcknowledged, setMembershipAcknowledged] = useState(false);
   const [errors, setErrors] = useState({});
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
@@ -106,8 +107,9 @@ export default function ApplyForm({ application, accepting, siteKey }) {
 
   function focusFirstError(nextErrors) {
     const question = questions.find((question) => nextErrors[question.id]);
-    if (!question) return;
-    root.current?.querySelector(`[data-question="${question.id}"]`)
+    const id = question?.id ?? (nextErrors.membershipAcknowledgment ? "membershipAcknowledgment" : null);
+    if (!id) return;
+    root.current?.querySelector(`[data-question="${id}"]`)
       ?.querySelector('input:not([type="hidden"]), textarea, [role="combobox"]')
       ?.focus();
   }
@@ -120,6 +122,9 @@ export default function ApplyForm({ application, accepting, siteKey }) {
       questions.map((question) => [question.id, validateQuestion(question, answers[question.id])])
         .filter(([, error]) => error),
     );
+    if (!membershipAcknowledged) {
+      nextErrors.membershipAcknowledgment = "Please acknowledge the WDS membership requirement before submitting.";
+    }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       focusFirstError(nextErrors);
@@ -195,7 +200,7 @@ export default function ApplyForm({ application, accepting, siteKey }) {
           <span>director hiring {application.cycle}</span>
         </div>
       </header>
-      <ApplicationProgress completed={completed} total={required.length} />
+      <ApplicationProgress completed={completed + Number(membershipAcknowledged)} total={required.length + 1} />
       <div className={styles.layout}>
         <form className={styles.form} onSubmit={submitApplication} noValidate>
           <div className={styles.honeypot} aria-hidden="true">
@@ -224,6 +229,45 @@ export default function ApplyForm({ application, accepting, siteKey }) {
                 ))}
               </section>
             ))}
+            <fieldset
+              className={styles.question}
+              data-question="membershipAcknowledgment"
+              data-invalid={Boolean(errors.membershipAcknowledgment)}
+            >
+              <legend className={styles.questionLabel}>
+                WDS membership <span className={styles.required} aria-label="required">*</span>
+              </legend>
+              <div className={styles.choices}>
+                <ChoiceControl
+                  id="membershipAcknowledgment"
+                  multiple
+                  required
+                  checked={membershipAcknowledged}
+                  onChange={(event) => {
+                    setMembershipAcknowledged(event.target.checked);
+                    setErrors((current) => ({ ...current, membershipAcknowledgment: "" }));
+                  }}
+                  aria-invalid={Boolean(errors.membershipAcknowledgment)}
+                  aria-describedby={errors.membershipAcknowledgment ? "membershipAcknowledgment-error" : undefined}
+                >
+                  I acknowledge that I must be a WDS member to be accepted for a director position.
+                   If you are not a member, you may still submit this application.
+                </ChoiceControl>
+              </div>
+              <a
+                className={`${styles.textButton} ${styles.membershipLink}`}
+                href="https://buy.stripe.com/cNibJ04YJ8s78uIc0t7wA02"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Become a WDS member ↗
+              </a>
+              {errors.membershipAcknowledgment && (
+                <p className={styles.error} id="membershipAcknowledgment-error">
+                  {errors.membershipAcknowledgment}
+                </p>
+              )}
+            </fieldset>
           </fieldset>
           {accepting && !receipt && (siteKey ? (
             <div className={styles.verification}>
@@ -276,7 +320,7 @@ export default function ApplyForm({ application, accepting, siteKey }) {
               {pending ? "submitting…" : receipt ? "submitted" : "submit form"}
             </CornerButton>
           </div>
-          {questions.some((question) => errors[question.id]) && (
+          {(questions.some((question) => errors[question.id]) || errors.membershipAcknowledgment) && (
             <p className={styles.error} role="alert">
               A few answers need your attention. Please check the highlighted questions.
             </p>

@@ -89,7 +89,7 @@ function toggleOption(selected, option) {
     : [...selected, option];
 }
 
-function ChoiceControl({ multiple, children, ...inputProps }) {
+export function ChoiceControl({ multiple, children, ...inputProps }) {
   return (
     <label className={styles.choice}>
       <span className={`${styles.choiceVisual} ${multiple ? styles.checkboxControl : styles.radioControl}`}>

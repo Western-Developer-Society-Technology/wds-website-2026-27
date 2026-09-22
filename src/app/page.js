@@ -5,6 +5,9 @@ import Portfolios from "@/components/sections/Portfolios/Portfolios";
 import Partner from "@/components/sections/Partner/Partner";
 import Team from "@/components/sections/Team/Team";
 import Footer from "@/components/sections/Footer/Footer";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata = createPageMetadata({ path: "/" });
 
 export default function Home() {
   return (

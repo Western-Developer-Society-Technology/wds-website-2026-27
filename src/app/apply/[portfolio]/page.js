@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import Nav from "@/components/Nav/Nav";
+import { createPageMetadata } from "@/lib/seo";
 import ApplyForm from "../ApplyForm";
 import { getApplication } from "../applicationData";
 
@@ -14,12 +15,16 @@ function canonicalPortfolioId(id) {
 }
 
 export async function generateMetadata({ params }) {
-  const application = getApplication(canonicalPortfolioId((await params).portfolio));
-  return {
-    title: application
-      ? `Apply – ${application.label} – Western Developers Society`
-      : "Application not found",
-  };
+  const canonicalId = canonicalPortfolioId((await params).portfolio);
+  const application = getApplication(canonicalId);
+  if (!application) return { title: "Application not found" };
+
+  return createPageMetadata({
+    title: `Apply: ${application.label}`,
+    description:
+      `Application for the ${application.label} portfolio at Western Developers Society (WDS). Share your experience and interests in Western University’s tech community.`,
+    path: `/apply/${canonicalId}`,
+  });
 }
 
 export default async function PortfolioApplicationPage({ params }) {

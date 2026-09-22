@@ -284,6 +284,11 @@ textarea.field {
   transform: scale(1.01) translateZ(0);
 }
 
+/* Off-canvas animation shapes can bleed into the control at fractional zoom. */
+.choiceVisual input:not(:checked) + .choiceIcon {
+  visibility: hidden;
+}
+
 .radioControl input:checked {
   --control-border-width: 6.75px;
   animation: radioFill 200ms ease-out;
@@ -517,6 +522,10 @@ textarea.field {
   text-decoration: underline;
   margin-top: 16px;
   cursor: pointer;
+}
+
+.membershipLink {
+  display: inline-block;
 }
 
 .gridRows {
