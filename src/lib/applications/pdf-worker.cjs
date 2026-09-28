@@ -32,7 +32,14 @@ WebAssembly.Memory.prototype.grow = function (pages) {
     qpdf.FS.writeFile("/resume.pdf", workerData);
     // Count pages only: do not inspect actions or decode image/content streams.
     const status = qpdf.callMain(["/resume.pdf", "--warning-exit-0", "--show-npages"]);
-    parentPort.postMessage(status === 0 && Number.isInteger(pageCount) && pageCount > 0 && pageCount <= 10);
+    if (status === 0 && Number.isInteger(pageCount)) {
+      parentPort.postMessage(pageCount > 0 && pageCount <= 10);
+      return;
+    }
+    // This build can't rebuild damaged xref tables, which PDF readers repair silently.
+    // Fall back to counting page objects that aren't compressed into object streams.
+    const rawPages = Buffer.from(workerData).toString("latin1").match(/\/Type\s*\/Page(?![A-Za-z])/g)?.length ?? 0;
+    parentPort.postMessage(rawPages <= 10);
   } catch {
     parentPort.postMessage(false);
   }

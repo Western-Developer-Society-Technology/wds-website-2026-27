@@ -10,9 +10,9 @@ export const MAX_PDF_WORKERS = 2;
 let activeWorkers = 0;
 
 export async function validatePdf(bytes) {
+  // Readers accept a header anywhere in the first 1 KB; QPDF repairs a missing or early %%EOF.
   if (!bytes.length || bytes.length > MAX_RESUME_BYTES ||
-      !/^%PDF-(1\.[0-7]|2\.0)[\r\n]/.test(bytes.subarray(0, 16).toString("latin1")) ||
-      !/%%EOF[\t\r\n ]*$/.test(bytes.subarray(-1024).toString("latin1"))) {
+      !bytes.subarray(0, 1024).toString("latin1").includes("%PDF-")) {
     throw new ApplicationError(INVALID_PDF, 400, { resume: INVALID_PDF });
   }
   if (activeWorkers >= MAX_PDF_WORKERS) {
