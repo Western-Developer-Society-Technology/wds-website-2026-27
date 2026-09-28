@@ -3,7 +3,7 @@ import path from "node:path";
 import { MAX_RESUME_BYTES } from "./resume.js";
 import { ApplicationError } from "./request.js";
 
-const INVALID_PDF = "Please upload a valid, unencrypted PDF with up to 10 pages and no scripts, forms, or attachments. Try exporting your resume as a new PDF.";
+const INVALID_PDF = "Please upload a valid PDF with up to 10 pages. Try exporting your resume as a new PDF.";
 // Run the traced source file: bundling this worker breaks QPDF's require.resolve.
 const WORKER_PATH = path.join(process.cwd(), "src/lib/applications/pdf-worker.cjs");
 export const MAX_PDF_WORKERS = 2;
