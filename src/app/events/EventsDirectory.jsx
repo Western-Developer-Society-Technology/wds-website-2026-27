@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import PosterCarousel from "@/components/ui/PosterCarousel/PosterCarousel";
 import EventDetailCard from "@/components/ui/DetailCard/EventDetailCard";
-import { UPCOMING_EVENTS, PAST_EVENTS } from "@/components/sections/Events/eventData";
+import { PAST_EVENTS } from "@/components/sections/Events/eventData";
 import TiltPoster from "./TiltPoster";
 import styles from "./events.module.css";
 
@@ -17,25 +18,28 @@ function LumaStar() {
 }
 
 function GuestPreview({ guests }) {
-  if (!guests?.count || !guests.preview?.length) return null;
+  if (!guests?.count) return null;
 
   const roundedCount = Math.round(guests.count / 5) * 5;
 
   return (
     <div className={styles.guestPreview} role="group" aria-label="Who's going">
-      <ul className={styles.guestAvatars} aria-label="Attendee preview">
+      {guests.preview?.length > 0 && <ul className={styles.guestAvatars} aria-label="Attendee preview">
         {guests.preview.slice(0, 4).map((guest) => (
           <li
-            key={guest.name}
+            key={guest.id}
             className={styles.guestAvatar}
-            data-tone={guest.tone}
             title={guest.name}
           >
             <span className={styles.srOnly}>{guest.name}</span>
-            <span aria-hidden="true">{guest.initials}</span>
+            {guest.avatarUrl ? (
+              <Image src={guest.avatarUrl} alt="" width={32} height={32} unoptimized className={styles.guestPortrait} />
+            ) : (
+              <span aria-hidden="true">{guest.initials}</span>
+            )}
           </li>
         ))}
-      </ul>
+      </ul>}
       <p className={styles.guestCount}>{roundedCount}+ going</p>
     </div>
   );
@@ -59,18 +63,19 @@ function EventArrow({ direction, disabled, onClick }) {
   );
 }
 
-export default function EventsDirectory() {
+export default function EventsDirectory({ upcomingEvents = [] }) {
   const [upcomingActive, setUpcomingActive] = useState(0);
   const reducedMotion = useReducedMotion();
   const [previousActive, setPreviousActive] = useState(() =>
     Math.floor((PAST_EVENTS.length - 1) / 2),
   );
 
-  const upcomingEvent = UPCOMING_EVENTS[upcomingActive];
+  const activeIndex = Math.min(upcomingActive, Math.max(0, upcomingEvents.length - 1));
+  const upcomingEvent = upcomingEvents[activeIndex];
   const previousEvent = PAST_EVENTS[previousActive];
 
   function stepEvent(step) {
-    setUpcomingActive((index) => Math.max(0, Math.min(UPCOMING_EVENTS.length - 1, index + step)));
+    setUpcomingActive(Math.max(0, Math.min(upcomingEvents.length - 1, activeIndex + step)));
   }
 
   return (
@@ -94,18 +99,18 @@ export default function EventsDirectory() {
                 <span className={styles.year}>26-27</span>
               </div>
             </div>
-            {UPCOMING_EVENTS.length > 1 && (
+            {upcomingEvents.length > 1 && (
               <div className={styles.eventNavigation}>
                 <span className={styles.eventCount} aria-hidden="true">
-                  {upcomingActive + 1} / {UPCOMING_EVENTS.length}
+                  {activeIndex + 1} / {upcomingEvents.length}
                 </span>
-                <EventArrow direction="prev" disabled={upcomingActive === 0} onClick={() => stepEvent(-1)} />
-                <EventArrow direction="next" disabled={upcomingActive === UPCOMING_EVENTS.length - 1} onClick={() => stepEvent(1)} />
+                <EventArrow direction="prev" disabled={activeIndex === 0} onClick={() => stepEvent(-1)} />
+                <EventArrow direction="next" disabled={activeIndex === upcomingEvents.length - 1} onClick={() => stepEvent(1)} />
               </div>
             )}
           </div>
 
-          <div
+          {upcomingEvent ? <div
             className={styles.carousel}
             role="region"
             aria-roledescription="carousel"
@@ -115,20 +120,20 @@ export default function EventsDirectory() {
               <motion.div
                 id="upcoming-event-slides"
                 className={styles.slideTrack}
-                animate={{ x: `${-upcomingActive * 100}%` }}
+                animate={{ x: `${-activeIndex * 100}%` }}
                 transition={reducedMotion ? { duration: 0 } : { duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
-                {UPCOMING_EVENTS.map((event, index) => (
+                {upcomingEvents.map((event, index) => (
                   <article
                     key={event.id}
                     className={styles.feature}
                     aria-labelledby={`event-title-${event.id}`}
                     aria-roledescription="slide"
-                    aria-hidden={index !== upcomingActive}
-                    inert={index !== upcomingActive}
+                    aria-hidden={index !== activeIndex}
+                    inert={index !== activeIndex}
                   >
                     <figure className={styles.poster}>
-                      <TiltPoster event={event} priority={index === 0} active={index === upcomingActive} />
+                      <TiltPoster event={event} priority={index === 0} active={index === activeIndex} />
                     </figure>
 
                     <div className={styles.eventIntro}>
@@ -169,9 +174,12 @@ export default function EventsDirectory() {
               </motion.div>
             </div>
             <p className={styles.srOnly} aria-live="polite" aria-atomic="true">
-              Event {upcomingActive + 1} of {UPCOMING_EVENTS.length}: {upcomingEvent.title}
+              Event {activeIndex + 1} of {upcomingEvents.length}: {upcomingEvent.title}
             </p>
-          </div>
+          </div> : <div className={`${styles.carousel} ${styles.emptyState}`}>
+            <h2>No upcoming events announced yet.</h2>
+            <p>Check back soon for our next meetup.</p>
+          </div>}
         </div>
       </section>
 

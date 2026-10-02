@@ -60,6 +60,7 @@ export default function TiltPoster({ event, priority, active = true }) {
             alt={event.alt}
             fill
             preload={priority}
+            unoptimized={event.src.startsWith("https://")}
             sizes="(max-width: 380px) 80px, (max-width: 430px) 96px, (max-width: 680px) 112px, (max-width: 900px) 210px, (max-width: 1100px) 260px, 320px"
             draggable={false}
             className={styles.image}

@@ -10,6 +10,10 @@ const nextConfig = {
     ],
   },
   images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "images.lumacdn.com", pathname: "/**" },
+      { protocol: "https", hostname: "cdn.lu.ma", pathname: "/**" },
+    ],
     // Only local placeholder art uses SVG today; safe with a strict CSP.
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",

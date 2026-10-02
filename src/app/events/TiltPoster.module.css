@@ -7,7 +7,7 @@
 .card {
   position: relative;
   width: 100%;
-  aspect-ratio: 440.4 / 550.5;
+  aspect-ratio: 1;
   border-radius: 8px;
   background: #dce1e8;
   box-shadow: 0 7px 18px -9px rgb(24 39 66 / 24%);
@@ -45,7 +45,7 @@
 }
 
 .image {
-  object-fit: cover;
+  object-fit: contain;
   pointer-events: none;
   user-select: none;
 }

@@ -1,15 +1,10 @@
-// TODO: Confirm event dates before launch.
-//
-// Each event carries everything both carousels and the detail card need:
+// Static artwork and copy for the homepage gallery and past-event carousel.
+// Live upcoming events are loaded server-side from src/lib/events/upcoming.js.
+// Each gallery event carries:
 //   id, title, date, src/alt   -> poster (carousel)
 //   location, time             -> pill facts on the detail card
 //   body, list                 -> detail-card copy (list is optional)
 //   photos                     -> detail-card photo strip (placeholders for now)
-//   description, guests, rsvpUrl -> upcoming-event feature
-//
-// To add an event: drop a new object into UPCOMING_EVENTS or PAST_EVENTS.
-// To move one between sections (e.g. once it's happened): cut it from one
-// array and paste it into the other. No other code needs to change.
 
 function placeholderPhotos(count, widths) {
   return Array.from({ length: count }, (_, index) => ({
@@ -19,42 +14,7 @@ function placeholderPhotos(count, widths) {
   }));
 }
 
-// Dummy data for the attendee UI preview. Replace with Luma attendees when
-// connecting the data source; these are not live registrations.
-const PREVIEW_GUESTS = {
-  count: 24,
-  preview: [
-    { name: "Avery Chen", initials: "AC", tone: "pink" },
-    { name: "Maya Patel", initials: "MP", tone: "blue" },
-    { name: "Jordan Lee", initials: "JL", tone: "yellow" },
-    { name: "Sam Rivera", initials: "SR", tone: "green" },
-  ],
-};
-
-export const UPCOMING_EVENTS = [
-  {
-    id: "agm",
-    title: "AGM - Annual General Meeting",
-    date: "September 18, 2026",
-    src: "/images/events/agm.jpg",
-    alt: "AGM - Annual General Meeting event poster",
-    location: "Ivey 1130",
-    time: "6pm - 8pm",
-    description:
-      "Kick off the year at our Annual General Meeting. Meet the WDS team, get to know the community, and find out what’s coming next — with an evening of networking and free food. Everyone’s welcome!",
-    guests: PREVIEW_GUESTS,
-    rsvpUrl: "https://luma.com", // Temporary destination until the event URL is available.
-    body: [
-      "Another year, another WDS AGM!!!!!! 🤩🤩.",
-      "Come meet us at our Annual General Meeting! We’ll be kicking off the year with an evening full of fun, networking, and free food... (yes, free food) So come say hi, and let's get to know each other!",
-      "See you there 👀",
-    ],
-    list: {
-      heading: "Info:",
-      items: ["📆 Fri, Sept 18", "⏰ 6:00 PM", "📍 Ivey Rm 1130"],
-    },
-    photos: placeholderPhotos(3, [165, 309, 166]),
-  },
+const HOME_ONLY_EVENTS = [
   {
     id: "jobs-in-2026",
     title: "jobs in 2026",
@@ -63,8 +23,6 @@ export const UPCOMING_EVENTS = [
     alt: "Jobs in 2026 event poster",
     location: "SEB 201",
     time: "5pm - 7pm",
-    guests: PREVIEW_GUESTS,
-    rsvpUrl: "https://luma.com",
     body: [
       "A panel and networking night on how hiring, internships, and new-grad roles are changing in tech going into 2026.",
       "Hear directly from recruiters and recent grads, then stick around to ask questions one-on-one.",
@@ -83,8 +41,6 @@ export const UPCOMING_EVENTS = [
     alt: "Spark hackathon event poster",
     location: "TC 101",
     time: "9am - 9pm",
-    guests: PREVIEW_GUESTS,
-    rsvpUrl: "https://luma.com",
     body: [
       "A one-day hackathon for beginners and veterans alike — build something in a weekend, pitch it to judges, and win prizes.",
       "Teams of up to 4. Solo hackers welcome; we'll help you find a team at the door.",
@@ -107,8 +63,6 @@ export const UPCOMING_EVENTS = [
     alt: "Poker networking event poster",
     location: "UCC 65",
     time: "6pm - 9pm",
-    guests: PREVIEW_GUESTS,
-    rsvpUrl: "https://luma.com",
     body: [
       "Low-stakes poker, high-stakes networking. Meet sponsors and alumni over a few hands of cards.",
       "No poker experience required — we'll teach you the rules at the table.",
@@ -123,8 +77,6 @@ export const UPCOMING_EVENTS = [
     alt: "Summer social event poster",
     location: "Storybook Gardens",
     time: "5:30pm - 7:30pm",
-    guests: PREVIEW_GUESTS,
-    rsvpUrl: "https://luma.com",
     body: [
       "Our end-of-summer hangout before the fall term kicks off — games, snacks, and catching up with the club.",
     ],
@@ -188,7 +140,7 @@ export const PAST_EVENTS = [
   },
 ];
 
-const ALL_EVENTS = [...UPCOMING_EVENTS, ...PAST_EVENTS];
+const ALL_EVENTS = [...HOME_ONLY_EVENTS, ...PAST_EVENTS];
 
 function byId(id) {
   const event = ALL_EVENTS.find((candidate) => candidate.id === id);

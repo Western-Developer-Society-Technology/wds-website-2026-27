@@ -169,11 +169,11 @@
   font-weight: 600;
 }
 .guestAvatar + .guestAvatar { margin-left: -9px; }
-.guestAvatar[data-tone="pink"] { background: #eadde2; color: #704858; }
-.guestAvatar[data-tone="blue"] { background: #dce5ef; color: #425c7b; }
-.guestAvatar[data-tone="yellow"] { background: #ebe5d2; color: #72633c; }
-.guestAvatar[data-tone="green"] { background: #dce6df; color: #466351; }
+.guestPortrait { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
 .guestCount { color: var(--ink); font-size: 0.875rem; line-height: 1.4; }
+.emptyState { padding: 44px 48px; }
+.emptyState h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 400; }
+.emptyState p { margin-top: 12px; color: #595959; font-size: 1.125rem; line-height: 1.65; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .previous .inner:last-child { margin-top: 56px; }
 
