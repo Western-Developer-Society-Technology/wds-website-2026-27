@@ -2,7 +2,7 @@ import Nav from "@/components/Nav/Nav";
 import Footer from "@/components/sections/Footer/Footer";
 import { createPageMetadata } from "@/lib/seo";
 import EventsDirectory from "./EventsDirectory";
-import { getUpcomingEvents } from "@/lib/events/upcoming";
+import { getEventDirectory } from "@/lib/events/directory";
 
 export const revalidate = 21600;
 
@@ -14,11 +14,11 @@ export const metadata = createPageMetadata({
 });
 
 export default async function EventsPage() {
-  const upcomingEvents = await getUpcomingEvents();
+  const directory = await getEventDirectory();
   return (
     <main>
       <Nav />
-      <EventsDirectory upcomingEvents={upcomingEvents} />
+      <EventsDirectory {...directory} />
       <Footer theme="dark" />
     </main>
   );

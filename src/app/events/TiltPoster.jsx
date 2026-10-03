@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import EventImage from "@/components/ui/EventImage";
 import { useCallback, useEffect } from "react";
 import { motion, useReducedMotion, useSpring, useTransform } from "motion/react";
 import styles from "./TiltPoster.module.css";
@@ -55,12 +55,11 @@ export default function TiltPoster({ event, priority, active = true }) {
         }}
       >
         <div className={styles.surface}>
-          <Image
+          <EventImage
             src={event.src}
             alt={event.alt}
             fill
             preload={priority}
-            unoptimized={event.src.startsWith("https://")}
             sizes="(max-width: 380px) 80px, (max-width: 430px) 96px, (max-width: 680px) 112px, (max-width: 900px) 210px, (max-width: 1100px) 260px, 320px"
             draggable={false}
             className={styles.image}

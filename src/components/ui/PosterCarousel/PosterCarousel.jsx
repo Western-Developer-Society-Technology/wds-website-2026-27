@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
+import EventImage from "@/components/ui/EventImage";
 import useReveal from "@/lib/useReveal";
 import usePosterCarousel from "@/lib/usePosterCarousel";
 import CarouselTicks from "./CarouselTicks";
@@ -32,9 +32,7 @@ function cardStyle(index, position) {
   };
 }
 
-// The home page's "our events" carousel, extracted into a themeable,
-// data-driven component so the events page can reuse it verbatim (light)
-// for the home section and (dark) for the previous-events section.
+// Shared by the home page and the chronological events archive.
 export default function PosterCarousel({
   events,
   initialActive = 0,
@@ -42,6 +40,8 @@ export default function PosterCarousel({
   size = "default",
   showCaption = true,
   showTicks = true,
+  showNavigation = false,
+  navigationLabels = { previous: "Previous", next: "Next" },
   onActiveChange,
 }) {
   const {
@@ -50,6 +50,9 @@ export default function PosterCarousel({
     isDragging,
     moving,
     goTo,
+    step,
+    atStart,
+    atEnd,
     onCardActivate,
     rootRef,
     rootProps,
@@ -72,7 +75,7 @@ export default function PosterCarousel({
   const current = events[active];
 
   return (
-    <div ref={rootRef} className={styles.bleed} data-theme={theme} data-size={size} {...rootProps}>
+    <div ref={rootRef} className={styles.bleed} data-theme={theme} data-size={size} data-navigation={showNavigation} {...rootProps}>
       <div
         ref={stageRef}
         className={`${styles.stage} ${moving ? styles.stageMoving : ""} ${isDragging ? styles.stageDragging : ""}`}
@@ -94,11 +97,12 @@ export default function PosterCarousel({
                 onClick={() => onCardActivate(index)}
                 data-event-card
                 data-index={index}
+                data-poster-fit={event.posterFit}
                 aria-label={event.title}
                 aria-current={index === active ? "true" : undefined}
               >
                 <span className={styles.cardFace}>
-                  <Image
+                  <EventImage
                     src={event.src}
                     alt={event.alt}
                     fill
@@ -139,6 +143,26 @@ export default function PosterCarousel({
             moving={moving}
             onSelect={goTo}
           />
+        </div>
+      )}
+
+      {showNavigation && events.length > 1 && (
+        <div className={`${styles.navigation} ${entered ? styles.metaIn : ""}`} role="group" aria-label="Browse events">
+          <button type="button" className={styles.navButton} disabled={atStart} onClick={() => step(-1)} aria-label={`${navigationLabels.previous} event`}>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 12H4m7-7-7 7 7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {navigationLabels.previous}
+          </button>
+          <span className={styles.navCount} aria-label={`Event ${active + 1} of ${events.length}`}>
+            {active + 1} / {events.length}
+          </span>
+          <button type="button" className={styles.navButton} disabled={atEnd} onClick={() => step(1)} aria-label={`${navigationLabels.next} event`}>
+            {navigationLabels.next}
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 12h16m-7-7 7 7-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
       )}
     </div>

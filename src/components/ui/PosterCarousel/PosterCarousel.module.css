@@ -31,6 +31,10 @@
   --ticks-top: 720;
 }
 
+.bleed[data-navigation="true"] {
+  height: calc(var(--bleed-h) * var(--cpx) + 60px);
+}
+
 .stage {
   position: relative;
   height: calc(740 * var(--cpx));
@@ -119,6 +123,9 @@
   pointer-events: none;
 }
 
+.card[data-poster-fit="contain"] .cardFace { background: #222; }
+.card[data-poster-fit="contain"] .cardImg { object-fit: contain; }
+
 .tint {
   position: absolute;
   inset: 0;
@@ -189,6 +196,40 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+.navigation {
+  position: absolute;
+  top: calc(740 * var(--cpx));
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  color: var(--caption-title);
+  transition: opacity 500ms 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.navigation.metaIn { opacity: 1; pointer-events: auto; }
+.navButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+.navButton svg { width: 20px; height: 20px; flex-shrink: 0; }
+.navButton:hover:not(:disabled) { background: rgb(128 128 128 / 15%); }
+.navButton:disabled { opacity: 0.35; cursor: default; }
+.navButton:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.navCount { min-width: 40px; text-align: center; font-size: 0.875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .title {
   margin: 0;
@@ -284,7 +325,8 @@
   }
 
   .caption,
-  .ticksWrap {
+  .ticksWrap,
+  .navigation {
     opacity: 1;
     pointer-events: auto;
     transition: none;
@@ -328,4 +370,7 @@
     --cpx: calc(100vw / 780);
     height: calc(1180 * var(--cpx));
   }
+
+  .bleed[data-navigation="true"] { height: calc(1180 * var(--cpx)); }
+  .navigation { top: calc(950 * var(--cpx)); gap: 10px; }
 }

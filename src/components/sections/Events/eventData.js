@@ -1,5 +1,5 @@
-// Static artwork and copy for the homepage gallery and past-event carousel.
-// Live upcoming events are loaded server-side from src/lib/events/upcoming.js.
+// Static artwork and copy for the homepage gallery.
+// /events combines src/lib/events/manual.js with the live Luma timeline.
 // Each gallery event carries:
 //   id, title, date, src/alt   -> poster (carousel)
 //   location, time             -> pill facts on the detail card
@@ -14,7 +14,7 @@ function placeholderPhotos(count, widths) {
   }));
 }
 
-const HOME_ONLY_EVENTS = [
+const GALLERY_EVENTS = [
   {
     id: "jobs-in-2026",
     title: "jobs in 2026",
@@ -82,9 +82,6 @@ const HOME_ONLY_EVENTS = [
     ],
     photos: placeholderPhotos(2, [340, 340]),
   },
-];
-
-export const PAST_EVENTS = [
   {
     id: "tech-mixer",
     title: "tech mixer",
@@ -140,16 +137,13 @@ export const PAST_EVENTS = [
   },
 ];
 
-const ALL_EVENTS = [...HOME_ONLY_EVENTS, ...PAST_EVENTS];
-
 function byId(id) {
-  const event = ALL_EVENTS.find((candidate) => candidate.id === id);
+  const event = GALLERY_EVENTS.find((candidate) => candidate.id === id);
   if (!event) throw new Error(`Unknown event: ${id}`);
   return event;
 }
 
-// The home page carousel keeps its own hand-picked order and starting index,
-// independent of the upcoming/previous split above.
+// The home page carousel keeps its own hand-picked order and starting index.
 export const EVENTS = [
   "jobs-in-2026",
   "spark-hackathon",

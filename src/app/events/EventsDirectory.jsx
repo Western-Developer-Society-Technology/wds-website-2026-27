@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import EventImage from "@/components/ui/EventImage";
 import { motion, useReducedMotion } from "motion/react";
 import PosterCarousel from "@/components/ui/PosterCarousel/PosterCarousel";
 import EventDetailCard from "@/components/ui/DetailCard/EventDetailCard";
-import { PAST_EVENTS } from "@/components/sections/Events/eventData";
 import TiltPoster from "./TiltPoster";
 import styles from "./events.module.css";
 
@@ -33,7 +32,7 @@ function GuestPreview({ guests }) {
           >
             <span className={styles.srOnly}>{guest.name}</span>
             {guest.avatarUrl ? (
-              <Image src={guest.avatarUrl} alt="" width={32} height={32} unoptimized className={styles.guestPortrait} />
+              <EventImage src={guest.avatarUrl} alt="" width={32} height={32} className={styles.guestPortrait} />
             ) : (
               <span aria-hidden="true">{guest.initials}</span>
             )}
@@ -63,16 +62,58 @@ function EventArrow({ direction, disabled, onClick }) {
   );
 }
 
-export default function EventsDirectory({ upcomingEvents = [] }) {
+function PreviousEvents({ events }) {
+  const [active, setActive] = useState(0);
+  const event = events[active];
+
+  return (
+    <section className={styles.previous} aria-label="Previous events" data-nav-on-dark="">
+      <div className={styles.inner}>
+        <div className={styles.head}>
+          <p className={styles.label}>previous</p>
+          <div className={styles.headingGroup}>
+            <h2 className={styles.heading}>events</h2>
+          </div>
+          <p className={styles.archiveOrder}>Newest to oldest</p>
+        </div>
+      </div>
+
+      {event ? <>
+        <PosterCarousel
+          events={events}
+          initialActive={0}
+          theme="dark"
+          showCaption={false}
+          showNavigation
+          navigationLabels={{ previous: "Newer", next: "Older" }}
+          onActiveChange={setActive}
+        />
+
+        <div className={styles.inner}>
+          <div aria-live="polite" aria-atomic="true">
+            {event.isPlaceholder && <p className={styles.archivePreview}>Archive preview · details to come</p>}
+            <EventDetailCard
+              event={event}
+              theme="dark"
+              action={event.source === "luma" ? {
+                label: "View on Luma", href: event.rsvpUrl, external: true,
+              } : undefined}
+            />
+          </div>
+        </div>
+      </> : <div className={styles.inner}>
+        <p className={styles.archiveEmpty}>Our past events will appear here soon.</p>
+      </div>}
+    </section>
+  );
+}
+
+export default function EventsDirectory({ upcomingEvents = [], pastEvents = [] }) {
   const [upcomingActive, setUpcomingActive] = useState(0);
   const reducedMotion = useReducedMotion();
-  const [previousActive, setPreviousActive] = useState(() =>
-    Math.floor((PAST_EVENTS.length - 1) / 2),
-  );
 
   const activeIndex = Math.min(upcomingActive, Math.max(0, upcomingEvents.length - 1));
   const upcomingEvent = upcomingEvents[activeIndex];
-  const previousEvent = PAST_EVENTS[previousActive];
 
   function stepEvent(step) {
     setUpcomingActive(Math.max(0, Math.min(upcomingEvents.length - 1, activeIndex + step)));
@@ -183,29 +224,7 @@ export default function EventsDirectory({ upcomingEvents = [] }) {
         </div>
       </section>
 
-      <section className={styles.previous} aria-label="Previous events" data-nav-on-dark="">
-        <div className={styles.inner}>
-          <div className={styles.head}>
-            <p className={styles.label}>previous</p>
-            <div className={styles.headingGroup}>
-              <h2 className={styles.heading}>events</h2>
-              <span className={styles.year}>25-26</span>
-            </div>
-          </div>
-        </div>
-
-        <PosterCarousel
-          events={PAST_EVENTS}
-          initialActive={Math.floor((PAST_EVENTS.length - 1) / 2)}
-          theme="dark"
-          showCaption={false}
-          onActiveChange={setPreviousActive}
-        />
-
-        <div className={styles.inner}>
-          <EventDetailCard event={previousEvent} theme="dark" />
-        </div>
-      </section>
+      <PreviousEvents key={pastEvents.map((event) => event.id).join(":")} events={pastEvents} />
     </>
   );
 }

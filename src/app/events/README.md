@@ -1,7 +1,7 @@
-# Upcoming events
+# Events directory
 
 The source is `https://luma.com/user/wds`, configured in
-`src/lib/events/config.js`. Public upcoming events are discovered automatically
+`src/lib/events/config.js`. Public upcoming and past events are discovered automatically
 from this account's **hosted** events, including partnerships where WDS is a
 co-host. Publish an event on Luma with WDS listed as a host; no website edit or
 redeploy is needed for each new event. Attended events are not included.
@@ -9,14 +9,27 @@ redeploy is needed for each new event. Attended events are not included.
 Dates, times, room, description, cover art, RSVP link, count, and up to four
 public guest profiles are read from each discovered event's public Luma page.
 
+The previous-events section merges Luma history and `src/lib/events/manual.js`,
+across all years, newest first. It opens on the newest event. The homepage's
+handpicked gallery remains separate.
+
+## Manual archive
+
+Replace the examples in `MANUAL_PAST_EVENTS` with verified dates and copy.
+Each entry needs a unique `id`, a `YYYY-MM-DD` date, title, poster `src`, and
+`alt`. Location, time, body paragraphs, list, and photos are optional. Remove
+`isPlaceholder` when a record is complete; examples display **Archive preview**.
+Array order does not matter. Add `lumaUrl` for a record also published on Luma;
+the Luma entry takes precedence.
+
 Luma's [official event API requires Luma Plus](https://docs.luma.com/reference/getting-started-with-your-api).
 This adapter reads the profile's embedded account ID and the unauthenticated
 hosted-event listing used by Luma's public website, then reads each public
 event page's embedded metadata. These website formats are not a supported API
 contract; if Luma changes them, update `src/lib/events/luma.js`. It never uses
-host credentials or private guest APIs. Pagination is followed, with a guard
-against loops or more than ten listing pages; exceeding it fails the refresh
-instead of saving a truncated list.
+host credentials or private guest APIs. Upcoming discovery follows pagination
+with a loop/ten-page guard. Archive pagination resumes across daily runs,
+without a lifetime archive-size cap.
 Only public events, visible locations, and guest profiles that Luma shows publicly
 are included. Other fields, including registration answers, are not persisted.
 
@@ -68,30 +81,39 @@ environment variable has not been configured. See
 5. After the production deployment is ready, open **Settings → Cron Jobs** and
    confirm `/api/cron/events` is listed and enabled. Use **Run** to exercise it
    once and **View Logs** to check the result. A successful response is
-   `{"ok":true,"eventCount":1}` for the current event. Visit `/events` and
-   confirm the Figma event appears. Opening the cron URL in an ordinary browser
-   should return **401 Unauthorized**, since it has no authorization header.
+   `{"ok":true,"eventCount":2,"upcomingCount":1,"pastCount":1,"archiveStatus":"ok"}`
+   for the current timeline. Visit `/events` and confirm Figma and the past AGM.
+   Opening the cron URL in an ordinary browser should return **401 Unauthorized**,
+   since it has no authorization header.
 
 To verify the saved record in Neon's SQL Editor after deployment:
 
 ```sql
 SELECT source_url, fetched_at,
-       jsonb_array_length(snapshot->'events') AS upcoming_event_count
+       snapshot->>'version' AS snapshot_version,
+       jsonb_array_length(snapshot->'events') AS luma_event_count,
+       snapshot->'archive' AS archive_progress
 FROM wds_site.event_snapshots
 WHERE source_url = 'https://luma.com/user/wds';
 ```
 
+### Existing installations
+
+No new SQL migration, environment variable, or cron schedule is needed.
+The existing JSON row gains `archive.cursor` and `archive.recheckIndex` on
+refresh. Older upcoming-only snapshots upgrade automatically on a cache miss.
+
 ### Expected free-plan usage
 
-For a 30-day month with one upcoming event and steady page traffic, estimate:
+For a 30-day month with one upcoming and one past event, estimate:
 
 - 30 scheduled Vercel Function invocations, plus roughly 120–150 page
   regenerations/cache reads. These are approximate; deployments, cache eviction,
   concurrent misses, manual runs, and retries add work.
-- 90 public requests to Luma from the daily jobs, plus direct browser requests
-  for the poster and public guest avatar images.
-- 30 Neon writes and roughly 120–150 Neon reads. The current one-event profile
-  payload is about 1.5 KB in Postgres; image files are not stored in Neon.
+- Roughly 150 public requests to Luma from the daily jobs, plus direct browser
+  requests for the poster and public guest avatar images.
+- 30–60 Neon writes and roughly 150–180 Neon reads, including each daily
+  refresh's snapshot read. Image files are not stored in Neon.
 - No Supabase operations, GitHub Actions minutes, or Vercel image transforms
   for these remote event images. GitHub still triggers ordinary Vercel builds
   when changes are pushed.
@@ -110,36 +132,44 @@ are shared with the rest of the site/team; check Vercel's **Usage** and Neon's
 **Monitoring/usage** dashboards for actual totals. Here, “event snapshot” means
 a normal JSON row, not a Neon managed backup/snapshot feature.
 
-The daily function fetches the profile and its hosted-event listing, fetches
-each discovered public event, and writes **one combined snapshot** to Neon.
-With one upcoming event, that is three requests to Luma and one Neon upsert.
-Extra listing pages or events add Luma requests, not database writes.
-Only after that write succeeds does the job invalidate the upcoming-event
-data cache and `/events` page. The next visit regenerates the page using the
-saved data, without fetching Luma again.
+The daily job saves upcoming events with retained history and invalidates the
+cache **before** archive work. It then checks the newest four past entries,
+resumes at most one additional four-entry page, and fetches only new event
+URLs. One stored past event is rechecked daily for edits and removals.
+Successful imports are retained when another event fails; the saved cursor
+advances only after a page's imports complete. Invalid cursors restart scanning.
+
+Requests time out after ten seconds. The refresh has a 35-second request
+budget, with archive work using at most 15 seconds of the remaining time.
+This leaves room for database operations within the existing 60-second cron.
+There is one daily invocation, one snapshot read, and at most two writes.
+The same profile row is overwritten; no daily snapshot history is appended.
+Large backfills continue on later daily runs.
 
 Ordinary production visits use Vercel's ISR page cache and do not query Neon or
 call Luma. Both the page and its data cache revalidate after **21,600 seconds
 (six hours)**; a cache miss reads the single profile snapshot from Neon.
-This does not check Luma again. The six-hour page regeneration also filters out
-events that have ended between daily checks. Deployments and cache eviction
+This does not check Luma again. Page regeneration moves ended events into
+Previous using their stored details. Deployments and cache eviction
 can cause extra database reads. Local `next dev` bypasses production ISR.
 
 If no profile snapshot exists yet, the first build/cache miss discovers and
 saves it. Thereafter the cron job is responsible for checking Luma each day.
-Snapshots have no expiry. A failed discovery, malformed response, event fetch,
-or database write leaves the previous snapshot intact and the job returns 503.
-Successful discovery of an empty list clears the card, including events no
-longer publicly hosted by WDS. Vercel does not automatically retry failed cron
+Snapshots have no expiry. An upcoming discovery/detail failure returns 503
+and retains the previous snapshot. An archive failure returns 200 with
+`archiveStatus: "partial"`, preserving upcoming updates and stored history.
+A complete empty upcoming list clears scheduled events. Partial archive
+listings never clear history; confirmed private/cancelled entries and 404/410
+responses remove records. Vercel does not automatically retry failed cron
 runs; inspect the function logs and use **Run** in the Cron Jobs dashboard to
 retry, or wait for the next daily run. If Neon fails during page regeneration,
 ISR retains the previous page.
 
-This feature does not automatically move ended events into the manually
-curated past-event gallery. A page may remain stale during a provider outage.
+A page may remain stale during a provider outage.
 
-Poster and guest images load directly from Luma's CDN using unoptimized Next
-images, so this feature does not use Vercel Image Optimization for those images.
+Missing, invalid, and failed event images use the existing local placeholder.
+Remote posters and guest avatars load directly from Luma's CDN, without Vercel
+Image Optimization.
 Supabase and GitHub Actions are not involved. Vercel Cron/Functions, the public
 Luma website/CDN, and Neon are the only services used by this feature.
 
@@ -148,7 +178,7 @@ Luma website/CDN, and Neon are the only services used by this feature.
 Run `npm run build` and lint the event integration with:
 
 ```sh
-npx eslint src/lib/events src/app/events src/app/api/cron/events src/components/sections/Events/eventData.js next.config.mjs
+npx eslint src/lib/events src/app/events src/app/api/cron/events src/components/ui/EventImage.jsx src/components/ui/PosterCarousel/PosterCarousel.jsx src/components/ui/DetailCard/EventDetailCard.jsx next.config.mjs
 ```
 
 Regression tests are kept locally and are not pushed to this repository.

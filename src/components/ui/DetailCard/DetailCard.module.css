@@ -61,15 +61,17 @@
 .pill {
   display: flex;
   align-items: center;
-  height: 46px;
-  padding: 0 20px;
+  min-height: 46px;
+  max-width: 100%;
+  padding: 10px 20px;
   border-radius: 25px;
   background: var(--pill-bg);
   color: var(--pill-fg);
   font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
   font-size: 16px;
   letter-spacing: -0.34px;
-  white-space: nowrap;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .right {

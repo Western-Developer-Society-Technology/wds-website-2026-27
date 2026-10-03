@@ -1,9 +1,8 @@
 import DetailCard from "./DetailCard";
 import styles from "./DetailCard.module.css";
 
-// Maps an event record (see src/components/sections/Events/eventData.js)
-// onto the generic DetailCard. `action` is omitted entirely for previous
-// events (no rsvp).
+// Maps a normalized event record onto the generic DetailCard.
+// Previous Luma events can link to their original page through `action`.
 export default function EventDetailCard({ event, theme = "light", action, actions }) {
   return (
     <DetailCard

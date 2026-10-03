@@ -59,6 +59,12 @@
 }
 
 .previous .heading { color: #fff; }
+.previous .headingGroup { height: auto; }
+.previous .heading { position: static; font-size: clamp(56px, 5.4vw, 82px); letter-spacing: -0.035em; }
+.previous .label { margin-bottom: 2px; font-size: 18px; letter-spacing: -0.025em; }
+.archiveOrder { margin-top: 16px; color: #bdbdbd; font-size: 0.9375rem; }
+.archivePreview { margin-bottom: 16px; color: #bdbdbd; font-size: 0.875rem; }
+.archiveEmpty { color: #dbdbdb; font-size: 1.125rem; line-height: 1.65; }
 
 .year {
   position: absolute;
@@ -71,8 +77,6 @@
   letter-spacing: calc(-0.84 * var(--px));
   white-space: nowrap;
 }
-
-.previous .year { color: #555; }
 
 .upcoming .headingGroup { display: flex; align-items: flex-start; gap: 12px; height: auto; }
 .upcoming .heading,

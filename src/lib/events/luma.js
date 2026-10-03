@@ -1,3 +1,5 @@
+import { EVENT_IMAGE_PLACEHOLDER } from "./config.js";
+
 const IMAGE_HOSTS = new Set(["images.lumacdn.com", "cdn.lu.ma"]);
 
 export function canonicalProfileUrl(value) {
@@ -73,10 +75,10 @@ export function parseLumaEvent(html, sourceUrl) {
 
   const start = new Date(event.start_at);
   const end = new Date(event.end_at);
-  const src = imageUrl(event.cover_url);
+  const src = imageUrl(event.cover_url) ?? EVENT_IMAGE_PLACEHOLDER;
   if (typeof event.api_id !== "string" || !event.api_id || typeof event.name !== "string" || !event.name.trim() ||
       typeof event.start_at !== "string" || typeof event.end_at !== "string" ||
-      !src || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end < start ||
+      !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end < start ||
       typeof event.timezone !== "string" || !event.timezone) {
     throw new Error("Luma returned incomplete public event details.");
   }
@@ -131,13 +133,13 @@ export function parseLumaEvent(html, sourceUrl) {
   };
 }
 
-async function publicRequest(url, accept, fetcher) {
+async function publicRequest(url, accept, fetcher, signal) {
   return fetcher(url, {
     cache: "no-store", // Only a completed, normalized snapshot is persisted.
     credentials: "omit",
     headers: { Accept: accept },
     redirect: "error",
-    signal: AbortSignal.timeout(10000),
+    signal: AbortSignal.any([AbortSignal.timeout(10000), ...(signal ? [signal] : [])]),
   });
 }
 
@@ -148,57 +150,53 @@ async function responseText(response) {
   return text;
 }
 
-export async function fetchLumaEvent(sourceUrl, fetcher = fetch) {
+export async function fetchLumaEvent(sourceUrl, { fetcher = fetch, signal } = {}) {
   const url = canonicalEventUrl(sourceUrl);
-  const response = await publicRequest(url, "text/html", fetcher);
+  const response = await publicRequest(url, "text/html", fetcher, signal);
   if ([404, 410].includes(response.status)) return null;
   // Access blocks and rate limits are failures, not proof that an event was removed.
   return parseLumaEvent(await responseText(response), url);
 }
 
-export async function fetchLumaUpcomingEventUrls(sourceUrl, fetcher = fetch, now = Date.now()) {
+export async function fetchLumaProfileId(sourceUrl, { fetcher = fetch, signal } = {}) {
   const profileUrl = canonicalProfileUrl(sourceUrl);
-  const profile = await publicRequest(profileUrl, "text/html", fetcher);
-  const userId = parseLumaProfile(await responseText(profile), profileUrl);
-  const urls = new Set();
-  const cursors = new Set();
-  let cursor;
+  const profile = await publicRequest(profileUrl, "text/html", fetcher, signal);
+  return parseLumaProfile(await responseText(profile), profileUrl);
+}
 
-  // This is the unauthenticated request used by Luma's public profile page.
-  // Fetch every page; never publish an incomplete list over the previous snapshot.
-  for (let page = 0; page < 10; page++) {
-    const url = new URL("https://api.luma.com/user/profile/events-hosting");
-    url.search = new URLSearchParams({
-      user_api_id: userId, period: "future", pagination_limit: "50",
-      ...(cursor ? { pagination_cursor: cursor } : {}),
-    }).toString();
-    const response = await publicRequest(url.href, "application/json", fetcher);
-    const data = JSON.parse(await responseText(response));
-    if (!Array.isArray(data?.entries) || typeof data.has_more !== "boolean") {
-      throw new Error("Luma returned unexpected hosted-event metadata.");
-    }
-
-    for (const entry of data.entries) {
-      const event = entry?.event;
-      if (!event || !["public", "private", "unlisted"].includes(event.visibility) ||
-          !Array.isArray(entry.hosts)) {
-        throw new Error("Luma returned unexpected hosted-event details.");
-      }
-      // Include partnerships where WDS is a co-host, even if another account created it.
-      const hosted = event.user_api_id === userId || entry.hosts.some((host) => host?.api_id === userId);
-      if (!hosted || event.visibility !== "public" || event.cancelled_at || event.is_cancelled === true) continue;
-      if (typeof event.url !== "string" || !Number.isFinite(Date.parse(event.end_at))) {
-        throw new Error("Luma returned incomplete hosted-event details.");
-      }
-      if (Date.parse(event.end_at) > now) urls.add(canonicalEventUrl(`https://luma.com/${event.url}`));
-    }
-
-    if (!data.has_more) return [...urls];
-    cursor = data.next_cursor;
-    if (typeof cursor !== "string" || !cursor || cursor.length > 2000 || cursors.has(cursor)) {
-      throw new Error("Luma returned invalid hosted-event pagination.");
-    }
-    cursors.add(cursor);
+export async function fetchLumaHostedEventPage(userId, period, {
+  cursor = null, limit = 50, fetcher = fetch, signal,
+} = {}) {
+  const url = new URL("https://api.luma.com/user/profile/events-hosting");
+  url.search = new URLSearchParams({
+    user_api_id: userId, period, pagination_limit: String(limit),
+    ...(cursor ? { pagination_cursor: cursor } : {}),
+  }).toString();
+  const response = await publicRequest(url.href, "application/json", fetcher, signal);
+  if (cursor && [400, 404, 410].includes(response.status)) {
+    throw new Error("Luma rejected the saved archive cursor.", { cause: "invalid-cursor" });
   }
-  throw new Error("Luma hosted-event pagination exceeded the refresh limit.");
+  const data = JSON.parse(await responseText(response));
+  if (!Array.isArray(data?.entries) || data.entries.length > limit || typeof data.has_more !== "boolean") {
+    throw new Error("Luma returned unexpected hosted-event metadata.");
+  }
+  const nextCursor = data.has_more ? data.next_cursor : null;
+  if (data.has_more && (typeof nextCursor !== "string" || !nextCursor ||
+      nextCursor.length > 2000 || nextCursor === cursor)) {
+    throw new Error("Luma returned invalid hosted-event pagination.", { cause: "invalid-cursor" });
+  }
+  const entries = data.entries.map((entry) => {
+    const event = entry?.event;
+    if (!event || !["public", "private", "unlisted"].includes(event.visibility) ||
+        !Array.isArray(entry.hosts) || typeof event.url !== "string") {
+      throw new Error("Luma returned unexpected hosted-event details.");
+    }
+    const hosted = event.user_api_id === userId || entry.hosts.some((host) => host?.api_id === userId);
+    const removed = !hosted || event.visibility !== "public" || Boolean(event.cancelled_at) || event.is_cancelled === true;
+    if (!removed && !Number.isFinite(Date.parse(event.end_at))) {
+      throw new Error("Luma returned incomplete hosted-event details.");
+    }
+    return { url: canonicalEventUrl(`https://luma.com/${event.url}`), removed };
+  });
+  return { entries, nextCursor };
 }

@@ -1,6 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { EVENT_CACHE_TAG } from "@/lib/events/config";
-import { syncUpcomingEvents } from "@/lib/events/upcoming";
+import { syncLumaEvents } from "@/lib/events/directory";
+import { splitLumaEvents } from "@/lib/events/timeline";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,12 +16,20 @@ export async function GET(request) {
   }
 
   try {
-    const events = await syncUpcomingEvents();
-    revalidateTag(EVENT_CACHE_TAG, { expire: 0 });
-    revalidatePath("/events");
-    return Response.json({ ok: true, eventCount: events.length }, { headers });
+    const { events, archiveStatus } = await syncLumaEvents({
+      onSaved() {
+        revalidateTag(EVENT_CACHE_TAG, { expire: 0 });
+        revalidatePath("/events");
+      },
+    });
+    const { upcomingEvents, pastEvents } = splitLumaEvents(events);
+    return Response.json({
+      ok: true, eventCount: events.length,
+      upcomingCount: upcomingEvents.length, pastCount: pastEvents.length,
+      archiveStatus,
+    }, { headers });
   } catch {
-    console.error("Daily Luma refresh failed; the previous upcoming-event snapshot is retained.");
+    console.error("Daily Luma refresh failed; the last successful event snapshot remains available.");
     return Response.json({ error: "Event refresh failed" }, { status: 503, headers });
   }
 }
